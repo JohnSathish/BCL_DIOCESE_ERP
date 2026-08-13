@@ -1,0 +1,26 @@
+{
+  "nav": {
+    "pages": "Pages",
+    "news": "News",
+    "events": "Events",
+    "announcements": "Announcements",
+    "gallery": "Gallery",
+    "media": "Media",
+    "menus": "Menus",
+    "forms": "Forms",
+    "homepage": "Homepage",
+    "theme": "Theme",
+    "seo": "SEO",
+    "settings": "Website Settings"
+  },
+  "editor": {
+    "languageTab": "Ku·sik",
+    "copyFromEnglish": "Copy from English",
+    "publishLocale": "Publish this language",
+    "aiTranslate": "AI Translate from English"
+  },
+  "public": {
+    "switchLanguage": "Ku·sik",
+    "readMore": "Read more"
+  }
+}

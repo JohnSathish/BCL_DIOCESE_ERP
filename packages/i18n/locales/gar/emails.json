@@ -1,0 +1,33 @@
+{
+  "parish_invite": {
+    "subject": "Welcome to {parishName} — Diocese ERP",
+    "greeting": "Dear Father / Parish Team,",
+    "body": "Your parish account for {parishName} has been provisioned.",
+    "signIn": "Sign in",
+    "email": "Email",
+    "tempPassword": "Temporary password",
+    "website": "Parish website",
+    "changePassword": "Please change your password after first login.",
+    "footer": "— BCL Diocese ERP"
+  },
+  "password_reset": {
+    "subject": "Reset your password",
+    "body": "Use the link below to reset your password."
+  },
+  "donation_receipt": {
+    "subject": "Donation receipt — {parishName}",
+    "body": "Thank you for your donation."
+  },
+  "certificate_ready": {
+    "subject": "Your certificate is ready",
+    "body": "Your {certificateType} certificate has been issued."
+  },
+  "mass_reminder": {
+    "subject": "Mass reminder — {title}",
+    "body": "Reminder for upcoming Mass."
+  },
+  "report_schedule": {
+    "subject": "Scheduled report: {reportName}",
+    "body": "Your scheduled report is attached."
+  }
+}

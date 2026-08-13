@@ -1,0 +1,44 @@
+{
+  "tabs": {
+    "home": "Home",
+    "gospel": "Gospel",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "login": {
+    "title": "Sign in",
+    "familyTitle": "Family Login",
+    "priestTitle": "Parish Staff Login",
+    "dioceseTitle": "Diocese Login",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "guest": "Continue browsing as guest"
+  },
+  "gospel": {
+    "title": "Daily Readings",
+    "reading1": "First Reading",
+    "psalm": "Psalm",
+    "alleluia": "Alleluia",
+    "gospel": "Gospel",
+    "openUsccb": "Open on USCCB",
+    "loading": "Loading readings…"
+  },
+  "settings": {
+    "language": "Ku·sik",
+    "languageHint": "Changes apply immediately"
+  },
+  "profile": {
+    "title": "Profile",
+    "signIn": "Sign in",
+    "logout": "Sign out"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications yet"
+  },
+  "accommodation": {
+    "title": "Accommodation",
+    "noProfile": "No accommodation profile linked to your account."
+  }
+}

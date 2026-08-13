@@ -1,0 +1,18 @@
+{
+  "title": "Reports & Analytics",
+  "schedule": {
+    "title": "Report schedules",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "emailTo": "Email to"
+  },
+  "columns": {
+    "family": "Family",
+    "member": "Member",
+    "date": "Date",
+    "amount": "Amount",
+    "type": "Type",
+    "status": "Status"
+  }
+}

@@ -1,0 +1,117 @@
+# BCL Diocese ERP — Hostinger VPS (shared server safe)
+#
+# Does NOT bind ports 80/443 (your existing College ERP / Dosa apps keep those).
+# Host Nginx/Apache proxies domains → localhost ports below.
+#
+# Usage on VPS:
+#   cd /var/www/bcl-diocese-erp   # or your path
+#   cp .env.hostinger.example .env.production
+#   # edit secrets
+#   docker compose -f docker/docker-compose.hostinger.yml --env-file .env.production up -d --build
+#
+# Project name isolates containers/volumes from other Compose apps on the same host.
+
+name: bcl-diocese
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: bcl-diocese-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-bcl}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.production}
+      POSTGRES_DB: ${POSTGRES_DB:-bcl_enterprise}
+    # No host port publish — other apps keep their own Postgres.
+    volumes:
+      - bcl_diocese_pg:/var/lib/postgresql/data
+    networks:
+      - bcl_diocese_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  redis:
+    image: redis:7-alpine
+    container_name: bcl-diocese-redis
+    restart: unless-stopped
+    # No host port — isolated from other Redis instances.
+    networks:
+      - bcl_diocese_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.api
+    container_name: bcl-diocese-api
+    restart: unless-stopped
+    env_file:
+      - ../.env.production
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-bcl}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-bcl_enterprise}?schema=public
+      REDIS_URL: redis://redis:6379
+      API_PORT: "4000"
+      API_URL: ${API_URL:-https://api.turadiocese.in}
+      WEB_URL: ${WEB_URL:-https://erp.turadiocese.in}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?Set JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?Set JWT_REFRESH_SECRET}
+      STORAGE_DRIVER: ${STORAGE_DRIVER:-local}
+      STORAGE_LOCAL_PATH: /app/uploads
+      SEED_ON_START: ${SEED_ON_START:-false}
+      SEED_MODE: ${SEED_MODE:-production}
+      PRISMA_SCHEMA_PUSH: ${PRISMA_SCHEMA_PUSH:-true}
+      DIOCESE_PUBLIC_BASE_DOMAIN: ${DIOCESE_PUBLIC_BASE_DOMAIN:-turadiocese.in}
+    volumes:
+      - bcl_diocese_uploads:/app/uploads
+    ports:
+      # Localhost only — host Nginx proxies here. Does not expose to the public internet directly.
+      - "127.0.0.1:14100:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - bcl_diocese_net
+
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.web
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.turadiocese.in/api/v1}
+        NEXT_PUBLIC_DIOCESE_PRIMARY_DOMAIN: ${NEXT_PUBLIC_DIOCESE_PRIMARY_DOMAIN:-turadiocese.in}
+    container_name: bcl-diocese-web
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.turadiocese.in/api/v1}
+      NEXT_PUBLIC_DIOCESE_PRIMARY_DOMAIN: ${NEXT_PUBLIC_DIOCESE_PRIMARY_DOMAIN:-turadiocese.in}
+      # Server-side host resolve (container network — not public URL)
+      CMS_RESOLVE_API_URL: http://api:4000/api/v1
+    ports:
+      - "127.0.0.1:13100:3000"
+    depends_on:
+      - api
+    networks:
+      - bcl_diocese_net
+
+networks:
+  bcl_diocese_net:
+    name: bcl_diocese_net
+    driver: bridge
+
+volumes:
+  bcl_diocese_pg:
+    name: bcl_diocese_pg
+  bcl_diocese_uploads:
+    name: bcl_diocese_uploads

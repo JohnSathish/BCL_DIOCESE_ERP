@@ -1,0 +1,450 @@
+/* Diocese Admin Dashboard — follows app theme tokens */
+.dd {
+  --dd-navy: var(--bcl-primary);
+  --dd-blue: var(--bcl-info);
+  --dd-blue-soft: color-mix(in srgb, var(--bcl-primary) 12%, var(--bcl-surface));
+  --dd-green: var(--bcl-success);
+  --dd-orange: var(--bcl-warning);
+  --dd-red: var(--bcl-danger);
+  --dd-purple: color-mix(in srgb, var(--bcl-info) 70%, var(--bcl-primary));
+  --dd-text: var(--bcl-text);
+  --dd-muted: var(--bcl-muted);
+  --dd-border: var(--bcl-border);
+  --dd-card: var(--bcl-surface);
+  --dd-radius: var(--bcl-radius);
+  --dd-shadow: var(--bcl-shadow);
+  width: 100%;
+  color: var(--dd-text);
+  font-family: 'Source Sans 3', Inter, system-ui, sans-serif;
+}
+
+.dd-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.dd-head h1 {
+  margin: 0;
+  font-size: 1.85rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--dd-navy);
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.dd-head p {
+  margin: 0.35rem 0 0;
+  font-size: 0.9rem;
+  color: var(--dd-muted);
+}
+
+.dd-range {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--dd-border);
+  background: var(--dd-card);
+  border-radius: 12px;
+  padding: 0.55rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--dd-text);
+  box-shadow: var(--dd-shadow);
+}
+
+.dd-kpis {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.15rem;
+}
+
+.dd-kpi {
+  background: var(--dd-card);
+  border: 1px solid var(--dd-border);
+  border-radius: var(--dd-radius);
+  padding: 1.05rem 1.1rem;
+  box-shadow: var(--dd-shadow);
+  min-height: 132px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.dd-kpi:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--bcl-primary) 14%, transparent);
+}
+
+.dd-kpi__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.dd-kpi__label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--dd-muted);
+}
+
+.dd-kpi__value {
+  margin-top: 0.25rem;
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--dd-navy);
+  line-height: 1.1;
+}
+
+.dd-kpi__foot {
+  margin-top: auto;
+  padding-top: 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.dd-kpi__foot a {
+  color: var(--dd-blue);
+  text-decoration: none;
+}
+
+.dd-kpi__foot a:hover {
+  text-decoration: underline;
+}
+
+.dd-kpi__foot.up {
+  color: var(--dd-green);
+}
+
+.dd-grid {
+  display: grid;
+  grid-template-columns: 1.7fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.15rem;
+}
+
+.dd-card {
+  background: var(--dd-card);
+  border: 1px solid var(--dd-border);
+  border-radius: var(--dd-radius);
+  box-shadow: var(--dd-shadow);
+  padding: 1.15rem 1.2rem;
+  min-width: 0;
+}
+
+.dd-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.dd-card__head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--dd-navy);
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.dd-select {
+  border: 1px solid var(--dd-border);
+  border-radius: 10px;
+  background: var(--dd-card);
+  padding: 0.4rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--dd-text);
+}
+
+.dd-chart {
+  width: 100%;
+  height: 240px;
+}
+
+.dd-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem 1.1rem;
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--dd-muted);
+}
+
+.dd-legend i {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  margin-right: 6px;
+}
+
+.dd-activity {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.dd-activity li {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.dd-activity__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+}
+
+.dd-activity strong {
+  display: block;
+  font-size: 0.86rem;
+  color: var(--dd-text);
+}
+
+.dd-activity span {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--dd-muted);
+  margin-top: 2px;
+}
+
+.dd-activity time {
+  font-size: 0.72rem;
+  color: var(--dd-muted);
+  white-space: nowrap;
+}
+
+.dd-bottom {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.15rem;
+}
+
+.dd-donut-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.dd-donut {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+
+.dd-donut::after {
+  content: '';
+  position: absolute;
+  inset: 28px;
+  border-radius: 50%;
+  background: var(--dd-card);
+}
+
+.dd-donut__label {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.dd-donut__label strong {
+  display: block;
+  font-size: 1.35rem;
+  color: var(--dd-navy);
+  letter-spacing: -0.02em;
+}
+
+.dd-donut__label span {
+  font-size: 0.7rem;
+  color: var(--dd-muted);
+  font-weight: 600;
+}
+
+.dd-dist-legend {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.dd-dist-legend li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  list-style: none;
+}
+
+.dd-dist-legend ul {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.dd-ministry {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.dd-ministry__row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 0.9rem;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--bcl-primary) 5%, var(--dd-card));
+  border: 1px solid var(--dd-border);
+}
+
+.dd-ministry__row strong {
+  display: block;
+  font-size: 1.15rem;
+  color: var(--dd-navy);
+}
+
+.dd-ministry__row span {
+  font-size: 0.78rem;
+  color: var(--dd-muted);
+  font-weight: 600;
+}
+
+.dd-events {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.dd-events li {
+  display: grid;
+  grid-template-columns: 52px 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.dd-events__date {
+  background: color-mix(in srgb, var(--bcl-primary) 8%, var(--dd-card));
+  border-radius: 12px;
+  text-align: center;
+  padding: 0.45rem 0.25rem;
+  line-height: 1.15;
+}
+
+.dd-events__date strong {
+  display: block;
+  font-size: 1rem;
+  color: var(--dd-navy);
+}
+
+.dd-events__date span {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--dd-muted);
+  text-transform: uppercase;
+}
+
+.dd-events__meta {
+  font-size: 0.72rem;
+  color: var(--dd-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 2px;
+}
+
+.dd-announce {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.85rem 1.25rem;
+  border-radius: 14px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--bcl-primary) 12%, var(--dd-card)),
+    color-mix(in srgb, var(--bcl-primary) 6%, var(--dd-card))
+  );
+  border: 1px solid color-mix(in srgb, var(--bcl-primary) 25%, var(--dd-border));
+  padding: 0.95rem 1.15rem;
+}
+
+.dd-announce__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--dd-card);
+  color: var(--dd-blue);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.dd-announce__body {
+  flex: 1;
+  min-width: 200px;
+}
+
+.dd-announce__body strong {
+  display: block;
+  font-size: 0.88rem;
+  color: var(--dd-navy);
+}
+
+.dd-announce__body span {
+  font-size: 0.8rem;
+  color: var(--dd-muted);
+}
+
+.dd-announce a {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--dd-blue);
+  text-decoration: none;
+}
+
+.dd-welcome {
+  display: none;
+}
+
+@media (max-width: 1280px) {
+  .dd-kpis {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1100px) {
+  .dd-grid,
+  .dd-bottom {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .dd-kpis {
+    grid-template-columns: 1fr 1fr;
+  }
+}

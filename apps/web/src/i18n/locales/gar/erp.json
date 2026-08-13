@@ -1,0 +1,61 @@
+{
+  "sections": {
+    "diocese": "Diocese",
+    "parish": "Parish",
+    "sacraments": "Sacraments",
+    "pastoral": "Pastoral",
+    "liturgy": "Liturgy",
+    "finance": "Finance",
+    "community": "Community",
+    "communication": "Communication",
+    "settings": "Settings",
+    "administration": "Administration"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "parishes": "Parishrang",
+    "families": "Familyrang",
+    "members": "Memberrang",
+    "sacraments": "Sacraments",
+    "certificates": "Certificates",
+    "registers": "Registers",
+    "mass": "Mass & Liturgy",
+    "donations": "Donations",
+    "finance": "Finance",
+    "cemetery": "Cemetery",
+    "accommodation": "Accommodation",
+    "catechism": "Catechism",
+    "communications": "Communications",
+    "calendar": "Calendar",
+    "reports": "Reports",
+    "cms": "Website CMS",
+    "appControl": "App Control",
+    "readings": "Daily Readings",
+    "clergy": "Clergy",
+    "settings": "Settings",
+    "appearance": "Appearance",
+    "languages": "Ku·sikrang",
+    "rbac": "Users & Roles",
+    "audit": "Audit Log"
+  },
+  "dashboard": {
+    "title": "Parish Command Center",
+    "welcome": "Welcome back",
+    "families": "Familyrang",
+    "members": "Memberrang",
+    "sacraments": "Sacraments this year",
+    "donations": "Donations"
+  },
+  "topbar": {
+    "home": "Home",
+    "diocese": "Diocese",
+    "parish": "Parish",
+    "profile": "Profile",
+    "theme": "Theme"
+  },
+  "settings": {
+    "title": "Settings",
+    "languagePreference": "Preferred ku·sik",
+    "languageHint": "Applies to ERP, emails, and notifications."
+  }
+}

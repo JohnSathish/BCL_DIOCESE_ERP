@@ -1,0 +1,26 @@
+{
+  "name": "@bcl/i18n",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./locales/en/parishSite.json": "./locales/en/parishSite.json",
+    "./locales/gar/parishSite.json": "./locales/gar/parishSite.json",
+    "./lexicon/garo-en.json": "./lexicon/garo-en.json",
+    "./lexicon/en-garo.json": "./lexicon/en-garo.json",
+    "./locales/*": "./locales/*"
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:lexicon": "node scripts/build-lexicon.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

@@ -1,0 +1,129 @@
+.daily-readings {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.daily-readings__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.daily-readings__head h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--pcc-text, #1e293b);
+}
+
+.daily-readings__meta {
+  font-size: 0.8rem;
+  color: var(--pcc-muted, #64748b);
+  margin-top: 0.25rem;
+}
+
+.daily-readings__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.daily-readings__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 10px;
+  border: 1px solid var(--pcc-border, #e2e8f0);
+  background: var(--pcc-surface, #fff);
+  color: var(--pcc-text, #1e293b);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.daily-readings__btn--primary {
+  background: var(--bcl-burgundy, #7b1e2b);
+  border-color: transparent;
+  color: #fff;
+}
+
+.daily-readings__section {
+  border: 1px solid var(--pcc-border, #e2e8f0);
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+  background: var(--pcc-surface, #fff);
+}
+
+.daily-readings__section h3 {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bcl-burgundy, #7b1e2b);
+}
+
+.daily-readings__citation {
+  margin: 0 0 0.65rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--pcc-text, #1e293b);
+}
+
+.daily-readings__body {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--pcc-text, #334155);
+  white-space: pre-wrap;
+}
+
+.daily-readings__empty {
+  padding: 1.25rem;
+  border-radius: 14px;
+  background: var(--pcc-surface-2, #f8fafc);
+  font-size: 0.88rem;
+  color: var(--pcc-muted, #64748b);
+}
+
+.daily-readings__foot {
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: var(--pcc-muted, #64748b);
+}
+
+.daily-readings-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.daily-readings-modal {
+  width: min(720px, 100%);
+  max-height: min(88vh, 900px);
+  overflow: auto;
+  border-radius: 18px;
+  border: 1px solid var(--pcc-border, #e2e8f0);
+  background: var(--pcc-surface, #fff);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.18);
+  padding: 1.25rem;
+}
+
+.daily-readings-modal__close {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0.25rem;
+  color: var(--pcc-muted, #64748b);
+}

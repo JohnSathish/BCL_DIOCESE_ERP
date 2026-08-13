@@ -1,0 +1,70 @@
+{
+  "tabs": {
+    "home": "Home",
+    "gospel": "Gospel",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "login": {
+    "title": "Sign in",
+    "familyTitle": "Family Login",
+    "priestTitle": "Parish Staff Login",
+    "dioceseTitle": "Diocese Login",
+    "familySubtitle": "Access family records, sacraments, certificates & donations",
+    "priestSubtitle": "Priest · Assistant Priest · Parish office",
+    "dioceseSubtitle": "Bishop · Diocese Administrator · Chancery",
+    "generalSubtitle": "Secure access for families and parish staff",
+    "emailPassword": "Email / Password",
+    "otp": "OTP",
+    "identifierPlaceholder": "Email · Username · Mobile",
+    "passwordPlaceholder": "Password",
+    "otpPlaceholder": "Enter OTP",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "sendOtp": "Send / Verify OTP",
+    "biometric": "Face ID / Fingerprint",
+    "guest": "Continue browsing as guest",
+    "demoAccount": "Demo account",
+    "backToProfile": "Back to Profile",
+    "changeParish": "Change parish",
+    "welcome": "Welcome"
+  },
+  "home": {
+    "welcome": "Welcome",
+    "quickLinks": "Quick links"
+  },
+  "profile": {
+    "title": "Profile",
+    "signIn": "Sign in",
+    "settings": "Settings",
+    "logout": "Sign out"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications yet",
+    "markRead": "Mark as read"
+  },
+  "accommodation": {
+    "title": "Accommodation",
+    "noProfile": "No accommodation profile linked to your account.",
+    "rent": "Rent & dues",
+    "maintenance": "Maintenance",
+    "notices": "Notices",
+    "synced": "Synced {count} offline request(s)."
+  },
+  "gospel": {
+    "title": "Daily Readings",
+    "reading1": "First Reading",
+    "psalm": "Psalm",
+    "alleluia": "Alleluia",
+    "gospel": "Gospel",
+    "openUsccb": "Open on USCCB",
+    "loading": "Loading readings…",
+    "offline": "Showing cached readings"
+  },
+  "settings": {
+    "language": "Language",
+    "languageHint": "Changes apply immediately"
+  }
+}

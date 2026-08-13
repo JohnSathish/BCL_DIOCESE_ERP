@@ -1,0 +1,43 @@
+{
+  "title": "Reports & Analytics",
+  "schedule": {
+    "title": "Report schedules",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "emailTo": "Email to"
+  },
+  "columns": {
+    "family": "Family",
+    "member": "Member",
+    "date": "Date",
+    "amount": "Amount",
+    "type": "Type",
+    "status": "Status"
+  },
+  "csvHeaders": {
+    "familyCode": "Family Code",
+    "houseName": "House Name",
+    "village": "Village",
+    "ward": "Ward",
+    "phone": "Phone",
+    "status": "Status",
+    "memberships": "Members",
+    "memberCode": "Member Code",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "gender": "Gender",
+    "dateOfBirth": "Date of Birth",
+    "type": "Type",
+    "title": "Title",
+    "scheduledAt": "Scheduled At",
+    "celebrant": "Celebrant",
+    "attendance": "Attendance",
+    "offeringAmount": "Offering",
+    "className": "Class",
+    "teacher": "Teacher",
+    "students": "Students",
+    "attendanceRecords": "Attendance Records",
+    "presentCount": "Present Count"
+  }
+}

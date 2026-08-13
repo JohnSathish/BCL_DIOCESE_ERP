@@ -1,0 +1,2868 @@
+{
+  "meta": {
+    "source": "Wiktionary via Vuizur/Wiktionary-Dictionaries",
+    "license": "CC BY-SA 3.0",
+    "garoEntries": 950,
+    "englishEntries": 866,
+    "builtAt": "2026-07-26T18:30:49.754Z"
+  },
+  "entries": {
+    "A·chik": [
+      "noun Garo people, especially the ones who live in Garo Hills."
+    ],
+    "A·chikku": [
+      "noun The Garo language The Indian dialects of Garo"
+    ],
+    "Braa": [
+      "verb to fill"
+    ],
+    "abat": [
+      "noun cultivation"
+    ],
+    "abeso": [
+      "noun Tuesday"
+    ],
+    "abi": [
+      "noun elder sister"
+    ],
+    "abigipa": [
+      "noun (formal) elder sister"
+    ],
+    "abitang": [
+      "noun (formal) elder sister"
+    ],
+    "abo": [
+      "noun grandmother"
+    ],
+    "abua": [
+      "verb to bathe"
+    ],
+    "achak": [
+      "noun dog"
+    ],
+    "ada": [
+      "noun elder brother"
+    ],
+    "adagipa": [
+      "noun (formal) elder brother"
+    ],
+    "adatang": [
+      "noun (formal) elder brother"
+    ],
+    "ade": [
+      "noun younger maternal aunt"
+    ],
+    "agal": [
+      "noun big fire, wildfire"
+    ],
+    "agana": [
+      "verb to speak"
+    ],
+    "aganani": [
+      "noun speech quote"
+    ],
+    "aganchaka": [
+      "verb to answer"
+    ],
+    "agangrikani": [
+      "noun conversation"
+    ],
+    "agisi": [
+      "noun desert"
+    ],
+    "agrea": [
+      "verb to be very"
+    ],
+    "aguk": [
+      "noun grasshopper (generic term)"
+    ],
+    "aiau": [
+      "intj wow"
+    ],
+    "aina": [
+      "noun mirror"
+    ],
+    "airo": [
+      "noun Wednesday"
+    ],
+    "ajong": [
+      "noun elder maternal aunt"
+    ],
+    "akgipin": [
+      "pron someone else"
+    ],
+    "alabok": [
+      "noun crane"
+    ],
+    "am": [
+      "noun mat"
+    ],
+    "ama": [
+      "noun mother"
+    ],
+    "ambi": [
+      "noun grandmother"
+    ],
+    "ambigipa": [
+      "noun (formal) grandmother"
+    ],
+    "ambitang": [
+      "noun (formal) grandmother"
+    ],
+    "amikka": [
+      "pron someone, an unknown or hypothetical person"
+    ],
+    "amsoka": [
+      "verb to imagine"
+    ],
+    "amua": [
+      "verb to sacrifice"
+    ],
+    "amuta": [
+      "verb to accuse"
+    ],
+    "am·a": [
+      "verb to search"
+    ],
+    "andala": [
+      "verb to be dark"
+    ],
+    "andalba": [
+      "verb to be dark"
+    ],
+    "anga": [
+      "pron I"
+    ],
+    "angde": [
+      "noun son"
+    ],
+    "anggri": [
+      "noun nephew"
+    ],
+    "angjong": [
+      "noun younger brother"
+    ],
+    "angko": [
+      "pron me (accusative singular of anga (“I”))"
+    ],
+    "angsu": [
+      "noun grandchild"
+    ],
+    "ang·ke": [
+      "noun crab"
+    ],
+    "anti": [
+      "noun week market"
+    ],
+    "an·cheng": [
+      "noun sand"
+    ],
+    "an·chi": [
+      "noun blood"
+    ],
+    "an·ching": [
+      "pron inclusive we (i.e we including you)"
+    ],
+    "an·senga": [
+      "verb to be happy"
+    ],
+    "an·tang": [
+      "pron an·tang"
+    ],
+    "apa": [
+      "noun father"
+    ],
+    "apal": [
+      "noun outside"
+    ],
+    "apala": [
+      "verb to be wide"
+    ],
+    "apchona": [
+      "verb to be narrow"
+    ],
+    "apsan": [
+      "adv together"
+    ],
+    "aram": [
+      "noun cloud"
+    ],
+    "arata": [
+      "verb to be lazy"
+    ],
+    "aro": [
+      "conj and, in addition to"
+    ],
+    "asa": [
+      "noun hope"
+    ],
+    "asal": [
+      "noun manure"
+    ],
+    "aski": [
+      "noun star"
+    ],
+    "asong": [
+      "noun country"
+    ],
+    "asonga": [
+      "verb to sit"
+    ],
+    "atchinga": [
+      "verb sneeze"
+    ],
+    "atchu": [
+      "noun grandfather"
+    ],
+    "atchugipa": [
+      "noun (formal) grandfather"
+    ],
+    "atchutang": [
+      "noun (formal) grandfather"
+    ],
+    "attam": [
+      "noun evening"
+    ],
+    "attamnam": [
+      "intj good evening"
+    ],
+    "awang": [
+      "noun younger paternal uncle"
+    ],
+    "a·a": [
+      "noun the Earth"
+    ],
+    "a·ba": [
+      "noun field, paddy"
+    ],
+    "a·bacha": [
+      "verb to start"
+    ],
+    "a·bri": [
+      "noun hill"
+    ],
+    "a·chik": [
+      "noun hill"
+    ],
+    "a·dipek": [
+      "noun mud"
+    ],
+    "a·dok": [
+      "noun area"
+    ],
+    "a·gilsak": [
+      "noun world realm"
+    ],
+    "a·kinchi": [
+      "noun dust"
+    ],
+    "a·kinte": [
+      "noun lump of soil"
+    ],
+    "a·rongga": [
+      "noun upland"
+    ],
+    "a·sam": [
+      "noun the side"
+    ],
+    "a·samo": [
+      "postp (follows genitive -ni) beside, next to"
+    ],
+    "a·sel": [
+      "noun control, responsibility"
+    ],
+    "a·song": [
+      "noun country"
+    ],
+    "ba": [
+      "conj or"
+    ],
+    "baba": [
+      "noun father"
+    ],
+    "bachi": [
+      "pron where"
+    ],
+    "badaka": [
+      "adv how?, what kind of?"
+    ],
+    "badam": [
+      "noun peanut"
+    ],
+    "badi": [
+      "adv how?, which way?"
+    ],
+    "bading-chiwalgipa": [
+      "noun business"
+    ],
+    "bagipa": [
+      "pron which, which of several (of people or things)"
+    ],
+    "baita": [
+      "pron how much, how many"
+    ],
+    "bajal": [
+      "noun market"
+    ],
+    "baji": [
+      "noun time"
+    ],
+    "baju": [
+      "noun friend"
+    ],
+    "bak": [
+      "postp (follows locative case -cha) side, position, in the direction of part, section"
+    ],
+    "bakkandika": [
+      "verb to be short"
+    ],
+    "bakra": [
+      "noun wilderness"
+    ],
+    "bakroa": [
+      "verb to be long"
+    ],
+    "baksa": [
+      "particle with"
+    ],
+    "bala": [
+      "verb to blow"
+    ],
+    "balwa": [
+      "noun wind"
+    ],
+    "bal་wa": [
+      "noun wind, breeze"
+    ],
+    "bano": [
+      "pron where"
+    ],
+    "bari-bagan": [
+      "noun farm"
+    ],
+    "baring": [
+      "noun eggplant, brinjal"
+    ],
+    "basako": [
+      "pron when"
+    ],
+    "basea": [
+      "verb to choose"
+    ],
+    "bata": [
+      "verb to cross, to pass"
+    ],
+    "batdo": [
+      "noun parrot"
+    ],
+    "bate": [
+      "postp (follows dative case -na) more than"
+    ],
+    "ba·ra": [
+      "noun cloth, clothes"
+    ],
+    "bebe ra·a": [
+      "verb to believe"
+    ],
+    "beng": [
+      "noun frog"
+    ],
+    "benga": [
+      "verb to be deaf"
+    ],
+    "bengb·lok": [
+      "noun frog"
+    ],
+    "beng·a": [
+      "verb to forbid"
+    ],
+    "ben·chidik": [
+      "noun lizard"
+    ],
+    "be·a": [
+      "verb to break"
+    ],
+    "be·en": [
+      "noun meat"
+    ],
+    "bia": [
+      "pron he, she verb to wed noun wedding"
+    ],
+    "biap": [
+      "noun place, location"
+    ],
+    "bibal": [
+      "noun flower"
+    ],
+    "bibik": [
+      "noun (anatomy) intestines"
+    ],
+    "bibil": [
+      "noun afterbirth"
+    ],
+    "bichri": [
+      "noun seed"
+    ],
+    "bidu": [
+      "noun vine"
+    ],
+    "bigil": [
+      "noun skin bark (of a tree)"
+    ],
+    "bigro": [
+      "noun length, the longer dimension"
+    ],
+    "bija": [
+      "noun bee"
+    ],
+    "bijak": [
+      "noun leaf"
+    ],
+    "bijol": [
+      "noun mucus"
+    ],
+    "bika": [
+      "noun (anatomy) liver"
+    ],
+    "biking": [
+      "noun shell (of a turtle, insect etc...)"
+    ],
+    "bikit": [
+      "noun gall bladder"
+    ],
+    "bikma": [
+      "noun stomach"
+    ],
+    "biko": [
+      "pron him, her(accusative singular of bia (“he, she”))"
+    ],
+    "bil": [
+      "noun strength"
+    ],
+    "bila": [
+      "verb (intransitive) to fly (of both animate and inanimate entities) (intransitive) to jump (transitive) to dig out (e.g.",
+      "tubers) to uncover"
+    ],
+    "bilaka": [
+      "verb to be strong"
+    ],
+    "bilonga": [
+      "verb to be much, too"
+    ],
+    "bil·a": [
+      "verb to wrap"
+    ],
+    "bimang": [
+      "noun body"
+    ],
+    "bimchipe": [
+      "adv diligently"
+    ],
+    "biming": [
+      "noun name, given name"
+    ],
+    "bineka": [
+      "verb to crush"
+    ],
+    "bisimang": [
+      "pron they"
+    ],
+    "bisong": [
+      "pron they"
+    ],
+    "bitchi": [
+      "noun egg"
+    ],
+    "bite": [
+      "noun fruit"
+    ],
+    "bitin": [
+      "noun meat"
+    ],
+    "bitip": [
+      "noun nest, cocoon"
+    ],
+    "bi·a": [
+      "verb to ask, request, pray"
+    ],
+    "bi·sa": [
+      "noun child"
+    ],
+    "bi·samiting": [
+      "noun childhood"
+    ],
+    "bobil": [
+      "noun enemy, rival"
+    ],
+    "bochi": [
+      "noun paternal aunt"
+    ],
+    "bochigipa": [
+      "noun (formal) wife of elder brother"
+    ],
+    "bodol": [
+      "noun exchange"
+    ],
+    "bohari": [
+      "noun wife of younger brother wife of nephew daughter-in-law"
+    ],
+    "boi": [
+      "noun book"
+    ],
+    "boka": [
+      "verb to want, demand"
+    ],
+    "bol": [
+      "noun tree"
+    ],
+    "bolcheksi": [
+      "noun twig"
+    ],
+    "boldim": [
+      "noun sprout"
+    ],
+    "bolgantong": [
+      "noun log"
+    ],
+    "bolgong": [
+      "noun fallen tree"
+    ],
+    "bolgrim": [
+      "noun forest"
+    ],
+    "bolpang": [
+      "noun tree"
+    ],
+    "bonga": [
+      "num four"
+    ],
+    "boning": [
+      "noun husband of younger sister"
+    ],
+    "boninggipa": [
+      "noun (formal) husband of younger sister"
+    ],
+    "bonkama": [
+      "noun to be last"
+    ],
+    "bostu": [
+      "suffix thing"
+    ],
+    "bra": [
+      "noun arrow"
+    ],
+    "brea": [
+      "verb (transitive) to buy"
+    ],
+    "breta": [
+      "verb to burst"
+    ],
+    "bri": [
+      "num four"
+    ],
+    "bring": [
+      "noun jungle, forest"
+    ],
+    "bua": [
+      "verb to pierce"
+    ],
+    "budu": [
+      "noun rope"
+    ],
+    "bura": [
+      "noun elder"
+    ],
+    "buraa": [
+      "verb to be old, to age"
+    ],
+    "busua": [
+      "verb cough"
+    ],
+    "chaa": [
+      "verb (of seeds and plants) to grow, to germinate"
+    ],
+    "chabi": [
+      "noun key"
+    ],
+    "chadenga": [
+      "verb to stand"
+    ],
+    "chakatronga": [
+      "verb to wake up"
+    ],
+    "chakri": [
+      "noun job"
+    ],
+    "chalaia": [
+      "verb to drive"
+    ],
+    "chama": [
+      "verb to distribute among individuals"
+    ],
+    "chambil": [
+      "noun pomelo"
+    ],
+    "cham·a": [
+      "verb to wear out"
+    ],
+    "chana": [
+      "verb to put on the fire, have on the fire (of a cooking pot) to count to track, follow the tracks (as when hunting animals)"
+    ],
+    "chanchia": [
+      "verb to think, suppose, believe"
+    ],
+    "chanchiani": [
+      "noun thought"
+    ],
+    "chaneta": [
+      "verb to put a pot on the fire"
+    ],
+    "changsa": [
+      "noun once, sometime"
+    ],
+    "chasong": [
+      "noun generation, era, lifetime"
+    ],
+    "chata": [
+      "noun umbrella"
+    ],
+    "chatchi": [
+      "noun kinsman, kin"
+    ],
+    "chawari": [
+      "noun husband of younger sister husband of niece son-in-law"
+    ],
+    "chawarigipa": [
+      "noun (formal) husband of younger sister"
+    ],
+    "cha·a": [
+      "verb to eat"
+    ],
+    "cha·ani": [
+      "noun food"
+    ],
+    "cha·ata": [
+      "verb to be rich"
+    ],
+    "cha·gipa": [
+      "noun farmer"
+    ],
+    "cha·tota": [
+      "verb to taste"
+    ],
+    "chea": [
+      "verb to win"
+    ],
+    "chel·a": [
+      "verb to be far"
+    ],
+    "cheppi": [
+      "noun pocket, shoulder bag"
+    ],
+    "chet": [
+      "num eight"
+    ],
+    "chi": [
+      "noun water"
+    ],
+    "chibima": [
+      "noun river"
+    ],
+    "chibol": [
+      "noun puddle"
+    ],
+    "chibrim": [
+      "noun ant"
+    ],
+    "chidari": [
+      "noun flowing stream"
+    ],
+    "chidek": [
+      "noun pond, wide place in a stream"
+    ],
+    "chiga": [
+      "noun spring, stream, pond, place where water is obtained from"
+    ],
+    "chigicho": [
+      "noun Sunday"
+    ],
+    "chigitok": [
+      "noun narrow place in a stream"
+    ],
+    "chika": [
+      "verb to bite"
+    ],
+    "chiking": [
+      "num ten"
+    ],
+    "chikol": [
+      "noun well of the type that has a handpump"
+    ],
+    "chimik": [
+      "noun spring, water source"
+    ],
+    "chinga": [
+      "pron exclusive we (i.e we and not you)"
+    ],
+    "chini": [
+      "noun sugar"
+    ],
+    "chipa": [
+      "verb to insert to close"
+    ],
+    "chippu": [
+      "noun snake"
+    ],
+    "chipu": [
+      "noun snake"
+    ],
+    "chiret": [
+      "noun water channel leading to or from rice fields"
+    ],
+    "chiring": [
+      "noun small stream"
+    ],
+    "chisam": [
+      "noun water's edge, bank"
+    ],
+    "choa": [
+      "verb to thresh"
+    ],
+    "chol": [
+      "noun chance"
+    ],
+    "chola": [
+      "noun shirt"
+    ],
+    "cholba": [
+      "noun way"
+    ],
+    "chona": [
+      "verb to be small"
+    ],
+    "chong·motan": [
+      "adv namely"
+    ],
+    "cho·a": [
+      "verb to dig"
+    ],
+    "chrika": [
+      "verb to shout, to scold"
+    ],
+    "chroka": [
+      "verb to dance"
+    ],
+    "chu": [
+      "noun beer, alcohol"
+    ],
+    "chua": [
+      "verb to be high"
+    ],
+    "chuaka": [
+      "verb to be tall"
+    ],
+    "churi": [
+      "noun knife"
+    ],
+    "chu·soka": [
+      "verb to succeed"
+    ],
+    "dada": [
+      "noun elder brother"
+    ],
+    "daka": [
+      "verb to do"
+    ],
+    "dakchaka": [
+      "verb to help"
+    ],
+    "dal·a": [
+      "verb to be big"
+    ],
+    "dal·batgipa": [
+      "noun elder"
+    ],
+    "dam": [
+      "noun price"
+    ],
+    "dama": [
+      "noun drum"
+    ],
+    "dandana": [
+      "verb to lean"
+    ],
+    "dang·kep": [
+      "noun tongs"
+    ],
+    "darang": [
+      "pron many people, everyone"
+    ],
+    "da·a": [
+      "noun now"
+    ],
+    "da·al": [
+      "noun today"
+    ],
+    "da·asal": [
+      "noun today"
+    ],
+    "dela": [
+      "verb to sting"
+    ],
+    "demechik": [
+      "noun daughter"
+    ],
+    "den·a": [
+      "verb to chop"
+    ],
+    "depante": [
+      "noun (formal) son"
+    ],
+    "dikte": [
+      "noun a small waterpot"
+    ],
+    "diktom": [
+      "noun a large, round, open-mouthed earthenware pot, used for brewing rice beer"
+    ],
+    "dila": [
+      "verb to lead, to guide"
+    ],
+    "dima": [
+      "verb to buzz"
+    ],
+    "dinga": [
+      "verb to be hot (as in hot temprature):"
+    ],
+    "ding·boma": [
+      "verb to be warm"
+    ],
+    "dipat": [
+      "postp (follows augmented locative -oni).",
+      "since (follows augmented locative -ona).",
+      "until, up to, as long as"
+    ],
+    "dipdiping": [
+      "noun a wooden base for a pot"
+    ],
+    "do": [
+      "noun bird"
+    ],
+    "dok": [
+      "num six"
+    ],
+    "doka": [
+      "verb (of an instrument) to play to beat"
+    ],
+    "dokan": [
+      "noun shop"
+    ],
+    "dolong": [
+      "noun bridge"
+    ],
+    "dona": [
+      "verb to put, place aside, omit"
+    ],
+    "donga": [
+      "verb there is, there are to have, belong, be at, reside, dwell be married to"
+    ],
+    "dongge": [
+      "noun ditch, trench"
+    ],
+    "dongram": [
+      "noun habitat neighborhood"
+    ],
+    "dongtapataa": [
+      "verb to tap"
+    ],
+    "dongtoata": [
+      "verb to soothe"
+    ],
+    "donguala": [
+      "verb to misplace"
+    ],
+    "dontonga": [
+      "verb to stop"
+    ],
+    "do·bak": [
+      "noun bat"
+    ],
+    "do·bik": [
+      "noun bird intestine"
+    ],
+    "do·bima": [
+      "noun hen"
+    ],
+    "do·bipa": [
+      "noun rooster, chicken"
+    ],
+    "do·bi·sa": [
+      "noun chick, baby chicken"
+    ],
+    "do·bok": [
+      "noun goat"
+    ],
+    "do·chi": [
+      "noun egg, bird's egg"
+    ],
+    "do·de": [
+      "noun peacock"
+    ],
+    "do·di": [
+      "noun peacock"
+    ],
+    "do·gamdot": [
+      "noun eagle"
+    ],
+    "do·gep": [
+      "noun duck"
+    ],
+    "do·gring": [
+      "noun basket for birds"
+    ],
+    "do·gugu": [
+      "noun dove, wild pigion"
+    ],
+    "do·ka": [
+      "noun crow"
+    ],
+    "do·kimil": [
+      "noun feather"
+    ],
+    "do·mande": [
+      "noun pet bird, domestic bird"
+    ],
+    "do·mok": [
+      "noun goat"
+    ],
+    "do·o": [
+      "noun bird"
+    ],
+    "do·po": [
+      "noun owl"
+    ],
+    "do·reng": [
+      "noun hawk, kite"
+    ],
+    "do·tileng": [
+      "noun woodpecker"
+    ],
+    "dring": [
+      "noun room"
+    ],
+    "dugaa": [
+      "verb to be very"
+    ],
+    "dut": [
+      "noun milk"
+    ],
+    "du·dap": [
+      "noun a raised earthen platform forming a fireplace in an old-style house"
+    ],
+    "enga": [
+      "verb to untie"
+    ],
+    "eng·a": [
+      "noun a wide gap"
+    ],
+    "gaa": [
+      "verb to climb"
+    ],
+    "gada": [
+      "noun donkey"
+    ],
+    "gadila": [
+      "noun cloud"
+    ],
+    "gagak": [
+      "noun domestic duck"
+    ],
+    "gala": [
+      "verb to throw away"
+    ],
+    "gam": [
+      "noun stuff"
+    ],
+    "gama": [
+      "verb to cultivate to pay"
+    ],
+    "gamonga": [
+      "verb (dated) to rain heavily"
+    ],
+    "gam·a": [
+      "noun sound"
+    ],
+    "gan": [
+      "noun song"
+    ],
+    "gana": [
+      "verb to wear"
+    ],
+    "gang": [
+      "noun river"
+    ],
+    "gangching": [
+      "noun a fin"
+    ],
+    "gangpong": [
+      "noun (anatomy) arm"
+    ],
+    "gangua": [
+      "noun a mosquito"
+    ],
+    "ganjappa": [
+      "noun chameleon"
+    ],
+    "ganti": [
+      "noun bell"
+    ],
+    "gan·dileng": [
+      "noun knife made from bamboo"
+    ],
+    "gan·sang": [
+      "noun platform for an old-style bamboo house, platform for sleeping made from boards of bamboo"
+    ],
+    "gap": [
+      "noun snail"
+    ],
+    "gapa": [
+      "verb to be full (of any container)"
+    ],
+    "gapeta": [
+      "verb to fill , cause to be full"
+    ],
+    "gara": [
+      "noun chameleon"
+    ],
+    "gela": [
+      "verb to avoid to skip"
+    ],
+    "giit": [
+      "noun song"
+    ],
+    "gijip": [
+      "noun fan"
+    ],
+    "gilja": [
+      "noun church"
+    ],
+    "gimaa": [
+      "verb to be lost"
+    ],
+    "gimbi": [
+      "noun large water pot"
+    ],
+    "gimin": [
+      "postp (follows genitive case -ni) because of, due to"
+    ],
+    "ginang": [
+      "postp (follows nominative) with, including, along with"
+    ],
+    "ging": [
+      "noun nose, snot, mucus"
+    ],
+    "gingsika": [
+      "verb to smell"
+    ],
+    "gingting": [
+      "noun (anatomy) nose, tip of the nose"
+    ],
+    "gingtong": [
+      "noun snout (of an animal)"
+    ],
+    "gini": [
+      "num two"
+    ],
+    "gin·chira": [
+      "noun sieve, tool used for sifting"
+    ],
+    "gipeng": [
+      "noun width, breadth"
+    ],
+    "gipin": [
+      "pron other"
+    ],
+    "gisik": [
+      "noun mind, sense, spirit"
+    ],
+    "gisika": [
+      "verb to crow, to squawk"
+    ],
+    "gisikpil·a": [
+      "verb to reform"
+    ],
+    "gita": [
+      "conj like"
+    ],
+    "gital": [
+      "verb to be new"
+    ],
+    "gitchi": [
+      "noun a small narrow-bladed hoe, for weeding and digging up roots"
+    ],
+    "gitok": [
+      "noun (anatomy) neck, throat"
+    ],
+    "gitoknal": [
+      "noun (anatomy) gullet, esophagus"
+    ],
+    "gittam": [
+      "num three"
+    ],
+    "gittama": [
+      "verb to urinate"
+    ],
+    "goka": [
+      "verb to desire"
+    ],
+    "golpo ka·a": [
+      "verb to talk to gossip"
+    ],
+    "golpoa": [
+      "verb to talk to gossip"
+    ],
+    "gori": [
+      "noun watch (equipment) clock"
+    ],
+    "gorial": [
+      "noun crocodile"
+    ],
+    "go·ol": [
+      "noun stick"
+    ],
+    "grang": [
+      "noun wing, feather"
+    ],
+    "greng": [
+      "noun bone"
+    ],
+    "gri": [
+      "postp (follows nominative case) without"
+    ],
+    "gride": [
+      "adv without"
+    ],
+    "gripa": [
+      "verb to cover"
+    ],
+    "griso": [
+      "noun Monday"
+    ],
+    "gritang": [
+      "noun (formal) nephew"
+    ],
+    "grong": [
+      "noun horn, antler"
+    ],
+    "gronga": [
+      "verb meet"
+    ],
+    "grongtaigen": [
+      "intj see you later"
+    ],
+    "grongtainoa": [
+      "intj see you later"
+    ],
+    "gua": [
+      "noun (botany) Areca palm, Areca nut"
+    ],
+    "guala": [
+      "verb to forget"
+    ],
+    "guang": [
+      "noun spider"
+    ],
+    "guangsring": [
+      "noun spiderweb"
+    ],
+    "guasi": [
+      "noun (anatomy) rib bone (botany) side vein of a leaf"
+    ],
+    "guk": [
+      "noun grasshopper"
+    ],
+    "gume": [
+      "noun husband of elder sister"
+    ],
+    "gumegipa": [
+      "noun (formal) husband of elder sister"
+    ],
+    "gumetang": [
+      "noun (formal) husband of elder sister"
+    ],
+    "guri": [
+      "noun fog, mist"
+    ],
+    "haguk": [
+      "noun grasshopper (generic term)"
+    ],
+    "hai": [
+      "intj let us, 1st person plural imperative"
+    ],
+    "hai·a": [
+      "verb to know, understand"
+    ],
+    "ham·a": [
+      "verb want, desire, ask for"
+    ],
+    "hang·ki": [
+      "noun crab"
+    ],
+    "han·cheng": [
+      "noun sand"
+    ],
+    "han·chi": [
+      "noun (anatomy) blood"
+    ],
+    "hatur": [
+      "noun hammer"
+    ],
+    "hawa": [
+      "pron (distal) that one (far), way over there"
+    ],
+    "ha·bri": [
+      "noun mountain, large hill"
+    ],
+    "ha·chik": [
+      "noun mountain, hill, upward slope"
+    ],
+    "ha·dam": [
+      "noun location, place, site"
+    ],
+    "ha·dok": [
+      "noun place, region, area, location"
+    ],
+    "ha·kengkrak": [
+      "noun hard clay"
+    ],
+    "ha·kong": [
+      "noun low place between hills, (wider than a ha·singsep (valley))"
+    ],
+    "ha·mang": [
+      "noun soil, earth"
+    ],
+    "ha·pek": [
+      "noun mud"
+    ],
+    "ha·rang": [
+      "noun ground, land"
+    ],
+    "ha·saka": [
+      "noun hill tract, high land"
+    ],
+    "ha·san": [
+      "noun brick, dried mud brick"
+    ],
+    "ha·sika": [
+      "verb to want"
+    ],
+    "henggok": [
+      "noun snore"
+    ],
+    "hita": [
+      "verb to order"
+    ],
+    "hoe": [
+      "particle yes, indeed"
+    ],
+    "huro": [
+      "noun hoolock"
+    ],
+    "ia": [
+      "pron this"
+    ],
+    "iako": [
+      "pron this (accusative singular of ia (“this”))"
+    ],
+    "iano": [
+      "pron here"
+    ],
+    "inchaka": [
+      "verb to reply, answer,"
+    ],
+    "indake": [
+      "conj so"
+    ],
+    "indiba": [
+      "conj but, however"
+    ],
+    "indinari": [
+      "verb to be unnecessary"
+    ],
+    "indita": [
+      "noun to be much"
+    ],
+    "isol": [
+      "noun god"
+    ],
+    "i·a": [
+      "verb go, come"
+    ],
+    "i·rurata": [
+      "verb go back and forth commute"
+    ],
+    "ja": [
+      "noun month"
+    ],
+    "jajong": [
+      "noun moon"
+    ],
+    "jak": [
+      "noun hand arm leaf classifier used with leaves"
+    ],
+    "jakasi": [
+      "noun left hand"
+    ],
+    "jakchaka": [
+      "verb to be busy"
+    ],
+    "jakgitok": [
+      "noun (anatomy) wrist"
+    ],
+    "jakjipa": [
+      "verb to wave"
+    ],
+    "jakkala": [
+      "verb to use"
+    ],
+    "jakkaltoa": [
+      "verb to be good to use"
+    ],
+    "jakma": [
+      "noun technique, skill"
+    ],
+    "jakpa": [
+      "noun (anatomy) palm of the hand, end of an insect leg"
+    ],
+    "jakpong": [
+      "noun (anatomy) upper arm"
+    ],
+    "jakra": [
+      "noun right hand"
+    ],
+    "jakraka": [
+      "verb to handwork hard"
+    ],
+    "jaksi": [
+      "noun (anatomy) finger"
+    ],
+    "jaksiota": [
+      "verb to point"
+    ],
+    "jakskil": [
+      "noun fingernail"
+    ],
+    "jaksku": [
+      "noun elbow"
+    ],
+    "jaksua": [
+      "verb to wash the hands"
+    ],
+    "jaktom": [
+      "noun (anatomy) fist"
+    ],
+    "jakwata": [
+      "verb to let go"
+    ],
+    "jal·ik": [
+      "noun chilli pepper"
+    ],
+    "jal·lang": [
+      "noun bridge"
+    ],
+    "jam": [
+      "noun granary, storehouse"
+    ],
+    "janapa": [
+      "verb to inform"
+    ],
+    "janga": [
+      "verb to be noisy"
+    ],
+    "janggi": [
+      "noun life, soul"
+    ],
+    "janggil": [
+      "noun (of a body): back"
+    ],
+    "jarambong": [
+      "noun full moon"
+    ],
+    "jawa": [
+      "pron someone else"
+    ],
+    "ja·a": [
+      "noun (anatomy) foot leg"
+    ],
+    "ja·dil": [
+      "noun root"
+    ],
+    "ja·gra": [
+      "verb to snare"
+    ],
+    "ja·kop": [
+      "noun sandal"
+    ],
+    "ja·man": [
+      "noun future (mostly used with -o) later"
+    ],
+    "ja·manchaka": [
+      "verb to be late"
+    ],
+    "ja·pa": [
+      "noun sole of the foot"
+    ],
+    "ja·pang": [
+      "noun base of a mountain"
+    ],
+    "ja·ping": [
+      "noun thigh"
+    ],
+    "ja·samo": [
+      "postp (follows genitive case -ni) beside"
+    ],
+    "ja·si": [
+      "verb toe"
+    ],
+    "ja·skil": [
+      "noun toenail"
+    ],
+    "ja·sku": [
+      "noun knee"
+    ],
+    "ja·ting": [
+      "noun base of plants"
+    ],
+    "je": [
+      "pron that which whatever whoever"
+    ],
+    "jegrika": [
+      "verb to argue"
+    ],
+    "jegrikani": [
+      "noun argument"
+    ],
+    "jem·jema": [
+      "verb constantly"
+    ],
+    "jibon": [
+      "noun life, lifetime"
+    ],
+    "jik": [
+      "noun wife"
+    ],
+    "jikgala": [
+      "verb to divorce, lit.",
+      "to get rid of one's wife"
+    ],
+    "jila": [
+      "verb care for, support, have responsibility for (E.g.",
+      "children, old people, animals)"
+    ],
+    "jilla": [
+      "noun urban areas city"
+    ],
+    "jima": [
+      "noun to be very"
+    ],
+    "jimbee": [
+      "verb very"
+    ],
+    "jinang": [
+      "noun loan (of money, of rice etc...)"
+    ],
+    "jojong": [
+      "noun younger brother"
+    ],
+    "joka": [
+      "noun to flow"
+    ],
+    "joma": [
+      "verb (intransitive) to be ill, suffer, have a fever"
+    ],
+    "jom·a": [
+      "verb to sneak"
+    ],
+    "jonai": [
+      "noun firefly"
+    ],
+    "jong": [
+      "noun younger brother"
+    ],
+    "jonggipa": [
+      "noun (formal) younger brother"
+    ],
+    "jongsari": [
+      "noun brother-in-law"
+    ],
+    "jotton": [
+      "verb to try"
+    ],
+    "jrima": [
+      "verb to be heavy"
+    ],
+    "jringjring": [
+      "adv always"
+    ],
+    "jroa": [
+      "verb to swim"
+    ],
+    "jumang": [
+      "noun dream"
+    ],
+    "jur": [
+      "noun force"
+    ],
+    "kaa": [
+      "verb to tie, tie with string or flexible bamboo strips to put on, wear a turban to build by tying (of a fence, barrier in streams) to make friends"
+    ],
+    "kakket": [
+      "adv true, correct"
+    ],
+    "kam": [
+      "noun work"
+    ],
+    "kam ka·a": [
+      "verb to work"
+    ],
+    "kama": [
+      "verb (transitive) to burn"
+    ],
+    "kan·chak": [
+      "noun heart"
+    ],
+    "kan·churi": [
+      "noun worm"
+    ],
+    "karkhana": [
+      "noun factory"
+    ],
+    "kata": [
+      "verb to run noun word"
+    ],
+    "katchi": [
+      "noun sickle, rice-cutting knife"
+    ],
+    "katoma": [
+      "verb to tie in a bundle"
+    ],
+    "ka·a": [
+      "noun (Usually with a noun) to do"
+    ],
+    "ka·bak": [
+      "noun (anatomy) front of the body breast of a bird"
+    ],
+    "ka·donga": [
+      "verb To be sure, to anticipate"
+    ],
+    "ka·ma": [
+      "noun down, below"
+    ],
+    "ka·rongti": [
+      "noun (anatomy) heart"
+    ],
+    "ka·saa": [
+      "verb to love"
+    ],
+    "ka·sanapa": [
+      "verb to fall in love with"
+    ],
+    "ka·sapae": [
+      "intj please"
+    ],
+    "ka·sina": [
+      "verb to be cold, to colden"
+    ],
+    "ka·sop": [
+      "noun (anatomy) lung"
+    ],
+    "kema": [
+      "intj sorry"
+    ],
+    "kema ka·a": [
+      "verb to forgive"
+    ],
+    "kena": [
+      "verb to be afraid, to fear"
+    ],
+    "kera": [
+      "noun basket"
+    ],
+    "kewal": [
+      "noun oar, paddle"
+    ],
+    "ke·ema": [
+      "noun defecation verb to excrete"
+    ],
+    "kil": [
+      "noun cotton"
+    ],
+    "kilding": [
+      "noun fine string, thread"
+    ],
+    "kimil": [
+      "noun (body) hair feather"
+    ],
+    "kimpreta": [
+      "verb to thunder"
+    ],
+    "kimpretani": [
+      "noun thunder"
+    ],
+    "king-king": [
+      "postp (follows dative case) until, up to"
+    ],
+    "ki·chong": [
+      "noun comb"
+    ],
+    "ki·me": [
+      "noun tail"
+    ],
+    "ki·sing": [
+      "noun tortoise"
+    ],
+    "ki·tap": [
+      "noun book"
+    ],
+    "knaa": [
+      "verb to hear"
+    ],
+    "knal": [
+      "noun tomorrow"
+    ],
+    "kni": [
+      "noun hair"
+    ],
+    "koa": [
+      "verb to stitch"
+    ],
+    "kobor": [
+      "noun news"
+    ],
+    "kok": [
+      "noun basket prefix Categorizing prefix for types of baskets"
+    ],
+    "koksi": [
+      "noun a fish basket"
+    ],
+    "kolom": [
+      "noun pen"
+    ],
+    "kombol": [
+      "noun blanket"
+    ],
+    "komia": [
+      "verb to lessen, reduce, come down (as a price)"
+    ],
+    "konta": [
+      "noun hour classifier classifier for hours"
+    ],
+    "koros ka·a": [
+      "verb to shop"
+    ],
+    "kor་gus": [
+      "noun rabbit"
+    ],
+    "ko·a": [
+      "verb to draw water from water bodies"
+    ],
+    "kraa": [
+      "verb to be likely"
+    ],
+    "kramchi": [
+      "noun (anatomy) sweat, perspiration"
+    ],
+    "kramchia": [
+      "verb to sweat"
+    ],
+    "krong": [
+      "noun post"
+    ],
+    "kuicha": [
+      "noun eel"
+    ],
+    "kusi": [
+      "verb to be happy"
+    ],
+    "kusi ong·a": [
+      "verb to be happy"
+    ],
+    "ku·anga": [
+      "verb to open the mouth"
+    ],
+    "ku·chi": [
+      "noun saliva"
+    ],
+    "ku·chil": [
+      "noun (anatomy) lip"
+    ],
+    "ku·dima": [
+      "verb to kiss"
+    ],
+    "ku·dimbok": [
+      "noun (anatomy) chin"
+    ],
+    "ku·mikcheta": [
+      "verb to promise"
+    ],
+    "ku·misa": [
+      "verb to whisper"
+    ],
+    "ku·monga": [
+      "verb to discuss"
+    ],
+    "ku·pattia": [
+      "verb to advise"
+    ],
+    "ku·pattiani": [
+      "noun advice"
+    ],
+    "ku·rachaka": [
+      "verb to agree"
+    ],
+    "ku·rang": [
+      "noun voice"
+    ],
+    "ku·sik": [
+      "noun language mouth opening of a pot"
+    ],
+    "ku·simang": [
+      "noun beard"
+    ],
+    "ku·simoka": [
+      "verb to whistle"
+    ],
+    "lekkia": [
+      "verb to write"
+    ],
+    "lunggi": [
+      "noun a lungi, a garment wrapped around the waist"
+    ],
+    "mai": [
+      "pron what"
+    ],
+    "maiba": [
+      "pron something"
+    ],
+    "maidake": [
+      "pron how"
+    ],
+    "maina": [
+      "pron why conj because, for"
+    ],
+    "makbil": [
+      "noun bear"
+    ],
+    "makre": [
+      "noun monkey"
+    ],
+    "mala": [
+      "verb to crawl"
+    ],
+    "mama": [
+      "noun maternal uncle husband of aunt father-in-law brother of father-in-law"
+    ],
+    "mamagipa": [
+      "noun (formal) maternal uncle (formal) husband of aunt"
+    ],
+    "mamatang": [
+      "noun (formal) maternal uncle (formal) husband of aunt"
+    ],
+    "mamung ong·jaba": [
+      "phrase it's okay, reply to kema"
+    ],
+    "mana": [
+      "verb to rebuke"
+    ],
+    "mande": [
+      "noun person, human being, Garo person"
+    ],
+    "mande ra·a": [
+      "verb to respect"
+    ],
+    "mangmang": [
+      "adv recently only"
+    ],
+    "mani": [
+      "noun paternal aunt wife of uncle mother-in-law sister of mother-in-law"
+    ],
+    "mania": [
+      "verb to follow instructions, obey to worship"
+    ],
+    "manigipa": [
+      "noun (formal) paternal aunt (formal) wife of uncle"
+    ],
+    "manitang": [
+      "noun (formal) paternal aunt (formal) wife of uncle"
+    ],
+    "man·a": [
+      "verb to be able, can find, get, accomplish, achieve, finish"
+    ],
+    "marang": [
+      "noun pollution, taboo blood misfortune, evil, crime"
+    ],
+    "masia": [
+      "verb to know"
+    ],
+    "mat": [
+      "noun squirrel prefix prefix for mammals"
+    ],
+    "mata": [
+      "verb to be sharp"
+    ],
+    "matburing": [
+      "noun animal"
+    ],
+    "matcha": [
+      "noun tiger"
+    ],
+    "matchok": [
+      "noun deer, stag"
+    ],
+    "matchota": [
+      "noun to finish"
+    ],
+    "matchu": [
+      "noun cow"
+    ],
+    "matchuri": [
+      "noun civet cat"
+    ],
+    "mateka": [
+      "noun rabbit"
+    ],
+    "matgil": [
+      "noun hide"
+    ],
+    "matma": [
+      "noun water buffalo any buffalo"
+    ],
+    "matmachi": [
+      "noun porcupine"
+    ],
+    "matta": [
+      "noun digging stick"
+    ],
+    "ma·": [
+      "noun mother"
+    ],
+    "ma·de": [
+      "noun younger maternal aunt"
+    ],
+    "ma·degipa": [
+      "noun (formal) younger maternal aunt"
+    ],
+    "ma·detang": [
+      "noun (formal) younger maternal aunt"
+    ],
+    "ma·gipa": [
+      "noun (formal) mother"
+    ],
+    "ma·jong": [
+      "noun elder maternal aunt"
+    ],
+    "ma·jonggipa": [
+      "noun (formal) elder maternal aunt"
+    ],
+    "ma·jongtang": [
+      "noun (formal) elder maternal aunt"
+    ],
+    "ma·sia": [
+      "verb to feel to know"
+    ],
+    "meattam": [
+      "affix dinner"
+    ],
+    "mechobal": [
+      "noun Thursday"
+    ],
+    "mejao": [
+      "noun yesterday"
+    ],
+    "menggo": [
+      "noun cat"
+    ],
+    "mepring": [
+      "noun breakfast"
+    ],
+    "merong": [
+      "noun husked rice"
+    ],
+    "mes": [
+      "noun lamb"
+    ],
+    "mesal": [
+      "affix lunch"
+    ],
+    "mese": [
+      "noun mouse"
+    ],
+    "me·a": [
+      "noun man, male"
+    ],
+    "me·asa": [
+      "noun man, adult male"
+    ],
+    "me·chik": [
+      "noun woman, adult female"
+    ],
+    "me·dik": [
+      "noun rice-cooking pot"
+    ],
+    "me·gon": [
+      "noun stick for stirring rice"
+    ],
+    "me·jal": [
+      "noun yesterday"
+    ],
+    "me·pilip": [
+      "noun butterfly"
+    ],
+    "me·tra": [
+      "noun unmarried woman, young woman, adolescent girl"
+    ],
+    "mi": [
+      "noun (botany) rice plant rice"
+    ],
+    "mibipang": [
+      "noun rice plants"
+    ],
+    "mik": [
+      "noun (anatomy) eye, face sight, vision"
+    ],
+    "mikbroka": [
+      "noun faded, dull"
+    ],
+    "mikchi": [
+      "noun a tear, tears"
+    ],
+    "mikchipa": [
+      "verb to close the eye, to blink"
+    ],
+    "mikdapa": [
+      "noun to get into the eye"
+    ],
+    "mikgil": [
+      "noun eyelid"
+    ],
+    "mikka": [
+      "noun rain"
+    ],
+    "mikkang": [
+      "noun face, front, front end, next future"
+    ],
+    "mikkigipa": [
+      "noun miser"
+    ],
+    "mikon": [
+      "noun (anatomy) an eye"
+    ],
+    "mikraka": [
+      "verb to wake up"
+    ],
+    "mikron": [
+      "noun (anatomy) eye"
+    ],
+    "miksimang": [
+      "noun eyebrow"
+    ],
+    "miksimim": [
+      "noun forehead"
+    ],
+    "mikskim": [
+      "noun (anatomy) eyebrow"
+    ],
+    "miksoka": [
+      "verb to expect, look out for"
+    ],
+    "mikta": [
+      "postp (follows genitive case -ni) because, on account of, for that reason"
+    ],
+    "minga": [
+      "verb to name, call by one's personal name (as opposed to one's family name)"
+    ],
+    "misi": [
+      "noun millet"
+    ],
+    "misimi": [
+      "noun millet"
+    ],
+    "mitchura": [
+      "noun cork, plug, cap, screw-top of a bottle"
+    ],
+    "mitela": [
+      "verb to thank intj thanks"
+    ],
+    "mitim": [
+      "noun fat (of the body)"
+    ],
+    "mi·tra": [
+      "noun virgin, unmarried woman"
+    ],
+    "mojimat": [
+      "verb to shake"
+    ],
+    "mol·mola": [
+      "verb to request"
+    ],
+    "mongma": [
+      "noun elephant"
+    ],
+    "mrit": [
+      "noun razor, straight razor with a handle"
+    ],
+    "naa": [
+      "verb to rise to appear"
+    ],
+    "nabaa": [
+      "verb to rise to appear"
+    ],
+    "nachi": [
+      "noun (anatomy) ear"
+    ],
+    "nachil": [
+      "noun (anatomy) ear"
+    ],
+    "nama": [
+      "verb to be good"
+    ],
+    "nambata": [
+      "verb to be better, to be best"
+    ],
+    "namchik": [
+      "noun daughter-in-law niece"
+    ],
+    "namchiktang": [
+      "noun (formal) neice"
+    ],
+    "namen": [
+      "adv very"
+    ],
+    "namengaba": [
+      "intj I'm fine"
+    ],
+    "namengama": [
+      "intj how are you"
+    ],
+    "namkala": [
+      "noun to be better, to heal"
+    ],
+    "namnika": [
+      "verb to love, like, see as good"
+    ],
+    "nanga": [
+      "verb to produce, bear fruit must, need, require"
+    ],
+    "nangchongmota": [
+      "verb to be important"
+    ],
+    "nangchongmotani": [
+      "noun an important action"
+    ],
+    "nangdika": [
+      "verb to touch"
+    ],
+    "nang·ko gronga kusi ong·a": [
+      "phrase pleased to meet you"
+    ],
+    "nang·ko mitelbejok": [
+      "phrase thank you very much"
+    ],
+    "nang·na namgipa sal ong·china": [
+      "phrase have a nice day"
+    ],
+    "napa": [
+      "verb enter, go in, come in set (of the sun and moon)"
+    ],
+    "naringso": [
+      "noun Friday"
+    ],
+    "nasindo·ki": [
+      "noun garlic"
+    ],
+    "na·a": [
+      "pron you (singular)"
+    ],
+    "na·a sawa": [
+      "phrase who are you"
+    ],
+    "na·ching": [
+      "pron inclusive we (i.e we including you)"
+    ],
+    "na·kam": [
+      "noun dry fish"
+    ],
+    "na·rimil": [
+      "noun slippery fish"
+    ],
+    "na·tik": [
+      "noun fresh water shrimp"
+    ],
+    "na·tok": [
+      "noun fish"
+    ],
+    "nenga": [
+      "verb to be tired"
+    ],
+    "neng·a": [
+      "verb to be tired"
+    ],
+    "neng·nika": [
+      "verb to object"
+    ],
+    "neng·nikani": [
+      "noun objection"
+    ],
+    "nia": [
+      "verb look at, watch, test, try"
+    ],
+    "nidika": [
+      "verb to hate"
+    ],
+    "ning·a": [
+      "noun inside"
+    ],
+    "niotang": [
+      "noun (formal) mother-in-law (formal) sister of mother-in-law"
+    ],
+    "niroka": [
+      "verb observe, guard, look after, watch over"
+    ],
+    "nitoa": [
+      "verb to be beautiful; to be comely"
+    ],
+    "no": [
+      "noun younger sister"
+    ],
+    "nogipa": [
+      "noun (formal) younger sister"
+    ],
+    "nok": [
+      "noun house classifier for families, households, for what is held in a house."
+    ],
+    "nokdang": [
+      "noun family"
+    ],
+    "nokjam": [
+      "noun property"
+    ],
+    "nokkap": [
+      "noun house site, place where a house can be built"
+    ],
+    "nokking": [
+      "noun roof"
+    ],
+    "nokkol": [
+      "noun servant, worker"
+    ],
+    "nokma": [
+      "noun a rich man"
+    ],
+    "nokning": [
+      "noun interior, inside of a house"
+    ],
+    "nokrom": [
+      "noun heir of a family or household"
+    ],
+    "nono": [
+      "noun younger sister"
+    ],
+    "obostara": [
+      "noun situation"
+    ],
+    "oikor": [
+      "noun alphabet"
+    ],
+    "ok": [
+      "noun (anatomy) belly, stomach"
+    ],
+    "okama": [
+      "verb To call"
+    ],
+    "okgipu": [
+      "noun porcupine"
+    ],
+    "ona": [
+      "verb to be short to descend"
+    ],
+    "ong·a": [
+      "verb to be to have"
+    ],
+    "ong·aigenba": [
+      "intj alright"
+    ],
+    "ong·kata": [
+      "verb to go out"
+    ],
+    "ong·ronga": [
+      "noun to be normal"
+    ],
+    "on·a": [
+      "verb to give to let"
+    ],
+    "on·tisa": [
+      "verb to be a bit"
+    ],
+    "opa": [
+      "verb to suck"
+    ],
+    "o·bite": [
+      "noun (formal) father-in-law (formal) brother of father-in-law"
+    ],
+    "pa": [
+      "noun father"
+    ],
+    "paa": [
+      "noun father"
+    ],
+    "pagipa": [
+      "noun (formal) father"
+    ],
+    "pajong": [
+      "noun elder paternal uncle"
+    ],
+    "pajonggipa": [
+      "noun (formal) elder paternal uncle"
+    ],
+    "pajongtang": [
+      "noun (formal) elder paternal uncle"
+    ],
+    "pakkre": [
+      "noun shoulder"
+    ],
+    "pakkrong": [
+      "noun (anatomy) shoulder"
+    ],
+    "paksa": [
+      "noun the other side, (of a road, etc.) half"
+    ],
+    "paksimang": [
+      "noun axillary hair"
+    ],
+    "pakwal": [
+      "noun armpit"
+    ],
+    "pal": [
+      "postp (follows genitive case -ni) because, on account of"
+    ],
+    "pala": [
+      "verb (transitive) to sell"
+    ],
+    "pamong": [
+      "noun pastor"
+    ],
+    "pang-nan": [
+      "adv always"
+    ],
+    "pangnan": [
+      "adv always"
+    ],
+    "pante": [
+      "noun adolescent"
+    ],
+    "papi": [
+      "noun sinner"
+    ],
+    "paroa": [
+      "noun pigeon"
+    ],
+    "peka": [
+      "verb to be intoxicated"
+    ],
+    "peru": [
+      "noun jackal"
+    ],
+    "petop": [
+      "noun (anatomy) cheek"
+    ],
+    "pe·a": [
+      "verb to break"
+    ],
+    "phrap": [
+      "noun fig tree, especially mock bodh tree (Ficus rumphii)"
+    ],
+    "pila": [
+      "verb to apply liquid to the body"
+    ],
+    "pilak": [
+      "noun all, the whole"
+    ],
+    "pil·a": [
+      "verb return, go back, come back transform, shape-shift (to transform and return back)"
+    ],
+    "pina": [
+      "verb to cover with, spread over (as a blanket, thatch etc.)"
+    ],
+    "pineka": [
+      "verb to crush"
+    ],
+    "pioka": [
+      "verb to redeem"
+    ],
+    "pi·sa": [
+      "noun child"
+    ],
+    "pong": [
+      "noun ladle made from a gourd (used especially for rice beer)"
+    ],
+    "pora": [
+      "noun reading, lesson"
+    ],
+    "poraia": [
+      "verb to study"
+    ],
+    "poria": [
+      "verb to read, study"
+    ],
+    "poribar": [
+      "noun family"
+    ],
+    "porika": [
+      "noun alternate form of porikka"
+    ],
+    "porikka": [
+      "noun test, examination, exam"
+    ],
+    "preta": [
+      "verb to burst"
+    ],
+    "pring": [
+      "noun morning"
+    ],
+    "pringnam": [
+      "intj good morning"
+    ],
+    "raka": [
+      "verb to be bright, to be hard noun the name of an alphabet in Garo, symbolised by a dot or apostrophe representing the glottal stop."
+    ],
+    "rake": [
+      "adv hard"
+    ],
+    "rama": [
+      "noun road, way, path means verb to spread (so that the object(s) dry in the sun)"
+    ],
+    "ramram": [
+      "adv ordinary, normal, usual"
+    ],
+    "ram·a": [
+      "verb to be thin"
+    ],
+    "rang": [
+      "noun gong"
+    ],
+    "rangtal": [
+      "noun plate, dish"
+    ],
+    "ran·a": [
+      "verb to be dry"
+    ],
+    "rasong": [
+      "noun pride, praise, good fortune, glory"
+    ],
+    "rasota": [
+      "verb to butcher"
+    ],
+    "ra·a": [
+      "verb to take, keep"
+    ],
+    "ra·chaka": [
+      "verb to borrow"
+    ],
+    "rengsi": [
+      "noun needle"
+    ],
+    "re·a": [
+      "verb to go"
+    ],
+    "re·angani": [
+      "noun trip"
+    ],
+    "re·baa": [
+      "verb to come"
+    ],
+    "re·bataibo": [
+      "intj come again"
+    ],
+    "re·branga": [
+      "verb to wander"
+    ],
+    "rika": [
+      "verb to chase"
+    ],
+    "rikong": [
+      "noun edge, border bank (of a river)"
+    ],
+    "rimchaksoa": [
+      "verb to welcome intj welcome"
+    ],
+    "rimila": [
+      "verb to be slippery"
+    ],
+    "ring": [
+      "noun boat"
+    ],
+    "ringa": [
+      "verb to drink"
+    ],
+    "ring·a": [
+      "verb to sing"
+    ],
+    "ripeng": [
+      "noun friend"
+    ],
+    "riponchi": [
+      "noun dew"
+    ],
+    "riprapani": [
+      "noun lightning"
+    ],
+    "rita": [
+      "verb to boil"
+    ],
+    "ritchara": [
+      "verb to be thick"
+    ],
+    "roa": [
+      "noun rice seedling after removal from seedbed or after transplanting verb to mate (of animals) to dance"
+    ],
+    "robol": [
+      "noun football"
+    ],
+    "rokom": [
+      "verb type, variety"
+    ],
+    "rong": [
+      "noun color"
+    ],
+    "rong-kol": [
+      "noun cave"
+    ],
+    "rongdik": [
+      "noun earthenware storage pot with no neck and a large mouth, used to store rice the thick part at the base of a banana trunk"
+    ],
+    "rong·kol": [
+      "noun cave"
+    ],
+    "rong·te": [
+      "noun stone, rock the flat lower grindstone"
+    ],
+    "rua": [
+      "noun axe rice seedling after removal from seedbed or after transplanting verb to pour slowly and carefully to take down; to take apart to mate (of animals) to dance"
+    ],
+    "ru·uta": [
+      "verb to be slow"
+    ],
+    "sa": [
+      "num one"
+    ],
+    "saa": [
+      "noun sickness, pain verb to be sick"
+    ],
+    "saka": [
+      "noun upland, upper place"
+    ],
+    "sakanti": [
+      "pron everyone"
+    ],
+    "sal": [
+      "noun sun, day, daytime a 24 hour period weather classifier for days"
+    ],
+    "sal raka": [
+      "verb to be sunny"
+    ],
+    "sala": [
+      "verb to pull"
+    ],
+    "salaram": [
+      "noun east"
+    ],
+    "salgipeng": [
+      "noun south"
+    ],
+    "salgro": [
+      "noun north"
+    ],
+    "saliram": [
+      "noun west"
+    ],
+    "saljatchi": [
+      "affix noon"
+    ],
+    "sam": [
+      "noun grass; herb medicine curry classifier used with any bilateral body part, hands, eyes, etc."
+    ],
+    "samsi": [
+      "noun grass"
+    ],
+    "sang·et": [
+      "noun firefly"
+    ],
+    "sanicho": [
+      "noun Saturday"
+    ],
+    "sapau": [
+      "noun rabbit"
+    ],
+    "sappau": [
+      "noun rabbit"
+    ],
+    "sarong": [
+      "noun small waterpot"
+    ],
+    "sasti": [
+      "noun punishment"
+    ],
+    "satata": [
+      "verb to strike (as in striking a goal):"
+    ],
+    "sawa": [
+      "pron who verb to be who"
+    ],
+    "se": [
+      "noun husband"
+    ],
+    "sea": [
+      "verb to write"
+    ],
+    "segala": [
+      "verb to divorce, lit.",
+      "to get rid of one's husband"
+    ],
+    "segipa": [
+      "noun writer husband"
+    ],
+    "senga": [
+      "verb to wait"
+    ],
+    "sengani": [
+      "noun joy"
+    ],
+    "seng·gnanga": [
+      "verb to be early"
+    ],
+    "se·el": [
+      "noun fox"
+    ],
+    "sia": [
+      "verb to die"
+    ],
+    "sika": [
+      "verb to sew"
+    ],
+    "silga": [
+      "noun sky"
+    ],
+    "silkata": [
+      "noun nail for carpentry"
+    ],
+    "silpi": [
+      "noun singer"
+    ],
+    "silso": [
+      "noun mustard, mustard seed"
+    ],
+    "sima": [
+      "noun rotten food"
+    ],
+    "sim·a": [
+      "verb to dip"
+    ],
+    "singho": [
+      "noun lion"
+    ],
+    "sing·a": [
+      "noun question verb to bark (Used by humans) to question"
+    ],
+    "sini": [
+      "num seven"
+    ],
+    "sininga": [
+      "verb to teach, learn"
+    ],
+    "sipai": [
+      "noun A sepoy A soldier"
+    ],
+    "si·ol": [
+      "noun jackal"
+    ],
+    "skang": [
+      "postp (follows dative case) before"
+    ],
+    "skenga": [
+      "verb to want"
+    ],
+    "skia": [
+      "verb to learn"
+    ],
+    "skigipa": [
+      "noun teacher"
+    ],
+    "sko": [
+      "noun (anatomy) head"
+    ],
+    "skotong": [
+      "noun headman, leader"
+    ],
+    "sku": [
+      "num nine"
+    ],
+    "soa": [
+      "verb to rot, to burn"
+    ],
+    "sok": [
+      "noun (anatomy) breast, nipple a mother's milk"
+    ],
+    "soka": [
+      "verb arrive, reach"
+    ],
+    "sokgipa": [
+      "verb visitor guest"
+    ],
+    "sola": [
+      "verb to cuss"
+    ],
+    "sol·a": [
+      "verb to carve"
+    ],
+    "somai": [
+      "noun time"
+    ],
+    "somoi": [
+      "noun time"
+    ],
+    "song": [
+      "noun village, hamlet classifier for villages"
+    ],
+    "songdonga": [
+      "verb to live, to settle in a village"
+    ],
+    "songnok": [
+      "noun settlement, the entire village area"
+    ],
+    "songrea": [
+      "verb to travel"
+    ],
+    "songsar": [
+      "noun society"
+    ],
+    "song·a": [
+      "verb to cook"
+    ],
+    "sorok": [
+      "noun road"
+    ],
+    "so·a": [
+      "verb to burn"
+    ],
+    "so·ota": [
+      "verb to kill"
+    ],
+    "spin": [
+      "noun sesame"
+    ],
+    "spoa": [
+      "verb to blow"
+    ],
+    "srapa": [
+      "verb to keep up with"
+    ],
+    "sre": [
+      "noun (anatomy) tongue"
+    ],
+    "srea": [
+      "verb (transitive) to exchange, trade"
+    ],
+    "sringa": [
+      "verb to hang, hang up"
+    ],
+    "stika": [
+      "verb to cover"
+    ],
+    "sua": [
+      "verb (of an animal) to bite"
+    ],
+    "suino": [
+      "num zero"
+    ],
+    "su·a": [
+      "verb to punch to grind food"
+    ],
+    "su·gipa": [
+      "noun (formal) grandchild"
+    ],
+    "tama": [
+      "noun copper"
+    ],
+    "tampi": [
+      "noun fly (the insect)"
+    ],
+    "tampisimik": [
+      "noun gnat"
+    ],
+    "tanga": [
+      "verb To live, be alive."
+    ],
+    "tangka": [
+      "noun money"
+    ],
+    "taning": [
+      "noun (anatomy) brain"
+    ],
+    "taptua": [
+      "verb to forget"
+    ],
+    "taria": [
+      "verb (transitive) to prepare (intransitive) to get ready"
+    ],
+    "ta·ma": [
+      "noun darling, sweetheart"
+    ],
+    "ta·raka": [
+      "verb to be fast"
+    ],
+    "ta་bolchu": [
+      "noun manioc"
+    ],
+    "ta་mi་lang": [
+      "noun sweet potato"
+    ],
+    "teng·sua": [
+      "verb to shine"
+    ],
+    "te·brong": [
+      "noun (botany) jackfruit"
+    ],
+    "te·gachu": [
+      "noun (botany) mango"
+    ],
+    "te·rik": [
+      "noun (botany) banana"
+    ],
+    "tik": [
+      "noun louse"
+    ],
+    "timi na·tok": [
+      "noun whale"
+    ],
+    "toa": [
+      "verb (transitive) to measure the length, weight (intransitive) to be nice.",
+      "to be delicious"
+    ],
+    "tokbirim": [
+      "noun script"
+    ],
+    "tol·a": [
+      "verb to lie"
+    ],
+    "tom·ani": [
+      "noun meeting"
+    ],
+    "tom·toma": [
+      "verb to befriend"
+    ],
+    "tom·tomani": [
+      "noun peace"
+    ],
+    "tormus": [
+      "noun watermelon"
+    ],
+    "tringa": [
+      "verb to weave"
+    ],
+    "tro": [
+      "noun era, period, generation"
+    ],
+    "tusia": [
+      "verb to sleep"
+    ],
+    "ua": [
+      "pron that, it"
+    ],
+    "uano": [
+      "pron there"
+    ],
+    "uia": [
+      "verb to know"
+    ],
+    "uiatani": [
+      "noun knowledge"
+    ],
+    "wa": [
+      "noun tooth"
+    ],
+    "waa": [
+      "verb to rain"
+    ],
+    "wagam": [
+      "noun tooth"
+    ],
+    "wak": [
+      "noun pig, swine"
+    ],
+    "wal": [
+      "noun night"
+    ],
+    "walnam": [
+      "intj good night"
+    ],
+    "walni": [
+      "noun morning, this morning"
+    ],
+    "wal·gusi": [
+      "noun burns, black color left by smoke"
+    ],
+    "wal·jem": [
+      "noun firebrand, lighted stick"
+    ],
+    "wal·ki": [
+      "noun burning coal"
+    ],
+    "wal·kua": [
+      "noun smoke verb to smoke, to let out smoke"
+    ],
+    "wal·misi": [
+      "noun spark"
+    ],
+    "wal·tot": [
+      "noun lighter, device for starting fires"
+    ],
+    "wanggipa": [
+      "noun (formal) younger paternal uncle"
+    ],
+    "wasisia": [
+      "verb to drizzle"
+    ],
+    "wa·a": [
+      "noun bamboo"
+    ],
+    "wa·al": [
+      "noun fire"
+    ],
+    "·": [
+      "character the raka"
+    ],
+    "ওয়াক": [
+      "noun pig, swine"
+    ],
+    "ওয়াগাম": [
+      "noun tooth"
+    ],
+    "খিমিল": [
+      "noun body hair"
+    ],
+    "চি": [
+      "noun water"
+    ],
+    "জুমাং": [
+      "noun dream"
+    ],
+    "ডোলা": [
+      "verb to sting"
+    ],
+    "ফ্রাপ": [
+      "noun fig tree, especially mock bodh tree (Ficus rumphii)"
+    ],
+    "বিমুং": [
+      "noun name"
+    ]
+  }
+}

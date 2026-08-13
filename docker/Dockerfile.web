@@ -1,0 +1,28 @@
+FROM node:22-alpine AS deps
+WORKDIR /app
+RUN corepack enable
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* turbo.json tsconfig.base.json ./
+COPY packages ./packages
+COPY apps/web ./apps/web
+RUN pnpm install --filter @bcl/web...
+
+FROM deps AS build
+WORKDIR /app
+ARG NEXT_PUBLIC_API_URL=http://localhost:4000/api/v1
+ARG NEXT_PUBLIC_DIOCESE_PRIMARY_DOMAIN=turadiocese.in
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_DIOCESE_PRIMARY_DOMAIN=$NEXT_PUBLIC_DIOCESE_PRIMARY_DOMAIN
+RUN pnpm --filter @bcl/types build
+RUN pnpm --filter @bcl/auth-client build
+RUN pnpm --filter @bcl/sdk build
+RUN pnpm --filter @bcl/ui build
+RUN pnpm --filter @bcl/web build
+
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+RUN corepack enable
+COPY --from=build /app /app
+WORKDIR /app/apps/web
+EXPOSE 3000
+CMD ["pnpm", "start"]

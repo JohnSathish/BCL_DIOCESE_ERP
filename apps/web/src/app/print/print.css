@@ -1,0 +1,148 @@
+/* Dedicated certificate print surface — never include dashboard chrome */
+
+.bcl-print-root {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: #e8e4dc;
+}
+
+.bcl-print-screen-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid #ddd5c8;
+  backdrop-filter: blur(10px);
+}
+
+.bcl-print-screen-toolbar button {
+  border: 0;
+  border-radius: 8px;
+  padding: 0.55rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.bcl-print-screen-toolbar .btn-print {
+  background: #0b1f4a;
+  color: #fff;
+}
+
+.bcl-print-screen-toolbar .btn-ghost {
+  background: #fff;
+  color: #1a2438;
+  border: 1px solid #d5cfc4;
+}
+
+.bcl-print-screen-toolbar .hint {
+  font-size: 0.75rem;
+  color: #6b6570;
+}
+
+.bcl-print-canvas {
+  display: flex;
+  justify-content: center;
+  padding: 1.25rem 0.75rem 2rem;
+}
+
+#certificate-print {
+  position: relative;
+}
+
+@media print {
+  html,
+  body {
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    overflow: visible !important;
+  }
+
+  /* Hide absolutely everything except the certificate tree */
+  body * {
+    visibility: hidden !important;
+  }
+
+  #certificate-print,
+  #certificate-print * {
+    visibility: visible !important;
+  }
+
+  .bcl-print-screen-toolbar,
+  .bcl-print-screen-toolbar *,
+  .cert-toolbar,
+  .cert-chooser,
+  .no-print {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  .bcl-print-root,
+  .bcl-print-canvas,
+  .cert-shell {
+    background: #fff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    box-shadow: none !important;
+  }
+
+  #certificate-print {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  /* Portrait certificates (marriage / default) */
+  #certificate-print[data-orientation='portrait'] {
+    width: 210mm !important;
+    height: 297mm !important;
+  }
+
+  /* Landscape certificates (baptism premium) */
+  #certificate-print[data-orientation='landscape'] {
+    width: 297mm !important;
+    height: 210mm !important;
+  }
+
+  @page {
+    margin: 0;
+  }
+
+  @page portrait-cert {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  @page landscape-cert {
+    size: A4 landscape;
+    margin: 0;
+  }
+
+  #certificate-print[data-orientation='portrait'] {
+    page: portrait-cert;
+  }
+
+  /* Hard hide dashboard chrome only (never certificate internals) */
+  .bcl-sidebar,
+  .bcl-enterprise-topbar,
+  .bcl-print-screen-toolbar {
+    display: none !important;
+  }
+}

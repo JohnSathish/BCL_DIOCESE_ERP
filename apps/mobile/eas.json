@@ -1,0 +1,47 @@
+{
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "http://localhost:4000/api/v1",
+        "EXPO_PUBLIC_WEB_URL": "http://localhost:3000",
+        "EXPO_PUBLIC_CMS_SLUG": "sacred-heart",
+        "EXPO_PUBLIC_EAS_PROJECT_ID": "eb8248da-1cc7-4455-9cbf-b5e1f9a01a2a"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.turadiocese.in/api/v1",
+        "EXPO_PUBLIC_WEB_URL": "https://turadiocese.in",
+        "EXPO_PUBLIC_CMS_SLUG": "sacred-heart",
+        "EXPO_PUBLIC_EAS_PROJECT_ID": "eb8248da-1cc7-4455-9cbf-b5e1f9a01a2a"
+      }
+    },
+    "production": {
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.turadiocese.in/api/v1",
+        "EXPO_PUBLIC_WEB_URL": "https://turadiocese.in",
+        "EXPO_PUBLIC_CMS_SLUG": "sacred-heart",
+        "EXPO_PUBLIC_EAS_PROJECT_ID": "eb8248da-1cc7-4455-9cbf-b5e1f9a01a2a"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

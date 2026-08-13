@@ -1,0 +1,3312 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProductCode {
+  DIOCESE_ERP
+  ONECAMPUS
+  SCHOOL_ERP
+  HRMS
+  CRM
+  ACCOUNTS
+}
+
+enum ScopeType {
+  PLATFORM
+  ORGANIZATION
+  DIOCESE
+  DEANERY
+  PARISH
+  SUBSTATION
+  BCC
+}
+
+enum FamilyStatus {
+  ACTIVE
+  INACTIVE
+  MIGRATED
+  DECEASED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum MaritalStatus {
+  SINGLE
+  MARRIED
+  WIDOWED
+  DIVORCED
+  SEPARATED
+  BACHELOR
+  WIDOWER
+  VIRGIN
+  WIDOW
+}
+
+enum MemberLifeStatus {
+  ALIVE
+  DECEASED
+  TRANSFERRED
+}
+
+enum RelationshipType {
+  PARENT
+  CHILD
+  SPOUSE
+  SIBLING
+}
+
+enum SacramentType {
+  BAPTISM
+  CONFIRMATION
+  HOLY_COMMUNION
+  MARRIAGE
+  HOLY_ORDERS
+  ANOINTING
+  DEATH
+}
+
+enum CertificateType {
+  BAPTISM
+  MARRIAGE
+  CONFIRMATION
+  COMMUNION
+  DEATH
+  MEMBERSHIP
+  LETTER_OF_FREEDOM
+  BONAFIDE
+  FAMILY
+  CUSTOM
+}
+
+enum RegisterBookType {
+  BAPTISM
+  MARRIAGE
+  DEATH
+  CONFIRMATION
+  COMMUNION
+  MASS
+  DONATION
+}
+
+model Organization {
+  id          String       @id @default(cuid())
+  name        String
+  slug        String       @unique
+  productCode ProductCode  @default(DIOCESE_ERP)
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
+
+  users            User[]
+  scopes           Scope[]
+  dioceseProfile   DioceseProfile?
+  deaneries        Deanery[]
+  parishes         Parish[]
+  substations      SubStation[]
+  bccs             Bcc[]
+  families         Family[]
+  members          Member[]
+  mediaAssets      MediaAsset[]
+  auditLogs        AuditLog[]
+  licenses         License[]
+  subscriptions    Subscription[]
+  memberships      Membership[]
+  sacraments       SacramentRecord[]
+  certificates     Certificate[]
+  registerBooks    RegisterBook[]
+  masses           MassEvent[]
+  donations        Donation[]
+  accounts         FinanceAccount[]
+  transactions     FinanceTransaction[]
+  budgets          Budget[]
+  cemeteries       Cemetery[]
+  catechismClasses CatechismClass[]
+  communications   CommunicationMessage[]
+  calendarEvents   ParishCalendarEvent[]
+  priests          Priest[]
+  priestTransfers  PriestTransfer[]
+  congregations    Congregation[]
+  institutions     Institution[]
+  cmsSites         CmsSite[]
+  parishDomains    ParishDomain[]
+  cmsFormSubmissions CmsFormSubmission[]
+  aiQueryLogs      AiQueryLog[]
+  ocrJobs          OcrJob[]
+  importJobs       ImportJob[]
+  reportSchedules  ReportSchedule[]
+  mobileAppConfigs MobileAppConfig[]
+  dioceseMobileOverrides DioceseMobileOverride[]
+  devicePushTokens DevicePushToken[]
+  appNotifications AppNotification[]
+  timelineEvents   TimelineEvent[]
+  halls            Hall[]
+  hallBookings     HallBooking[]
+  accommodationFacilities AccommodationFacility[]
+  accommodationOccupants  AccommodationOccupant[]
+  accommodationAllocations AccommodationAllocation[]
+  accommodationRentInvoices AccommodationRentInvoice[]
+  accommodationRentPayments AccommodationRentPayment[]
+  accommodationMaintenance AccommodationMaintenanceRequest[]
+  accommodationGuestStays AccommodationGuestStay[]
+  accommodationInspections AccommodationInspection[]
+  dailyLiturgyDays         DailyLiturgyDay[]
+  liturgyImportBatches     LiturgyImportBatch[]
+  dailyContentOverrides    DailyContentOverride[]
+  liturgyReflectionVariants DailyLiturgyReflectionVariant[]
+  dioceseLanguages         DioceseLanguage[]
+  uiTranslationNamespaces  UiTranslationNamespace[]
+  emailTemplateTranslations EmailTemplateTranslation[]
+  translationJobs          TranslationJob[]
+  massScheduleEntries      MassScheduleEntry[]
+}
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  passwordHash   String
+  firstName      String
+  lastName       String
+  phone          String?
+  isActive       Boolean   @default(true)
+  isSuperAdmin   Boolean   @default(false)
+  mustChangePassword Boolean @default(false)
+  totpSecret     String?
+  totpEnabled    Boolean   @default(false)
+  organizationId String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  sessions     Session[]
+  userRoles    UserRole[]
+  memberships  Membership[]
+  auditLogs    AuditLog[]
+  devicePushTokens DevicePushToken[]
+  appNotificationDeliveries AppNotificationDelivery[]
+  preferencesJson Json?
+  liturgyImportBatches LiturgyImportBatch[]
+  dailyContentOverrides DailyContentOverride[]
+  liturgyReflectionVariants DailyLiturgyReflectionVariant[]
+  accommodationOccupants AccommodationOccupant[]
+  uiTranslationNamespaces UiTranslationNamespace[]
+  translationJobsReviewed TranslationJob[] @relation("TranslationJobReviewer")
+}
+
+model Session {
+  id               String    @id @default(cuid())
+  userId           String
+  refreshTokenHash String
+  ipAddress        String?
+  userAgent        String?
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  createdAt        DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([refreshTokenHash])
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  description String?
+  isSystem    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  permissions RolePermission[]
+  userRoles   UserRole[]
+}
+
+model Permission {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+
+  roles RolePermission[]
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+}
+
+model Scope {
+  id             String    @id @default(cuid())
+  organizationId String?
+  type           ScopeType
+  name           String
+  path           String
+  parentId       String?
+  refId          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  parent       Scope?        @relation("ScopeTree", fields: [parentId], references: [id])
+  children     Scope[]       @relation("ScopeTree")
+  userRoles    UserRole[]
+  memberships  Membership[]
+
+  @@index([organizationId])
+  @@index([path])
+  @@index([type])
+}
+
+model UserRole {
+  id        String   @id @default(cuid())
+  userId    String
+  roleId    String
+  scopeId   String?
+  createdAt DateTime @default(now())
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role  Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  scope Scope? @relation(fields: [scopeId], references: [id])
+
+  @@index([userId])
+  @@unique([userId, roleId, scopeId])
+}
+
+model Membership {
+  id             String   @id @default(cuid())
+  userId         String
+  organizationId String
+  scopeId        String?
+  createdAt      DateTime @default(now())
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  scope        Scope?       @relation(fields: [scopeId], references: [id])
+
+  @@unique([userId, organizationId])
+}
+
+model License {
+  id             String    @id @default(cuid())
+  organizationId String
+  productCode    ProductCode
+  seats          Int       @default(50)
+  startsAt       DateTime  @default(now())
+  endsAt         DateTime?
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+model Subscription {
+  id             String   @id @default(cuid())
+  organizationId String
+  planCode       String   @default("standard")
+  status         String   @default("active")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+model DioceseProfile {
+  id             String    @id @default(cuid())
+  organizationId String    @unique
+  officialName   String
+  logoUrl        String?
+  sealUrl        String?
+  bishopName     String?
+  vicarGeneral   String?
+  chanceryAddress String?
+  phone          String?
+  email          String?
+  website        String?
+  /// Apex public domain for this diocese (e.g. turadiocese.in) — parish subdomains hang off this
+  primaryDomain  String?
+  establishedOn  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+model Deanery {
+  id             String    @id @default(cuid())
+  organizationId String
+  name           String
+  code           String
+  deanName       String?
+  scopeId        String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parishes     Parish[]
+  translations DeaneryTranslation[]
+
+  @@unique([organizationId, code])
+  @@index([organizationId])
+}
+
+model Parish {
+  id             String    @id @default(cuid())
+  organizationId String
+  deaneryId      String?
+  name           String
+  code           String
+  logoUrl        String?
+  history        String?
+  patronSaint    String?
+  feastDay       String?
+  address        String?
+  village        String?
+  latitude       Float?
+  longitude      Float?
+  website        String?
+  email          String?
+  phone          String?
+  priestsJson    Json?
+  massTimings    Json?
+  officeTimings  Json?
+  committeesJson Json?
+  scopeId        String?
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  deanery      Deanery?     @relation(fields: [deaneryId], references: [id])
+  substations  SubStation[]
+  bccs         Bcc[]
+  families     Family[]
+  members      Member[]
+  sacraments   SacramentRecord[]
+  certificates Certificate[]
+  registerBooks RegisterBook[]
+  masses       MassEvent[]
+  donations    Donation[]
+  accounts     FinanceAccount[]
+  transactions FinanceTransaction[]
+  budgets      Budget[]
+  cemeteries   Cemetery[]
+  halls        Hall[]
+  hallBookings HallBooking[]
+  catechismClasses CatechismClass[]
+  communications CommunicationMessage[]
+  calendarEvents ParishCalendarEvent[]
+  priests      PriestAssignment[]
+  priestTransfers PriestTransfer[]
+  institutions Institution[]
+  cmsSite          CmsSite?
+  parishDomains    ParishDomain[]
+  cmsPages         CmsPage[]
+  cmsPosts         CmsPost[]
+  cmsEvents        CmsEvent[]
+  cmsAnnouncements CmsAnnouncement[]
+  cmsMedia         CmsMedia[]
+  cmsForms         CmsForm[]
+  cmsFormSubmissions CmsFormSubmission[]
+  cmsVisitDaily    CmsSiteVisitDaily[]
+  cmsMenus         CmsMenu[]
+  importJobs       ImportJob[]
+  reportSchedules  ReportSchedule[]
+  mobileAppConfig  MobileAppConfig?
+  devicePushTokens DevicePushToken[]
+  accommodationFacilities AccommodationFacility[]
+  accommodationAllocations AccommodationAllocation[]
+  accommodationRentInvoices AccommodationRentInvoice[]
+  accommodationRentPayments AccommodationRentPayment[]
+  accommodationMaintenance AccommodationMaintenanceRequest[]
+  accommodationGuestStays AccommodationGuestStay[]
+
+  dailyContentOverrides DailyContentOverride[]
+  translations          ParishTranslation[]
+  massScheduleEntries   MassScheduleEntry[]
+
+  @@unique([organizationId, code])
+  @@index([organizationId])
+  @@index([deaneryId])
+}
+
+model SubStation {
+  id             String    @id @default(cuid())
+  organizationId String
+  parishId       String
+  name           String
+  code           String
+  address        String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish       @relation(fields: [parishId], references: [id], onDelete: Cascade)
+
+  @@unique([parishId, code])
+  @@index([organizationId])
+}
+
+model Bcc {
+  id             String    @id @default(cuid())
+  organizationId String
+  parishId       String
+  name           String
+  code           String
+  ward           String?
+  village        String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish       @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  families     Family[]
+
+  @@unique([parishId, code])
+  @@index([organizationId])
+}
+
+model Family {
+  id               String       @id @default(cuid())
+  organizationId   String
+  parishId         String
+  bccId            String?
+  familyCode       String
+  qrToken          String       @unique
+  photoUrl         String?
+  housePhotoUrl    String?
+  houseName        String?
+  houseNumber      String?
+  village          String?
+  ward             String?
+  zone             String?
+  scc              String?
+  address          String?
+  phone            String?
+  whatsapp         String?
+  email            String?
+  emergencyContact String?
+  language         String?
+  occupation       String?
+  income           Decimal?     @db.Decimal(12, 2)
+  latitude         Float?
+  longitude        Float?
+  ministries       String?
+  inCatechism      Boolean      @default(false)
+  status           FamilyStatus @default(ACTIVE)
+  notes            String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  deletedAt        DateTime?
+
+  organization     Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish           Parish             @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  bcc              Bcc?               @relation(fields: [bccId], references: [id])
+  memberships      FamilyMembership[]
+  documents        FamilyDocument[]
+
+  @@unique([parishId, familyCode])
+  @@index([organizationId])
+  @@index([parishId])
+  @@index([parishId, village])
+  @@index([parishId, status])
+}
+
+model Member {
+  id               String           @id @default(cuid())
+  organizationId   String
+  parishId         String
+  memberCode       String
+  photoUrl         String?
+  firstName        String
+  middleName       String?
+  lastName         String
+  dateOfBirth      DateTime?
+  gender           Gender?
+  occupation       String?
+  education        String?
+  bloodGroup       String?
+  phone            String?
+  email            String?
+  maritalStatus    MaritalStatus?
+  disability       String?
+  nationality      String?          @default("Indian")
+  tribe            String?
+  aadhaar          String?
+  address          String?
+  emergencyName    String?
+  emergencyPhone   String?
+  lifeStatus       MemberLifeStatus @default(ALIVE)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  deletedAt        DateTime?
+
+  organization           Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish                 Parish             @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  familyMemberships      FamilyMembership[]
+  relationshipsFrom      Relationship[]     @relation("RelFrom")
+  relationshipsTo        Relationship[]     @relation("RelTo")
+  sacraments             SacramentRecord[]  @relation("SacramentSubject")
+  sacramentsAsSpouse     SacramentRecord[]  @relation("SacramentSpouse")
+  certificates           Certificate[]
+
+  @@unique([parishId, memberCode])
+  @@index([organizationId])
+  @@index([parishId])
+}
+
+model FamilyMembership {
+  id        String   @id @default(cuid())
+  familyId  String
+  memberId  String
+  isHead    Boolean  @default(false)
+  relation  String?
+  joinedAt  DateTime @default(now())
+  leftAt    DateTime?
+
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([familyId, memberId])
+}
+
+model Relationship {
+  id           String           @id @default(cuid())
+  fromMemberId String
+  toMemberId   String
+  type         RelationshipType
+  createdAt    DateTime         @default(now())
+
+  fromMember Member @relation("RelFrom", fields: [fromMemberId], references: [id], onDelete: Cascade)
+  toMember   Member @relation("RelTo", fields: [toMemberId], references: [id], onDelete: Cascade)
+
+  @@unique([fromMemberId, toMemberId, type])
+  @@index([fromMemberId])
+  @@index([toMemberId])
+}
+
+model FamilyDocument {
+  id        String   @id @default(cuid())
+  familyId  String
+  title     String
+  fileUrl   String
+  mimeType  String?
+  createdAt DateTime @default(now())
+
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+}
+
+model MediaAsset {
+  id             String   @id @default(cuid())
+  organizationId String
+  key            String
+  url            String
+  mimeType       String?
+  sizeBytes      Int?
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+}
+
+model AuditLog {
+  id             String   @id @default(cuid())
+  organizationId String?
+  userId         String?
+  action         String
+  entityType     String
+  entityId       String?
+  metadata       Json?
+  ipAddress      String?
+  createdAt      DateTime @default(now())
+
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  user         User?         @relation(fields: [userId], references: [id])
+
+  @@index([organizationId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model SacramentRecord {
+  id               String        @id @default(cuid())
+  organizationId   String
+  parishId         String
+  type             SacramentType
+  registerNumber   String
+  registerYear     Int
+  celebratedAt     DateTime
+  churchName       String?
+  ministerName     String?
+  place            String?
+  remarks          String?
+  scanImageUrl     String?
+  memberId         String?
+  spouseMemberId   String?
+
+  // Baptism / shared person fields
+  birthDate          DateTime?
+  birthPlace         String?
+  childName          String?
+  childGender        Gender?
+  fatherName         String?
+  motherName         String?
+  nationality        String?
+  parentsDomicile    String?
+  fatherOccupation   String?
+  placeOfBaptism     String?
+  godFatherName      String?
+  godMotherName      String?
+  sponsorName        String?
+  className          String?
+  teacherName        String?
+  schoolName         String?
+
+  // Marriage — bridegroom
+  bridegroomName           String?
+  bridegroomSurname        String?
+  bridegroomFatherName     String?
+  bridegroomMotherName     String?
+  bridegroomDob            DateTime?
+  bridegroomNationality    String?
+  bridegroomDomicile       String?
+  bridegroomOccupation     String?
+  bridegroomMaritalStatus  String?
+  bridegroomPreviousSpouse String?
+
+  // Marriage — bride
+  brideName           String?
+  brideSurname        String?
+  brideFatherName     String?
+  brideMotherName     String?
+  brideDob            DateTime?
+  brideNationality    String?
+  brideDomicile       String?
+  brideOccupation     String?
+  brideMaritalStatus  String?
+  bridePreviousSpouse String?
+
+  // Marriage — canonical / witnesses / clergy
+  witness1Name       String?
+  witness1Village    String?
+  witness2Name       String?
+  witness2Village    String?
+  bannsPublished     Boolean       @default(false)
+  bann1At            DateTime?
+  bann2At            DateTime?
+  bann3At            DateTime?
+  dispensationNotes  String?
+  parishPriestName   String?
+  placeOfMarriage    String?
+
+  // Death
+  burialDate         DateTime?
+  cemeteryName       String?
+  graveNumber        String?
+  funeralCelebrant   String?
+  causeOfDeath       String?
+  placeOfDeath       String?
+
+  signaturesJson     Json?
+  detailsJson        Json?
+  certificateId      String?       @unique
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  deletedAt          DateTime?
+
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish        @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  member       Member?       @relation("SacramentSubject", fields: [memberId], references: [id])
+  spouseMember Member?       @relation("SacramentSpouse", fields: [spouseMemberId], references: [id])
+  certificate  Certificate?  @relation(fields: [certificateId], references: [id])
+  registerEntry RegisterEntry?
+
+  @@unique([parishId, type, registerYear, registerNumber])
+  @@index([organizationId])
+  @@index([parishId, type])
+  @@index([memberId])
+  @@index([celebratedAt])
+}
+
+model Certificate {
+  id             String          @id @default(cuid())
+  organizationId String
+  parishId       String
+  type           CertificateType
+  title          String
+  serialNumber   String
+  qrToken        String          @unique
+  issuedAt       DateTime        @default(now())
+  issuedToName   String
+  memberId       String?
+  payloadJson    Json
+  digitalSignBy  String?
+  isRevoked      Boolean         @default(false)
+  printCount     Int             @default(0)
+  lastPrintedAt  DateTime?
+  lastPrintReason String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish                @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  member       Member?               @relation(fields: [memberId], references: [id])
+  sacrament    SacramentRecord?
+  printLogs    CertificatePrintLog[]
+
+  @@unique([parishId, type, serialNumber])
+  @@index([organizationId])
+  @@index([qrToken])
+}
+
+model CertificatePrintLog {
+  id            String   @id @default(cuid())
+  certificateId String
+  printNumber   Int
+  printedAt     DateTime @default(now())
+  printedById   String?
+  printedByName String?
+  reason        String   @default("ORIGINAL")
+  printerName   String?
+  computerName  String?
+  ipAddress     String?
+  remarks       String?
+
+  certificate Certificate @relation(fields: [certificateId], references: [id], onDelete: Cascade)
+
+  @@index([certificateId, printedAt])
+}
+
+model RegisterBook {
+  id             String           @id @default(cuid())
+  organizationId String
+  parishId       String
+  type           RegisterBookType
+  year           Int
+  title          String
+  pageSize       Int              @default(20)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish          @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  entries      RegisterEntry[]
+
+  @@unique([parishId, type, year])
+  @@index([organizationId])
+}
+
+model RegisterEntry {
+  id           String   @id @default(cuid())
+  bookId       String
+  sacramentId  String?  @unique
+  pageNumber   Int
+  lineNumber   Int
+  summary      String
+  createdAt    DateTime @default(now())
+
+  book      RegisterBook     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  sacrament SacramentRecord? @relation(fields: [sacramentId], references: [id])
+
+  @@unique([bookId, pageNumber, lineNumber])
+  @@index([bookId, pageNumber])
+}
+
+enum MassType {
+  DAILY
+  SUNDAY
+  HOLY_DAY
+  FEAST
+  WEDDING
+  FUNERAL
+  FIRST_FRIDAY
+  FIRST_SATURDAY
+  NOVENA
+  RETREAT
+  YOUTH
+  SCHOOL
+  MISSION
+  HOUSE_BLESSING
+  ANNIVERSARY
+  MEMORIAL
+  SPECIAL_INTENTION
+  SPECIAL
+}
+
+enum MassScheduleSeason {
+  SUMMER
+  WINTER
+}
+
+enum MassScheduleCategory {
+  DAILY
+  SUNDAY
+  FIRST_FRIDAY
+  FIRST_SATURDAY
+  ADORATION
+  FEAST_DAY
+  SPECIAL
+}
+
+enum MassScheduleKind {
+  HOLY_MASS
+  ADORATION
+}
+
+enum MassScheduleRepeat {
+  DAILY
+  WEEKLY
+  FIRST_FRIDAY
+  FIRST_SATURDAY
+  FEAST_DAY
+  ONCE
+}
+
+enum DonationType {
+  GENERAL
+  SUNDAY_COLLECTION
+  BUILDING_FUND
+  MISSION_FUND
+  POOR_FUND
+  MASS_INTENTION
+  THANKSGIVING
+  ANNIVERSARY_MASS
+  BIRTHDAY_MASS
+  WEDDING
+  BAPTISM
+  FUNERAL
+  CHRISTMAS
+  EASTER
+  FEAST_SPONSORSHIP
+  ALTAR_SPONSORSHIP
+  FLOWER
+  CANDLE
+  YOUTH
+  CATECHISM
+  CHOIR
+  SOCIAL_SERVICE
+  SCHOLARSHIP
+  MEDICAL
+  SPECIAL_COLLECTION
+  OTHER
+}
+
+enum PaymentMethod {
+  CASH
+  UPI
+  ONLINE
+  CARD
+  CHEQUE
+  BANK
+}
+
+enum AccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  INCOME
+  EXPENSE
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+enum GraveStatus {
+  AVAILABLE
+  OCCUPIED
+  RESERVED
+  RENEWAL_DUE
+}
+
+enum CommChannel {
+  SMS
+  WHATSAPP
+  EMAIL
+  PUSH
+  WEBSITE
+}
+
+enum CommStatus {
+  DRAFT
+  QUEUED
+  SENT
+  FAILED
+}
+
+enum CalendarEventType {
+  FEAST
+  RETREAT
+  YOUTH
+  CHOIR
+  MARRIAGE_PREP
+  CATECHISM
+  FINANCE
+  COUNCIL
+  HOLY_WEEK
+  CHRISTMAS
+  EASTER
+  HOLY_MASS
+  SUNDAY_MASS
+  NOVENA
+  MARRIAGE
+  BAPTISM
+  CONFIRMATION
+  COMMUNION
+  FUNERAL
+  MEETING
+  TRAINING
+  VOLUNTEER
+  PILGRIMAGE
+  OTHER
+}
+
+model MassEvent {
+  id               String    @id @default(cuid())
+  organizationId   String
+  parishId         String
+  type             MassType  @default(DAILY)
+  title            String
+  scheduledAt      DateTime
+  celebrant        String?
+  assistantPriest  String?
+  celebrantPriestId String?
+  assistantPriestId String?
+  location         String?
+  hallId           String?
+  language         String?
+  maxAttendance    Int?
+  attendance       Int?
+  offeringAmount   Decimal?  @db.Decimal(12, 2)
+  livestream       Boolean   @default(false)
+  livestreamUrl    String?
+  recurring        String?
+  status           String    @default("SCHEDULED")
+  liturgicalSeason String?
+  liturgicalColour String?
+  saintOfDay       String?
+  gospelReading    String?
+  firstReading     String?
+  psalm            String?
+  secondReading    String?
+  notes            String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish         @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  celebrantPriest  Priest?    @relation("MassCelebrant", fields: [celebrantPriestId], references: [id])
+  assistantPriestRef Priest?  @relation("MassAssistant", fields: [assistantPriestId], references: [id])
+  hall         Hall?          @relation(fields: [hallId], references: [id])
+  intentions   MassIntention[]
+  bookings     MassBooking[]
+  hallBooking  HallBooking?
+
+  @@index([organizationId])
+  @@index([parishId, scheduledAt])
+  @@index([parishId, type])
+  @@index([celebrantPriestId])
+  @@index([assistantPriestId])
+  @@index([hallId])
+}
+
+model MassScheduleEntry {
+  id             String               @id @default(cuid())
+  organizationId String
+  parishId       String
+  season         MassScheduleSeason
+  category       MassScheduleCategory
+  kind           MassScheduleKind     @default(HOLY_MASS)
+  repeatRule     MassScheduleRepeat   @default(DAILY)
+  dayOfWeek      Int?
+  time           String
+  endTime        String?
+  language       String?
+  church         String               @default("Main Church")
+  celebrant      String?
+  description    String?
+  sortOrder      Int                  @default(0)
+  status         String               @default("ACTIVE")
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish       @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  reminderLogs MassScheduleReminderLog[]
+
+  @@index([parishId, season, category])
+  @@index([organizationId])
+}
+
+model MassScheduleReminderLog {
+  id           String   @id @default(cuid())
+  entryId      String
+  parishId     String
+  occurrenceAt DateTime
+  sentAt       DateTime @default(now())
+
+  entry MassScheduleEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@unique([entryId, occurrenceAt])
+  @@index([parishId, occurrenceAt])
+}
+
+model MassIntention {
+  id           String   @id @default(cuid())
+  massId       String
+  intentionFor String
+  requestedBy  String?
+  familyName   String?
+  purpose      String?
+  category     String?
+  amount       Decimal? @db.Decimal(12, 2)
+  receiptNo    String?
+  isOffered    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  mass MassEvent @relation(fields: [massId], references: [id], onDelete: Cascade)
+
+  @@index([massId])
+}
+
+model MassBooking {
+  id          String   @id @default(cuid())
+  massId      String
+  bookerName  String
+  bookerPhone String?
+  seats       Int      @default(1)
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  mass MassEvent @relation(fields: [massId], references: [id], onDelete: Cascade)
+
+  @@index([massId])
+}
+
+enum HallBookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+model Hall {
+  id             String    @id @default(cuid())
+  organizationId String
+  parishId       String
+  name           String
+  code           String?
+  capacity       Int?
+  amenitiesJson  Json?
+  locationNote   String?
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish       @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  bookings     HallBooking[]
+  masses       MassEvent[]
+
+  @@index([organizationId])
+  @@index([parishId])
+  @@unique([parishId, name])
+}
+
+model HallBooking {
+  id             String            @id @default(cuid())
+  organizationId String
+  parishId       String
+  hallId         String
+  title          String
+  purpose        String?
+  startsAt       DateTime
+  endsAt         DateTime
+  status         HallBookingStatus @default(CONFIRMED)
+  bookedByName   String?
+  bookedByPhone  String?
+  notes          String?
+  massEventId    String?           @unique
+  calendarEventId String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish       @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  hall         Hall         @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  massEvent    MassEvent?   @relation(fields: [massEventId], references: [id])
+
+  @@index([organizationId])
+  @@index([parishId, startsAt])
+  @@index([hallId, startsAt, endsAt])
+  @@index([status])
+}
+
+model Donation {
+  id             String         @id @default(cuid())
+  organizationId String
+  parishId       String
+  type           DonationType   @default(SUNDAY_COLLECTION)
+  amount         Decimal        @db.Decimal(12, 2)
+  currency       String         @default("INR")
+  paymentMethod  PaymentMethod  @default(CASH)
+  donorName      String?
+  donorPhone     String?
+  donorEmail     String?
+  familyName     String?
+  village        String?
+  fund           String?
+  purpose        String?
+  dedication     String?
+  isAnonymous    Boolean        @default(false)
+  status         String         @default("COMPLETED")
+  recurringFreq  String?
+  receiptNumber  String
+  referenceNo    String?
+  donatedAt      DateTime       @default(now())
+  notes          String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish       @relation(fields: [parishId], references: [id], onDelete: Cascade)
+
+  @@unique([parishId, receiptNumber])
+  @@index([organizationId])
+  @@index([parishId, donatedAt])
+  @@index([parishId, type])
+  @@index([parishId, fund])
+}
+
+model FinanceAccount {
+  id             String      @id @default(cuid())
+  organizationId String
+  parishId       String
+  code           String
+  name           String
+  type           AccountType
+  isActive       Boolean     @default(true)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish               @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  transactions FinanceTransaction[]
+
+  @@unique([parishId, code])
+  @@index([organizationId])
+}
+
+model FinanceTransaction {
+  id             String          @id @default(cuid())
+  organizationId String
+  parishId       String
+  accountId      String
+  type           TransactionType
+  amount         Decimal         @db.Decimal(12, 2)
+  description    String
+  txnDate        DateTime        @default(now())
+  referenceNo    String?
+  voucherNo      String?
+  paymentMethod  String?
+  category       String?
+  fund           String?
+  status         String          @default("POSTED")
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish         @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  account      FinanceAccount @relation(fields: [accountId], references: [id])
+
+  @@index([organizationId])
+  @@index([parishId, txnDate])
+  @@index([parishId, type])
+}
+
+model Budget {
+  id             String   @id @default(cuid())
+  organizationId String
+  parishId       String
+  year           Int
+  category       String
+  plannedAmount  Decimal  @db.Decimal(12, 2)
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish       @relation(fields: [parishId], references: [id], onDelete: Cascade)
+
+  @@unique([parishId, year, category])
+  @@index([organizationId])
+}
+
+model Cemetery {
+  id             String   @id @default(cuid())
+  organizationId String
+  parishId       String
+  name           String
+  address        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish       @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  graves       GravePlot[]
+
+  @@index([organizationId])
+  @@index([parishId])
+}
+
+model GravePlot {
+  id            String      @id @default(cuid())
+  cemeteryId    String
+  block         String
+  row           String
+  plotNumber    String
+  status        GraveStatus @default(AVAILABLE)
+  occupantName  String?
+  photoUrl      String?
+  occupiedFrom  DateTime?
+  renewalDueAt  DateTime?
+  notes         String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime?
+
+  cemetery Cemetery @relation(fields: [cemeteryId], references: [id], onDelete: Cascade)
+
+  @@unique([cemeteryId, block, row, plotNumber])
+  @@index([cemeteryId, status])
+}
+
+model CatechismClass {
+  id               String    @id @default(cuid())
+  organizationId   String
+  parishId         String
+  name             String
+  teacherName      String?
+  assistantTeacher String?
+  academicYear     String
+  grade            String?
+  section          String?
+  maxStudents      Int?
+  room             String?
+  schedule         String?
+  notes            String?
+  status           String    @default("ACTIVE")
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  organization Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish                @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  students     CatechismStudent[]
+  attendance   CatechismAttendance[]
+
+  @@index([organizationId])
+  @@index([parishId])
+  @@index([parishId, academicYear])
+}
+
+model CatechismStudent {
+  id                String    @id @default(cuid())
+  classId           String
+  memberId          String?
+  studentCode       String?
+  fullName          String
+  rollNo            String?
+  photoUrl          String?
+  gender            String?
+  dateOfBirth       DateTime?
+  fatherName        String?
+  motherName        String?
+  familyName        String?
+  village           String?
+  phone             String?
+  school            String?
+  schoolStandard    String?
+  bloodGroup        String?
+  emergencyContact  String?
+  catechismStatus   String    @default("ACTIVE")
+  sacramentTrack    String    @default("NONE")
+  sacramentStatus   String    @default("NONE")
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @default(now()) @updatedAt
+  deletedAt         DateTime?
+
+  class      CatechismClass         @relation(fields: [classId], references: [id], onDelete: Cascade)
+  attendance CatechismAttendance[]
+
+  @@index([classId])
+  @@index([sacramentTrack])
+}
+
+model CatechismAttendance {
+  id        String   @id @default(cuid())
+  classId   String
+  studentId String
+  date      DateTime
+  present   Boolean  @default(true)
+  status    String   @default("PRESENT")
+  note      String?
+  createdAt DateTime @default(now())
+
+  class   CatechismClass   @relation(fields: [classId], references: [id], onDelete: Cascade)
+  student CatechismStudent @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, date])
+  @@index([classId, date])
+}
+
+model CommunicationMessage {
+  id             String      @id @default(cuid())
+  organizationId String
+  parishId       String?
+  channel        CommChannel
+  subject        String?
+  body           String
+  audience       String      @default("all")
+  status         CommStatus  @default(DRAFT)
+  priority       String      @default("NORMAL")
+  scheduledAt    DateTime?
+  sentAt         DateTime?
+  metaJson       Json?
+  appNotificationId String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish?      @relation(fields: [parishId], references: [id])
+  appNotification AppNotification? @relation(fields: [appNotificationId], references: [id])
+
+  @@index([organizationId])
+  @@index([parishId, status])
+  @@index([channel, createdAt])
+  @@index([appNotificationId])
+}
+
+model ParishCalendarEvent {
+  id             String            @id @default(cuid())
+  organizationId String
+  parishId       String
+  type           CalendarEventType @default(OTHER)
+  title          String
+  description    String?
+  startsAt       DateTime
+  endsAt         DateTime?
+  location       String?
+  color          String?
+  allDay         Boolean           @default(false)
+  status         String            @default("CONFIRMED")
+  priority       String            @default("NORMAL")
+  organizer      String?
+  bannerUrl      String?
+  publishWeb     Boolean           @default(false)
+  metaJson       Json?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish       @relation(fields: [parishId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([parishId, startsAt])
+}
+
+enum PriestStatus {
+  ACTIVE
+  BUSY
+  ON_LEAVE
+  RETREAT
+  VACATION
+  MEDICAL_LEAVE
+  UNAVAILABLE
+  TRANSFERRED
+  RETIRED
+  DECEASED
+}
+
+enum ClergyType {
+  DIOCESAN
+  RELIGIOUS
+  VISITING
+  BISHOP
+  DEACON
+  BROTHER
+  SISTER
+  SEMINARIAN
+  CHAPLAIN
+  OTHER
+}
+
+enum AppointmentType {
+  NEW
+  TRANSFER
+  TEMPORARY
+  ADDITIONAL
+  RELIEVING
+  RETURN
+}
+
+enum AssignmentStatus {
+  ACTIVE
+  COMPLETED
+  RELIEVED
+  CANCELLED
+}
+
+enum TransferType {
+  PERMANENT
+  TEMPORARY
+  ACTING
+  SWAP
+  ADDITIONAL
+}
+
+enum InstitutionType {
+  PARISH
+  SCHOOL
+  COLLEGE
+  HOSPITAL
+  CONVENT
+  DIOCESE_OFFICE
+  SHRINE
+  MISSION_STATION
+  CHAPLAINCY
+  OTHER
+}
+
+enum TransferStatus {
+  DRAFT
+  APPROVED
+  ISSUED
+  COMPLETED
+  CANCELLED
+}
+
+enum CmsPageStatus {
+  DRAFT
+  PENDING_APPROVAL
+  PUBLISHED
+  ARCHIVED
+}
+
+enum CmsMenuLocation {
+  HEADER
+  FOOTER
+  MOBILE
+}
+
+enum CmsAnnouncementType {
+  SCROLL
+  POPUP
+  BANNER
+}
+
+enum CmsFormType {
+  PRAYER
+  CONTACT
+  DONATION
+  VOLUNTEER
+  MARRIAGE
+  CATECHISM
+}
+
+enum CmsFormSubmissionStatus {
+  NEW
+  READ
+  ARCHIVED
+}
+
+enum OcrJobStatus {
+  PENDING
+  PROCESSING
+  NEEDS_REVIEW
+  COMPLETED
+  FAILED
+}
+
+enum ImportModule {
+  MARRIAGE
+  BAPTISM
+  CONFIRMATION
+  COMMUNION
+  DEATH
+  FAMILIES
+  MEMBERS
+  DONATIONS
+  CATECHISM
+  CEMETERY
+  MASS
+  MINISTRIES
+  PARISH_STAFF
+}
+
+enum ImportJobStatus {
+  UPLOADED
+  PREVIEWED
+  VALIDATED
+  IMPORTING
+  COMPLETED
+  FAILED
+  ROLLED_BACK
+}
+
+enum ReportScheduleFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+model Congregation {
+  id             String    @id @default(cuid())
+  organizationId String
+  name           String
+  abbreviation   String
+  province       String?
+  superiorName   String?
+  logoUrl        String?
+  description    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  priests      Priest[]
+
+  @@unique([organizationId, abbreviation])
+  @@index([organizationId])
+}
+
+model Institution {
+  id             String          @id @default(cuid())
+  organizationId String
+  parishId       String?
+  type           InstitutionType @default(PARISH)
+  name           String
+  address        String?
+  isActive       Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish?           @relation(fields: [parishId], references: [id])
+  assignments  PriestAssignment[]
+  transfersFrom PriestTransfer[] @relation("TransferFromInstitution")
+  transfersTo   PriestTransfer[] @relation("TransferToInstitution")
+  accommodationFacilities AccommodationFacility[]
+  accommodationOccupants  AccommodationOccupant[]
+  translations            InstitutionTranslation[]
+
+  @@index([organizationId])
+  @@index([parishId])
+  @@index([organizationId, type])
+}
+
+model Priest {
+  id                       String       @id @default(cuid())
+  organizationId           String
+  userId                   String?
+  code                     String
+  firstName                String
+  lastName                 String
+  title                    String       @default("Fr.")
+  religiousName            String?
+  clergyType               ClergyType   @default(DIOCESAN)
+  congregationId           String?
+  /// Home diocese when serving here but belonging elsewhere (or religious province origin)
+  homeDiocese              String?
+  province                 String?
+  phone                    String?
+  email                    String?
+  ordinationDate           DateTime?
+  ordainedBy               String?
+  dateOfBirth              DateTime?
+  bloodGroup               String?
+  emergencyContact         String?
+  address                  String?
+  currentResidence         String?
+  languages                Json?
+  education                String?
+  specialization           String?
+  specialResponsibilities  String?
+  healthNotes              String?
+  photoUrl                 String?
+  facultiesJson            Json?
+  jubileeDate              DateTime?
+  vehicleNote              String?
+  passportMetaJson         Json?
+  documentsJson            Json?
+  remarks                  String?
+  status                   PriestStatus @default(ACTIVE)
+  statusNote               String?
+  statusUntil              DateTime?
+  visitingExpiresAt        DateTime?
+  bio                      String?
+  createdAt                DateTime     @default(now())
+  updatedAt                DateTime     @updatedAt
+  deletedAt                DateTime?
+
+  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  congregation   Congregation?      @relation(fields: [congregationId], references: [id])
+  assignments    PriestAssignment[]
+  transfers      PriestTransfer[]
+  statusEvents   PriestStatusEvent[]
+  leaveRequests  PriestLeaveRequest[]
+  massesAsCelebrant MassEvent[]     @relation("MassCelebrant")
+  massesAsAssistant MassEvent[]     @relation("MassAssistant")
+  accommodationOccupants AccommodationOccupant[]
+
+  @@unique([organizationId, code])
+  @@index([organizationId])
+  @@index([congregationId])
+  @@index([userId])
+  @@index([status])
+  @@index([clergyType])
+}
+
+model PriestAssignment {
+  id               String           @id @default(cuid())
+  priestId         String
+  parishId         String?
+  institutionId    String?
+  role             String           @default("Parish Priest")
+  designation      String?
+  appointmentType  AppointmentType  @default(NEW)
+  appointedBy      String?
+  orderReference   String?
+  residence        String?
+  responsibilities String?
+  remarks          String?
+  status           AssignmentStatus @default(ACTIVE)
+  startDate        DateTime         @default(now())
+  endDate          DateTime?
+  isPrimary        Boolean          @default(true)
+  isCurrent        Boolean          @default(true)
+  createdAt        DateTime         @default(now())
+
+  priest      Priest       @relation(fields: [priestId], references: [id], onDelete: Cascade)
+  parish      Parish?      @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  institution Institution? @relation(fields: [institutionId], references: [id])
+
+  @@index([priestId])
+  @@index([parishId])
+  @@index([institutionId])
+  @@index([priestId, isCurrent])
+  @@index([appointmentType])
+  @@index([status])
+}
+
+model PriestTransfer {
+  id                   String         @id @default(cuid())
+  organizationId       String
+  priestId             String
+  orderNo              String?
+  transferType         TransferType   @default(PERMANENT)
+  transferDate         DateTime?
+  fromParishId         String?
+  toParishId           String
+  fromInstitutionId    String?
+  toInstitutionId      String?
+  effectiveDate        DateTime
+  status               TransferStatus @default(DRAFT)
+  reason               String?
+  remarks              String?
+  previousDesignation  String?
+  newRole              String         @default("Parish Priest")
+  approvedBy           String?
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  deletedAt            DateTime?
+
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  priest          Priest       @relation(fields: [priestId], references: [id])
+  toParish        Parish       @relation(fields: [toParishId], references: [id])
+  fromInstitution Institution? @relation("TransferFromInstitution", fields: [fromInstitutionId], references: [id])
+  toInstitution   Institution? @relation("TransferToInstitution", fields: [toInstitutionId], references: [id])
+
+  @@index([organizationId])
+  @@index([priestId])
+  @@unique([organizationId, orderNo])
+}
+
+model PriestStatusEvent {
+  id        String       @id @default(cuid())
+  priestId  String
+  status    PriestStatus
+  note      String?
+  until     DateTime?
+  createdBy String?
+  createdAt DateTime     @default(now())
+
+  priest Priest @relation(fields: [priestId], references: [id], onDelete: Cascade)
+
+  @@index([priestId, createdAt])
+}
+
+enum LeaveRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model PriestLeaveRequest {
+  id           String             @id @default(cuid())
+  priestId     String
+  statusType   PriestStatus       @default(ON_LEAVE)
+  reason       String?
+  startsAt     DateTime
+  endsAt       DateTime
+  status       LeaveRequestStatus @default(PENDING)
+  requestedBy  String?
+  reviewedBy   String?
+  reviewNote   String?
+  reviewedAt   DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  priest Priest @relation(fields: [priestId], references: [id], onDelete: Cascade)
+
+  @@index([priestId, status])
+  @@index([startsAt, endsAt])
+}
+
+/// Cross-entity life timeline (Phase 5) — pastoral narrative, not audit log
+model TimelineEvent {
+  id             String   @id @default(cuid())
+  organizationId String
+  entityType     String
+  entityId       String
+  occurredAt     DateTime
+  title          String
+  detail         String?
+  sourceModule   String
+  sourceId       String
+  metaJson       Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, sourceModule, sourceId])
+  @@index([organizationId, occurredAt])
+  @@index([entityType, entityId, occurredAt])
+  @@index([sourceModule])
+}
+
+model CmsSite {
+  id                   String    @id @default(cuid())
+  organizationId       String
+  parishId             String    @unique
+  slug                 String
+  /// Left label for diocese base domain, e.g. "sacredheart" → sacredheart.turadiocese.in
+  subdomain            String?
+  siteTitle            String
+  tagline              String?
+  primaryColor         String?   @default("#722f37")
+  logoUrl              String?
+  faviconUrl           String?
+  customDomain         String?
+  isPublished          Boolean   @default(true)
+  themeJson            Json?
+  seoJson              Json?
+  massTimingsJson      Json?
+  homepageSectionsJson Json?
+  publishedAt          DateTime?
+  lastPublishedAt      DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  deletedAt            DateTime?
+
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish            @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  pages        CmsPage[]
+  posts        CmsPost[]
+  gallery      CmsGalleryItem[]
+  menus        CmsMenu[]
+  events       CmsEvent[]
+  announcements CmsAnnouncement[]
+  media        CmsMedia[]
+  forms        CmsForm[]
+  formSubmissions CmsFormSubmission[]
+  visitDaily   CmsSiteVisitDaily[]
+  translations CmsSiteTranslation[]
+
+  @@unique([organizationId, slug])
+  @@unique([organizationId, subdomain])
+  @@unique([customDomain])
+  @@index([organizationId])
+  @@index([slug])
+  @@index([subdomain])
+}
+
+enum ParishDomainKind {
+  SUBDOMAIN
+  CUSTOM
+}
+
+enum ParishDomainSslStatus {
+  PENDING
+  ACTIVE
+  ERROR
+  DISABLED
+}
+
+/// Domain Management — maps hosts to parishes (diocese subdomain or custom domain)
+model ParishDomain {
+  id             String               @id @default(cuid())
+  organizationId String
+  parishId       String
+  /// Full hostname, e.g. sacredheart.turadiocese.in or sacredheartshrinetura.in
+  host           String
+  kind           ParishDomainKind     @default(CUSTOM)
+  isPrimary      Boolean              @default(false)
+  sslStatus      ParishDomainSslStatus @default(PENDING)
+  dnsVerified    Boolean              @default(false)
+  redirectToHost String?
+  notes          String?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish       @relation(fields: [parishId], references: [id], onDelete: Cascade)
+
+  @@unique([host])
+  @@index([organizationId])
+  @@index([parishId])
+  @@index([kind])
+}
+
+model CmsPage {
+  id          String        @id @default(cuid())
+  siteId      String
+  parishId    String
+  slug        String
+  title       String
+  content     String
+  blocksJson  Json?
+  seoJson     Json?
+  status      CmsPageStatus @default(DRAFT)
+  sortOrder   Int           @default(0)
+  scheduledAt DateTime?
+  updatedById String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  deletedAt   DateTime?
+
+  site   CmsSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  parish Parish  @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  translations CmsPageTranslation[]
+
+  @@unique([siteId, slug])
+  @@index([parishId])
+}
+
+model CmsPost {
+  id            String        @id @default(cuid())
+  siteId        String
+  parishId      String
+  title         String
+  slug          String
+  excerpt       String?
+  content       String
+  coverUrl      String?
+  category      String?
+  tags          String[]      @default([])
+  isFeatured    Boolean       @default(false)
+  seoJson       Json?
+  authorName    String?
+  attachmentUrl String?
+  status        CmsPageStatus @default(DRAFT)
+  publishedAt   DateTime?
+  scheduledAt   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  deletedAt     DateTime?
+
+  site   CmsSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  parish Parish  @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  translations CmsPostTranslation[]
+
+  @@unique([siteId, slug])
+  @@index([parishId])
+}
+
+model CmsGalleryItem {
+  id        String   @id @default(cuid())
+  siteId    String
+  title     String?
+  imageUrl  String
+  album     String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  site CmsSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId])
+}
+
+model CmsMenu {
+  id        String          @id @default(cuid())
+  siteId    String
+  parishId  String
+  location  CmsMenuLocation @default(HEADER)
+  name      String
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  site   CmsSite       @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  parish Parish        @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  items  CmsMenuItem[]
+
+  @@unique([siteId, location])
+  @@index([parishId])
+}
+
+model CmsMenuItem {
+  id        String   @id @default(cuid())
+  menuId    String
+  parentId  String?
+  label     String
+  href      String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  menu     CmsMenu       @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  parent   CmsMenuItem?  @relation("MenuItemTree", fields: [parentId], references: [id], onDelete: Cascade)
+  children CmsMenuItem[] @relation("MenuItemTree")
+  translations CmsMenuItemTranslation[]
+
+  @@index([menuId])
+}
+
+model CmsEvent {
+  id          String        @id @default(cuid())
+  siteId      String
+  parishId    String
+  title       String
+  slug        String
+  description String?
+  bannerUrl   String?
+  startsAt    DateTime
+  endsAt      DateTime?
+  venue       String?
+  organizer   String?
+  status      CmsPageStatus  @default(DRAFT)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  deletedAt   DateTime?
+
+  site   CmsSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  parish Parish  @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  translations CmsEventTranslation[]
+
+  @@unique([siteId, slug])
+  @@index([parishId])
+  @@index([startsAt])
+}
+
+model CmsAnnouncement {
+  id        String              @id @default(cuid())
+  siteId    String
+  parishId  String
+  title     String
+  body      String
+  type      CmsAnnouncementType  @default(BANNER)
+  priority  Int                 @default(0)
+  expiresAt DateTime?
+  status    CmsPageStatus       @default(DRAFT)
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+  deletedAt DateTime?
+
+  site   CmsSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  parish Parish  @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  translations CmsAnnouncementTranslation[]
+
+  @@index([parishId])
+  @@index([siteId])
+}
+
+model CmsMedia {
+  id        String   @id @default(cuid())
+  siteId    String
+  parishId  String
+  folder    String   @default("general")
+  key       String
+  url       String
+  fileName  String?
+  mimeType  String?
+  sizeBytes Int?
+  alt       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  site   CmsSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  parish Parish  @relation(fields: [parishId], references: [id], onDelete: Cascade)
+
+  @@index([siteId])
+  @@index([parishId])
+  @@index([folder])
+}
+
+model CmsForm {
+  id          String      @id @default(cuid())
+  siteId      String
+  parishId    String
+  slug        String
+  title       String
+  description String?
+  type        CmsFormType
+  fieldsJson  Json
+  isEnabled   Boolean     @default(true)
+  notifyEmail String?
+  sortOrder   Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  site        CmsSite             @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  parish      Parish              @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  submissions CmsFormSubmission[]
+
+  @@unique([siteId, slug])
+  @@index([parishId])
+  @@index([siteId, isEnabled])
+}
+
+model CmsFormSubmission {
+  id              String                  @id @default(cuid())
+  formId          String
+  siteId          String
+  parishId        String
+  organizationId  String
+  status          CmsFormSubmissionStatus @default(NEW)
+  submitterName   String?
+  submitterEmail  String?
+  submitterPhone  String?
+  payloadJson     Json
+  sourceIp        String?
+  userAgent       String?
+  communicationId String?
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+
+  form         CmsForm      @relation(fields: [formId], references: [id], onDelete: Cascade)
+  site         CmsSite      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  parish       Parish       @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([formId, createdAt])
+  @@index([siteId, status, createdAt])
+  @@index([parishId, status])
+  @@index([organizationId])
+}
+
+model CmsSiteVisitDaily {
+  id        String   @id @default(cuid())
+  siteId    String
+  parishId  String
+  visitDate DateTime @db.Date
+  pageSlug  String   @default("home")
+  views     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  site   CmsSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  parish Parish  @relation(fields: [parishId], references: [id], onDelete: Cascade)
+
+  @@unique([siteId, visitDate, pageSlug])
+  @@index([siteId, visitDate])
+  @@index([parishId, visitDate])
+}
+
+model AiQueryLog {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String?
+  query          String
+  intent         String?
+  resultCount    Int      @default(0)
+  resultJson     Json?
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([createdAt])
+}
+
+model OcrJob {
+  id             String       @id @default(cuid())
+  organizationId String
+  parishId       String?
+  sacramentType  String?
+  imageUrl       String
+  status         OcrJobStatus @default(PENDING)
+  extractedJson  Json?
+  verifiedJson   Json?
+  confidence     Float?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([status])
+}
+
+model ImportJob {
+  id                String          @id @default(cuid())
+  organizationId    String
+  parishId          String
+  module            ImportModule
+  status            ImportJobStatus @default(UPLOADED)
+  fileName          String
+  fileSize          Int             @default(0)
+  mimeType          String?
+  rowCount          Int             @default(0)
+  validCount        Int             @default(0)
+  invalidCount      Int             @default(0)
+  warningCount      Int             @default(0)
+  skippedCount      Int             @default(0)
+  importedCount     Int             @default(0)
+  failedCount       Int             @default(0)
+  progressPct       Int             @default(0)
+  estimatedSeconds  Int?
+  rowsJson          Json?
+  previewFlagsJson  Json?
+  errorsJson        Json?
+  createdEntityIds  Json?
+  suggestionsJson   Json?
+  uploadedById      String?
+  uploadedByName    String?
+  ipAddress         String?
+  startedAt         DateTime?
+  completedAt       DateTime?
+  rolledBackAt      DateTime?
+  rolledBackById    String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish       @relation(fields: [parishId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([parishId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model ReportSchedule {
+  id             String                  @id @default(cuid())
+  organizationId String
+  parishId       String?
+  reportCode     String
+  frequency      ReportScheduleFrequency
+  recipientEmail String
+  enabled        Boolean                 @default(true)
+  lastRunAt      DateTime?
+  nextRunAt      DateTime
+  lastStatus     String?
+  lastError      String?
+  createdById    String?
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish?      @relation(fields: [parishId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([parishId])
+  @@index([nextRunAt])
+  @@index([enabled])
+}
+
+// ——— Mobile App Control Center ———
+
+enum AppNotifStatus {
+  DRAFT
+  SCHEDULED
+  SENT
+  CANCELLED
+}
+
+enum AppNotifPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum AppNotifCategory {
+  ANNOUNCEMENT
+  MASS_REMINDER
+  FEAST_DAY
+  MARRIAGE_REMINDER
+  BAPTISM_REMINDER
+  PRAYER_REQUEST
+  EMERGENCY
+  FUNERAL
+  MEETING
+  RETREAT
+  HOLIDAY
+  EVENT
+  DONATION_CAMPAIGN
+  CERTIFICATE_READY
+  BIRTHDAY
+  ANNIVERSARY
+  PASTORAL_LETTER
+  CIRCULAR
+  OTHER
+}
+
+enum AppAudienceScope {
+  DIOCESE
+  DEANERY
+  PARISHES
+  ROLES
+  CUSTOM
+}
+
+enum MobileOverrideRule {
+  REPLACE_HERO
+  PREPEND_BANNER
+}
+
+enum DeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+  READ
+}
+
+model MobileAppConfig {
+  id             String   @id @default(cuid())
+  organizationId String
+  parishId       String?  @unique
+  heroJson       Json?
+  todayMessage   String?
+  featuredSaint  String?
+  gospelJson     Json?
+  contactsJson   Json?
+  emergencyJson  Json?
+  donationJson   Json?
+  bulletinPdfUrl String?
+  upcomingEventJson Json?
+  newsJson       Json?
+  galleryJson    Json?
+  massScheduleJson Json?
+  featureFlagsJson Json?
+  publishedAt    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish?      @relation(fields: [parishId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+}
+
+model DioceseMobileOverride {
+  id             String             @id @default(cuid())
+  organizationId String
+  title          String
+  bannerJson     Json?
+  message        String?
+  rule           MobileOverrideRule @default(PREPEND_BANNER)
+  priority       Int                @default(0)
+  startsAt       DateTime
+  endsAt         DateTime?
+  active         Boolean            @default(true)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, active])
+  @@index([startsAt, endsAt])
+}
+
+model DevicePushToken {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String?
+  parishId       String?
+  expoPushToken  String
+  platform       String?
+  rolesSnapshot  Json?
+  language       String?
+  lastSeenAt     DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  parish       Parish?      @relation(fields: [parishId], references: [id], onDelete: SetNull)
+
+  @@unique([expoPushToken])
+  @@index([organizationId])
+  @@index([userId])
+  @@index([parishId])
+}
+
+model AppNotification {
+  id             String           @id @default(cuid())
+  organizationId String
+  title          String
+  body           String
+  imageUrl       String?
+  attachmentUrl  String?
+  priority       AppNotifPriority @default(NORMAL)
+  category       AppNotifCategory @default(ANNOUNCEMENT)
+  language       String           @default("en")
+  channelsJson   Json?
+  status         AppNotifStatus   @default(DRAFT)
+  scheduledAt    DateTime?
+  expiresAt      DateTime?
+  sentAt         DateTime?
+  createdById    String?
+  createdByName  String?
+  deepLink       String?
+  metaJson       Json?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  audience     AppNotificationAudience?
+  deliveries   AppNotificationDelivery[]
+  communications CommunicationMessage[]
+  translations AppNotificationTranslation[]
+
+  @@index([organizationId, status])
+  @@index([scheduledAt])
+  @@index([category])
+}
+
+model AppNotificationAudience {
+  id               String           @id @default(cuid())
+  appNotificationId String          @unique
+  scope            AppAudienceScope @default(PARISHES)
+  deaneryId        String?
+  parishIdsJson    Json?
+  rolesJson        Json?
+  filtersJson      Json?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  notification AppNotification @relation(fields: [appNotificationId], references: [id], onDelete: Cascade)
+}
+
+model AppNotificationDelivery {
+  id                String         @id @default(cuid())
+  appNotificationId String
+  userId            String?
+  pushTokenId       String?
+  status            DeliveryStatus @default(PENDING)
+  channel           String         @default("IN_APP")
+  error             String?
+  sentAt            DateTime?
+  readAt            DateTime?
+  createdAt         DateTime       @default(now())
+
+  notification AppNotification @relation(fields: [appNotificationId], references: [id], onDelete: Cascade)
+  user         User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([appNotificationId, status])
+  @@index([userId, status])
+  @@index([createdAt])
+}
+
+// ——— Accommodation Management ———
+
+enum AccommodationType {
+  STAFF_QUARTERS
+  PRESBYTERY
+  BISHOPS_HOUSE
+  GUEST_HOUSE
+  CONVENT
+  SEMINARY
+  HOSTEL
+  STAFF_HOSTEL
+  TEACHERS_QUARTERS
+  HOSPITAL_STAFF_QUARTERS
+  MISSION_HOUSE
+  RETREAT_CENTRE
+  PILGRIM_ACCOMMODATION
+  OTHER
+}
+
+enum AccommodationFacilityStatus {
+  ACTIVE
+  INACTIVE
+  UNDER_RENOVATION
+  DECOMMISSIONED
+}
+
+enum RoomStatus {
+  AVAILABLE
+  OCCUPIED
+  RESERVED
+  UNDER_MAINTENANCE
+  RENOVATION
+  BLOCKED
+  DECOMMISSIONED
+}
+
+enum OccupantKind {
+  PRIEST
+  RELIGIOUS_SISTER
+  STAFF
+  TEACHER
+  EMPLOYEE
+  VOLUNTEER
+  GUEST
+  SEMINARIAN
+}
+
+enum AllocationStatus {
+  ACTIVE
+  TRANSFERRED
+  VACATED
+  CANCELLED
+}
+
+enum RentInvoiceStatus {
+  DRAFT
+  ISSUED
+  PARTIAL
+  PAID
+  WAIVED
+  CANCELLED
+}
+
+enum MaintenancePriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum MaintenanceRequestStatus {
+  OPEN
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum MaintenanceCategory {
+  PLUMBING
+  ELECTRICAL
+  PAINTING
+  CLEANING
+  FURNITURE
+  INTERNET
+  GENERATOR
+  WATER_SUPPLY
+  OTHER
+}
+
+model AccommodationFacility {
+  id             String                      @id @default(cuid())
+  organizationId String
+  parishId       String?
+  institutionId  String?
+  code           String
+  name           String
+  type           AccommodationType           @default(STAFF_QUARTERS)
+  address        String?
+  latitude       Float?
+  longitude      Float?
+  photoUrl       String?
+  totalFloors    Int?
+  totalRooms     Int?
+  capacity       Int?
+  yearBuilt      Int?
+  status         AccommodationFacilityStatus @default(ACTIVE)
+  description    String?
+  createdAt      DateTime                    @default(now())
+  updatedAt      DateTime                    @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish?              @relation(fields: [parishId], references: [id])
+  institution  Institution?         @relation(fields: [institutionId], references: [id])
+  blocks       AccommodationBlock[]
+  rooms        AccommodationRoom[]
+  guestStays   AccommodationGuestStay[]
+  inspections  AccommodationInspection[]
+
+  @@unique([organizationId, code])
+  @@index([organizationId])
+  @@index([parishId])
+  @@index([institutionId])
+  @@index([type])
+  @@index([status])
+}
+
+model AccommodationBlock {
+  id         String   @id @default(cuid())
+  facilityId String
+  code       String
+  name       String
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  deletedAt  DateTime?
+
+  facility AccommodationFacility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  floors   AccommodationFloor[]
+
+  @@unique([facilityId, code])
+  @@index([facilityId])
+}
+
+model AccommodationFloor {
+  id        String   @id @default(cuid())
+  blockId   String
+  level     Int
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  block AccommodationBlock  @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  rooms AccommodationRoom[]
+
+  @@unique([blockId, level])
+  @@index([blockId])
+}
+
+model AccommodationRoom {
+  id              String     @id @default(cuid())
+  facilityId      String
+  floorId         String
+  roomNumber      String
+  roomType        String?
+  capacity        Int        @default(1)
+  areaSqFt        Float?
+  furnished       Boolean    @default(true)
+  attachedBath    Boolean    @default(false)
+  kitchen         Boolean    @default(false)
+  balcony         Boolean    @default(false)
+  electricityMeter String?
+  waterMeter      String?
+  wifiAvailable   Boolean    @default(false)
+  parking         Boolean    @default(false)
+  status          RoomStatus @default(AVAILABLE)
+  monthlyRentDefault Decimal? @db.Decimal(12, 2)
+  notes           String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  deletedAt       DateTime?
+
+  facility     AccommodationFacility              @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  floor        AccommodationFloor                 @relation(fields: [floorId], references: [id], onDelete: Cascade)
+  allocations  AccommodationAllocation[]
+  maintenance  AccommodationMaintenanceRequest[]
+  guestStays   AccommodationGuestStay[]
+  inspections  AccommodationInspection[]
+  assets       AccommodationRoomAsset[]
+
+  @@unique([facilityId, roomNumber])
+  @@index([facilityId, status])
+  @@index([floorId])
+  @@index([status])
+}
+
+model AccommodationOccupant {
+  id                 String       @id @default(cuid())
+  organizationId     String
+  userId             String?
+  kind               OccupantKind @default(STAFF)
+  name               String
+  priestId           String?
+  institutionId      String?
+  employeeCode       String?
+  designation        String?
+  contactPhone       String?
+  contactEmail       String?
+  familyMembersJson  Json?
+  emergencyContact   String?
+  notes              String?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  deletedAt          DateTime?
+
+  organization Organization              @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User?                     @relation(fields: [userId], references: [id])
+  priest       Priest?                   @relation(fields: [priestId], references: [id])
+  institution  Institution?              @relation(fields: [institutionId], references: [id])
+  allocations  AccommodationAllocation[]
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([priestId])
+  @@index([kind])
+  @@index([name])
+}
+
+model AccommodationAllocation {
+  id               String           @id @default(cuid())
+  organizationId   String
+  parishId         String?
+  roomId           String
+  occupantId       String
+  startDate        DateTime
+  expectedEndDate  DateTime?
+  actualEndDate    DateTime?
+  monthlyRent      Decimal          @db.Decimal(12, 2) @default(0)
+  securityDeposit  Decimal          @db.Decimal(12, 2) @default(0)
+  remarks          String?
+  status           AllocationStatus @default(ACTIVE)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  deletedAt        DateTime?
+
+  organization Organization                   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish?                        @relation(fields: [parishId], references: [id])
+  room         AccommodationRoom              @relation(fields: [roomId], references: [id])
+  occupant     AccommodationOccupant          @relation(fields: [occupantId], references: [id])
+  vacateOrders AccommodationVacateOrder[]
+  invoices     AccommodationRentInvoice[]
+
+  @@index([organizationId])
+  @@index([parishId])
+  @@index([roomId, status])
+  @@index([occupantId])
+  @@index([status, startDate])
+}
+
+model AccommodationVacateOrder {
+  id               String    @id @default(cuid())
+  allocationId     String
+  vacateDate       DateTime
+  outstandingRent  Decimal   @db.Decimal(12, 2) @default(0)
+  damagesNote      String?
+  clearanceNo      String?
+  clearanceIssuedAt DateTime?
+  remarks          String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  allocation AccommodationAllocation @relation(fields: [allocationId], references: [id], onDelete: Cascade)
+
+  @@index([allocationId])
+  @@index([vacateDate])
+}
+
+model AccommodationRentInvoice {
+  id             String            @id @default(cuid())
+  organizationId String
+  parishId       String?
+  allocationId   String
+  invoiceNo      String
+  periodStart    DateTime
+  periodEnd      DateTime
+  dueDate        DateTime?
+  rentAmount     Decimal           @db.Decimal(12, 2) @default(0)
+  electricity    Decimal           @db.Decimal(12, 2) @default(0)
+  water          Decimal           @db.Decimal(12, 2) @default(0)
+  maintenance    Decimal           @db.Decimal(12, 2) @default(0)
+  parking        Decimal           @db.Decimal(12, 2) @default(0)
+  otherCharges   Decimal           @db.Decimal(12, 2) @default(0)
+  totalAmount    Decimal           @db.Decimal(12, 2) @default(0)
+  paidAmount     Decimal           @db.Decimal(12, 2) @default(0)
+  status         RentInvoiceStatus @default(ISSUED)
+  notes          String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization               @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish?                    @relation(fields: [parishId], references: [id])
+  allocation   AccommodationAllocation    @relation(fields: [allocationId], references: [id], onDelete: Cascade)
+  payments     AccommodationRentPayment[]
+
+  @@unique([organizationId, invoiceNo])
+  @@index([organizationId])
+  @@index([allocationId, periodStart])
+  @@index([status])
+  @@index([parishId])
+}
+
+model AccommodationRentPayment {
+  id                   String        @id @default(cuid())
+  organizationId       String
+  parishId             String?
+  invoiceId            String
+  amount               Decimal       @db.Decimal(12, 2)
+  paymentMethod        PaymentMethod @default(CASH)
+  paidAt               DateTime      @default(now())
+  receiptNo            String
+  financeTransactionId String?
+  notes                String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  deletedAt            DateTime?
+
+  organization Organization             @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish?                  @relation(fields: [parishId], references: [id])
+  invoice      AccommodationRentInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, receiptNo])
+  @@index([invoiceId])
+  @@index([organizationId])
+  @@index([paidAt])
+}
+
+model AccommodationMaintenanceRequest {
+  id             String                    @id @default(cuid())
+  organizationId String
+  parishId       String?
+  roomId         String
+  complaintNo    String
+  reportedBy     String?
+  category       MaintenanceCategory       @default(OTHER)
+  priority       MaintenancePriority       @default(MEDIUM)
+  status         MaintenanceRequestStatus  @default(OPEN)
+  description    String?
+  assignee       String?
+  cost           Decimal?                  @db.Decimal(12, 2)
+  completedAt    DateTime?
+  beforePhotoUrl String?
+  afterPhotoUrl  String?
+  notes          String?
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish?           @relation(fields: [parishId], references: [id])
+  room         AccommodationRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, complaintNo])
+  @@index([organizationId])
+  @@index([roomId])
+  @@index([status, priority])
+  @@index([parishId])
+}
+
+model AccommodationGuestStay {
+  id             String    @id @default(cuid())
+  organizationId String
+  parishId       String?
+  facilityId     String
+  roomId         String?
+  guestName      String
+  mobile         String?
+  address        String?
+  purpose        String?
+  checkInAt      DateTime
+  checkOutAt     DateTime?
+  idProof        String?
+  vehicleNumber  String?
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish?               @relation(fields: [parishId], references: [id])
+  facility     AccommodationFacility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  room         AccommodationRoom?    @relation(fields: [roomId], references: [id])
+
+  @@index([organizationId])
+  @@index([facilityId, checkInAt])
+  @@index([parishId])
+}
+
+model AccommodationInspection {
+  id                 String   @id @default(cuid())
+  organizationId     String
+  facilityId         String
+  roomId             String?
+  inspectedAt        DateTime @default(now())
+  inspectorName      String?
+  roomCondition      String?
+  cleanliness        String?
+  furnitureCondition String?
+  electricalCondition String?
+  plumbingStatus     String?
+  photoUrlsJson      Json?
+  recommendations    String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  deletedAt          DateTime?
+
+  organization Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  facility     AccommodationFacility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  room         AccommodationRoom?    @relation(fields: [roomId], references: [id])
+
+  @@index([organizationId])
+  @@index([facilityId, inspectedAt])
+  @@index([roomId])
+}
+
+model AccommodationRoomAsset {
+  id           String   @id @default(cuid())
+  roomId       String
+  name         String
+  assetType    String?
+  quantity     Int      @default(1)
+  condition    String?
+  issuedAt     DateTime?
+  replacedAt   DateTime?
+  historyJson  Json?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  deletedAt    DateTime?
+
+  room AccommodationRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([roomId])
+  @@index([assetType])
+}
+
+/// Date-keyed liturgical master (one row per calendar date per organization).
+model DailyLiturgyDay {
+  id                   String   @id @default(cuid())
+  organizationId       String
+  date                 DateTime @db.Date
+  liturgicalYear       String?
+  season               String?
+  weekNumber           Int?
+  rank                 String?
+  feastName            String?
+  liturgicalColour     String?
+  saintOfDay           String?
+  saintBio             String?  @db.Text
+  saintPatronage       String?
+  firstReading         String?  @db.Text
+  psalm                String?  @db.Text
+  secondReading        String?  @db.Text
+  gospelReference      String?
+  gospelTitle          String?
+  gospelText           String?  @db.Text
+  bibleVerse           String?  @db.Text
+  bibleVerseReference  String?
+  bibleVerseTheme      String?
+  prayerTitle          String?
+  prayerText           String?  @db.Text
+  reflectionText       String?  @db.Text
+  massNotes            String?  @db.Text
+  language             String   @default("en")
+  source               String?
+  importBatchId        String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  deletedAt            DateTime?
+
+  organization Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  importBatch  LiturgyImportBatch? @relation(fields: [importBatchId], references: [id], onDelete: SetNull)
+  reflectionVariants DailyLiturgyReflectionVariant[]
+
+  @@unique([organizationId, date, language])
+  @@index([organizationId, date])
+  @@index([importBatchId])
+}
+
+model LiturgyImportBatch {
+  id             String   @id @default(cuid())
+  organizationId String
+  filename       String?
+  rowCount       Int      @default(0)
+  successCount   Int      @default(0)
+  errorCount     Int      @default(0)
+  errorsJson     Json?
+  uploadedById   String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  uploadedBy   User?            @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+  days         DailyLiturgyDay[]
+
+  @@index([organizationId, createdAt])
+}
+
+/// Phase 2: parish/diocese overlays for reflection & messages only (gospel stays master-locked).
+model DailyContentOverride {
+  id               String   @id @default(cuid())
+  organizationId   String
+  /// "diocese" or "parish:<parishId>"
+  scopeKey         String
+  parishId         String?
+  date             DateTime @db.Date
+  /// Parish or diocese reflection (overrides master reflectionText when set)
+  reflectionText   String?  @db.Text
+  /// Bishop / diocese pastoral message for the day
+  bishopMessage    String?  @db.Text
+  bishopTitle      String?
+  /// Parish announcement / notice for the day
+  announcementText String?  @db.Text
+  announcementTitle String?
+  language         String   @default("en")
+  createdById      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  deletedAt        DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parish       Parish?      @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  createdBy    User?        @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, date, scopeKey])
+  @@index([organizationId, date])
+  @@index([parishId, date])
+}
+
+/// Phase 3: audience-specific reflection variants generated from gospel (children/youth/family/homily).
+enum LiturgyReflectionAudience {
+  CHILDREN
+  YOUTH
+  FAMILY
+  HOMILY
+}
+
+model DailyLiturgyReflectionVariant {
+  id               String                    @id @default(cuid())
+  organizationId   String
+  dailyLiturgyDayId String?
+  date             DateTime                  @db.Date
+  audience         LiturgyReflectionAudience
+  title            String?
+  body             String                    @db.Text
+  /// Homily talking points (array of strings)
+  bulletPoints     Json?
+  status           String                    @default("PUBLISHED")
+  source           String                    @default("generated")
+  language         String                    @default("en")
+  createdById      String?
+  createdAt        DateTime                  @default(now())
+  updatedAt        DateTime                  @updatedAt
+  deletedAt        DateTime?
+
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  dailyLiturgyDay DailyLiturgyDay? @relation(fields: [dailyLiturgyDayId], references: [id], onDelete: SetNull)
+  createdBy      User?           @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, date, audience, language])
+  @@index([organizationId, date])
+  @@index([dailyLiturgyDayId])
+}
+
+// ——— Internationalization (i18n) ———
+
+enum TranslationJobStatus {
+  PENDING
+  PROCESSING
+  DRAFT
+  REVIEW
+  APPROVED
+  REJECTED
+  FAILED
+}
+
+model Language {
+  code         String   @id
+  nativeName   String
+  englishName  String
+  direction    String   @default("ltr")
+  isRtl        Boolean  @default(false)
+  isSystem     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  dioceseLanguages DioceseLanguage[]
+}
+
+model DioceseLanguage {
+  id             String   @id @default(cuid())
+  organizationId String
+  languageCode   String
+  enabled        Boolean  @default(true)
+  sortOrder      Int      @default(0)
+  isDefault      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  language     Language     @relation(fields: [languageCode], references: [code], onDelete: Cascade)
+
+  @@unique([organizationId, languageCode])
+  @@index([organizationId, enabled])
+}
+
+model UiTranslationNamespace {
+  id             String   @id @default(cuid())
+  organizationId String?
+  languageCode   String
+  namespace      String
+  payloadJson    Json
+  version        Int      @default(1)
+  uploadedById   String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  uploadedBy   User?         @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, languageCode, namespace])
+  @@index([languageCode, namespace])
+}
+
+model ParishTranslation {
+  id          String   @id @default(cuid())
+  parishId    String
+  language    String
+  name        String?
+  description String?  @db.Text
+  mission     String?  @db.Text
+  history     String?  @db.Text
+  address     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  parish Parish @relation(fields: [parishId], references: [id], onDelete: Cascade)
+
+  @@unique([parishId, language])
+  @@index([language])
+}
+
+model DeaneryTranslation {
+  id        String   @id @default(cuid())
+  deaneryId String
+  language  String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deanery Deanery @relation(fields: [deaneryId], references: [id], onDelete: Cascade)
+
+  @@unique([deaneryId, language])
+}
+
+model InstitutionTranslation {
+  id            String   @id @default(cuid())
+  institutionId String
+  language      String
+  name          String?
+  address       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  institution Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  @@unique([institutionId, language])
+}
+
+model CmsSiteTranslation {
+  id        String   @id @default(cuid())
+  siteId    String
+  language  String
+  siteTitle String?
+  tagline   String?
+  seoJson   Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  site CmsSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@unique([siteId, language])
+}
+
+model CmsPageTranslation {
+  id         String        @id @default(cuid())
+  pageId     String
+  language   String
+  title      String?
+  content    String?       @db.Text
+  blocksJson Json?
+  seoJson    Json?
+  status     CmsPageStatus @default(DRAFT)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  page CmsPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@unique([pageId, language])
+  @@index([language])
+}
+
+model CmsPostTranslation {
+  id        String        @id @default(cuid())
+  postId    String
+  language  String
+  title     String?
+  excerpt   String?
+  content   String?       @db.Text
+  seoJson   Json?
+  status    CmsPageStatus @default(DRAFT)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  post CmsPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, language])
+  @@index([language])
+}
+
+model CmsEventTranslation {
+  id          String        @id @default(cuid())
+  eventId     String
+  language    String
+  title       String?
+  description String?       @db.Text
+  venue       String?
+  organizer   String?
+  status      CmsPageStatus @default(DRAFT)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  event CmsEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, language])
+}
+
+model CmsAnnouncementTranslation {
+  id        String        @id @default(cuid())
+  announcementId String
+  language  String
+  title     String?
+  body      String?       @db.Text
+  status    CmsPageStatus @default(DRAFT)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  announcement CmsAnnouncement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+
+  @@unique([announcementId, language])
+}
+
+model CmsMenuItemTranslation {
+  id         String   @id @default(cuid())
+  menuItemId String
+  language   String
+  label      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  menuItem CmsMenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@unique([menuItemId, language])
+}
+
+model AppNotificationTranslation {
+  id                String   @id @default(cuid())
+  appNotificationId String
+  language          String
+  title             String?
+  body              String?  @db.Text
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  notification AppNotification @relation(fields: [appNotificationId], references: [id], onDelete: Cascade)
+
+  @@unique([appNotificationId, language])
+}
+
+model EmailTemplateTranslation {
+  id             String   @id @default(cuid())
+  organizationId String?
+  templateKey    String
+  language       String
+  subject        String?
+  bodyText       String?  @db.Text
+  bodyHtml       String?  @db.Text
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, templateKey, language])
+  @@index([templateKey, language])
+}
+
+model TranslationJob {
+  id             String               @id @default(cuid())
+  organizationId String
+  entityType     String
+  entityId       String
+  sourceLocale   String               @default("en")
+  targetLocale   String
+  status         TranslationJobStatus @default(PENDING)
+  aiDraftJson    Json?
+  reviewedById   String?
+  error          String?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  organization Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  reviewedBy   User?                  @relation("TranslationJobReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  suggestions  TranslationSuggestion[]
+
+  @@index([organizationId, status])
+  @@index([entityType, entityId])
+}
+
+model TranslationSuggestion {
+  id            String   @id @default(cuid())
+  jobId         String
+  field         String
+  sourceText    String?  @db.Text
+  suggestedText String?  @db.Text
+  confidence    Float?
+  createdAt     DateTime @default(now())
+
+  job TranslationJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+}

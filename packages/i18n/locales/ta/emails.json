@@ -1,0 +1,33 @@
+{
+  "parish_invite": {
+    "subject": "{parishName} — Diocese ERP-க்கு வரவேற்கிறோம்",
+    "greeting": "அன்புள்ள போதகர் / பங்காளி குழு,",
+    "body": "{parishName} பங்காளி கணக்கு BCL Diocese ERP-ல் உருவாக்கப்பட்டுள்ளது.",
+    "signIn": "உள்நுழை",
+    "email": "மின்னஞ்சல்",
+    "tempPassword": "தற்காலிக கடவுச்சொல்",
+    "website": "பொது வலைத்தளம்",
+    "changePassword": "முதல் உள்நுழைவுக்குப் பிறகு கடவுச்சொல்லை மாற்றவும்.",
+    "footer": "— BCL Diocese ERP"
+  },
+  "password_reset": {
+    "subject": "கடவுச்சொல்லை மீட்டமை",
+    "body": "கீழுள்ள இணைப்பைப் பயன்படுத்தி கடவுச்சொல்லை மீட்டமைக்கவும்."
+  },
+  "donation_receipt": {
+    "subject": "நன்கொடை ரசீது — {parishName}",
+    "body": "உங்கள் தாராள மனதுக்கு நன்றி."
+  },
+  "certificate_ready": {
+    "subject": "உங்கள் சான்றிதழ் தயார்",
+    "body": "உங்கள் {certificateType} சான்றிதழ் வெளியிடப்பட்டுள்ளது."
+  },
+  "mass_reminder": {
+    "subject": "திருப்பலி நினைவூட்டல் — {title}",
+    "body": "வரவிருக்கும் திருப்பலிக்கான நினைவூட்டல்."
+  },
+  "report_schedule": {
+    "subject": "திட்டமிட்ட அறிக்கை: {reportName}",
+    "body": "உங்கள் திட்டமிட்ட அறிக்கை கீழே இணைக்கப்பட்டுள்ளது."
+  }
+}

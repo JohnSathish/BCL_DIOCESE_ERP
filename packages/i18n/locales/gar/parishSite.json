@@ -1,0 +1,288 @@
+{
+  "topbar": {
+    "welcome": "{parish} · Tura-ko na·a ska·e",
+    "email": "Email",
+    "diocese": "Tura Diocese"
+  },
+  "hero": {
+    "eyebrow": "Tura Roman Catholic Diocese",
+    "title": "Sacred Heart Parish",
+    "tagline": "Gitala, ka·sae, aro sokgiminchi skanggipa Catholic community — Tura manderangna Gospel-ni kusi on·atani.",
+    "verse": "Na·simang pilak chanchigipa aro nangrimani gita chanchigiparang, na·simangko bano on·a, an·ching nang·ko nangrimani on·gen.",
+    "verseRef": "Matthew 11:28",
+    "ctaAbout": "Parish-ko gita",
+    "ctaMass": "Mass samay",
+    "ctaLive": "Live naba"
+  },
+  "header": {
+    "login": "Login",
+    "donate": "Donate ka·bo",
+    "donateShort": "Donate",
+    "searchPlaceholder": "Mass, Sacrament, Ministry…",
+    "searchGo": "Cha·a",
+    "menu": "Menu"
+  },
+  "nav": {
+    "home": "Nok",
+    "aboutUs": "An·chingko gita",
+    "parishLife": "Parish janggi",
+    "sacraments": "Sacramentrang",
+    "worship": "Gitala",
+    "newsEvents": "News & Eventrang",
+    "services": "Servicerang",
+    "contact": "Contact"
+  },
+  "navAbout": {
+    "history": "Parish-ni history",
+    "patron": "An·chingni Patron Saint",
+    "vision": "Vision & Mission",
+    "priestMessage": "Parish Priest-ni message",
+    "assistantPriests": "Assistant Priestrang",
+    "office": "Parish Office",
+    "council": "Parish Council",
+    "contactUs": "An·chingko contact ka·bo"
+  },
+  "navLife": {
+    "ministries": "Ministryrang",
+    "community": "Community",
+    "choir": "Choir",
+    "catechism": "Catechism",
+    "altarServers": "Altar Serverrang",
+    "legion": "Legion of Mary",
+    "socialService": "Social Service",
+    "youth": "Youth Ministry",
+    "bcc": "BCC / SCC",
+    "family": "Family Ministry",
+    "women": "Women's Association",
+    "men": "Men's Association"
+  },
+  "navSacraments": {
+    "sacraments": "Sacramentrang",
+    "pastoralCare": "Pastoral Care",
+    "baptism": "Baptism",
+    "communion": "First Holy Communion",
+    "confirmation": "Confirmation",
+    "marriage": "Marriage",
+    "anointing": "Anointing of the Sick",
+    "funeral": "Funeral Service",
+    "certificates": "Certificate Request",
+    "guidelines": "Sacramental Guidelines"
+  },
+  "navWorship": {
+    "dailyMass": "Daily Mass samay",
+    "sundayMass": "Sunday Mass samay",
+    "holyDays": "Holy Days",
+    "confession": "Confession",
+    "adoration": "Eucharistic Adoration",
+    "rosary": "Rosary",
+    "novena": "Novena",
+    "liturgicalCalendar": "Liturgical Calendar"
+  },
+  "navNews": {
+    "news": "Parish News",
+    "events": "Upcoming Eventrang",
+    "feasts": "Feast Celebrationrang",
+    "announcements": "Announcementrang",
+    "bulletin": "Parish Bulletin",
+    "photoGallery": "Photo Gallery",
+    "videoGallery": "Video Gallery"
+  },
+  "navServices": {
+    "prayer": "Prayer Request",
+    "donate": "Online Donate",
+    "intentions": "Mass Intentionrang",
+    "forms": "Parish Formrang",
+    "downloads": "Downloadrang",
+    "cemetery": "Cemetery gita"
+  },
+  "liveCards": {
+    "mass": "Dakgipa Mass",
+    "gospel": "Dakgipa Gospel",
+    "confession": "Confession",
+    "rosary": "Rosary",
+    "prayer": "Prayer Request",
+    "emergency": "Emergency"
+  },
+  "sections": {
+    "welcomeTitle": "An·chingni Parish-ko na·a ska·e",
+    "welcomeBody": "Tura Diocese-ni gitala-gipa Catholic community chu·gimik, Sacred Heart of Jesus-ko gitala baksa worship, formation, aro service-ni gimin dingtangtangaha.",
+    "welcomeReadMore": "An·chingko gita naba →",
+    "newsTitle": "News & Announcementrang",
+    "newsViewAll": "Jensang naba →",
+    "eventsTitle": "Chongmotgipa Eventrang",
+    "eventsViewCalendar": "Calendar naba →",
+    "eventsViewAll": "Eventrang jensang naba →",
+    "announcement": "Announcement",
+    "parishLifeEyebrow": "Parish Janggi",
+    "calendarEyebrow": "Calendar",
+    "calendarTitle": "Parish Calendar",
+    "graceEyebrow": "Grace",
+    "sacramentsTitle": "Sacramentrang",
+    "serveEyebrow": "Service",
+    "ministriesTitle": "An·chingni Ministryrang",
+    "statsEyebrow": "Parish-ko naba",
+    "statsTitle": "Gitala-gipa Living Community",
+    "momentsEyebrow": "Moments",
+    "galleryTitle": "Photo Gallery",
+    "watchEyebrow": "Naba",
+    "videoTitle": "Homily & Live Mass",
+    "donateTitle": "Sacred Heart Parish-ko support ka·bo",
+    "donateOnline": "Online Donate",
+    "testimonialsEyebrow": "Ku·rachakrang",
+    "testimonialsTitle": "An·chingni Parish Family-ni",
+    "prayerEyebrow": "An·ching baksa Gitala",
+    "prayerTitle": "Prayer Request",
+    "contactEyebrow": "Cha·a",
+    "contactTitle": "Contact & Office",
+    "footerQuickLinks": "Quick Links",
+    "footerParish": "Parish",
+    "footerNewsletter": "Newsletter",
+    "footerNewsletterHint": "Parish update aro feast announcement man·bo.",
+    "footerEmailPlaceholder": "Email address",
+    "footerJoin": "Join",
+    "apply": "Apply →",
+    "readMore": "Gipin naba →",
+    "register": "Register ka·bo",
+    "venueParish": "Parish"
+  },
+  "massSchedule": {
+    "loading": "Holy Mass schedule ko load ka·a…",
+    "eyebrow": "Gitala",
+    "title": "Holy Mass Schedule",
+    "subtitle": "An·ching baksa gitala ka·bo aro Holy Eucharist celebrate ka·bo.",
+    "currentlyActive": "Active",
+    "nextMass": "Chongmotgipa Mass",
+    "hours": "Hour",
+    "minutes": "Minute",
+    "seconds": "Second",
+    "today": "Dakgipa",
+    "next": "Chongmot",
+    "live": "Live",
+    "setReminder": "Reminder",
+    "reminderSaved": "Save",
+    "celebrant": "Celebrant",
+    "chapelTitle": "Dakgipa Chapel",
+    "openNow": "Open",
+    "closed": "Close",
+    "open": "Open",
+    "churchStatus": "Church",
+    "churchLabel": "Church",
+    "adorationLabel": "Adoration",
+    "officeLabel": "Office",
+    "closesAt": "5 PM close",
+    "subtitleDaily": "Sal sal",
+    "subtitleSunday": "Sunday sal",
+    "subtitleFirstFriday": "Sal sak",
+    "subtitleFirstSaturday": "Sal sak",
+    "subtitleAdoration": "Sal sal",
+    "subtitleFeast": "Dakgipa",
+    "subtitleSpecial": "Special",
+    "icsDescription": "Sacred Heart Shrine Holy Mass",
+    "unavailable": "Mass schedule dakgipa matchu gita load ka·jok. Katcha saloba try ka·bo.",
+    "empty": "Mass samay publish on·jaha."
+  },
+  "content": {
+    "priest": {
+      "title": "Parish Priest",
+      "message": "Sacred Heart of Jesus an·chingni parish family jensangko bless ka·na nanga. Na·a bano gitala ska·e — Christ-o nang·ko nangrimani man·bo.",
+      "readFullMessage": "Message jensang naba",
+      "meetPriests": "An·chingni Priestrangko naba"
+    },
+    "staff": {
+      "assistantPriests": "Assistant Priestrang",
+      "officeStaff": "Office Staffrang",
+      "seminarians": "Seminarianrang",
+      "religiousSisters": "Religious Sisterrang"
+    },
+    "liveCards": {
+      "mass": { "sub": "Weekday Mass", "cta": "Jensang naba" },
+      "gospel": { "sub": "An·tangni ka·sae-o dongbo", "cta": "Dakgipa naba" },
+      "confession": { "sub": "Evening Mass skang", "cta": "Gipin naba" },
+      "rosary": { "sub": "Holy Mass skang", "cta": "An·ching baksa dongbo" },
+      "prayer": { "sub": "Intention share ka·bo", "cta": "Submit ka·bo" },
+      "emergency": { "sub": "Anointing & pastoral care", "cta": "Dakgipa call ka·bo" }
+    },
+    "sacraments": {
+      "baptism": { "title": "Baptism", "desc": "Christ aro Uni Church-ni janggi-o nap·ani." },
+      "marriage": { "title": "Marriage", "desc": "Isol baksa ka·sae-ni songnok, Isolni mikkang-o bless ka·e." },
+      "confirmation": { "title": "Confirmation", "desc": "Holy Spirit-ni bilsi mission-ni gimin." },
+      "communion": { "title": "Holy Communion", "desc": "Christ-ni Body-ko skangba man·ani." },
+      "confession": { "title": "Confession", "desc": "Ka·sae, ka·sae aro grace-o gitala janggi." },
+      "anointing": { "title": "Anointing", "desc": "Chol aro janggi joljil-o ka·sae aro bilsi." },
+      "holyOrders": { "title": "Holy Orders", "desc": "Priesthood aro consecrated life-ni calling." }
+    },
+    "ministries": {
+      "youth": { "title": "Youth Ministry", "desc": "Gitala, gipin gipin, aro missionary discipleship." },
+      "choir": { "title": "Parish Choir", "desc": "Gitala-ni beauty-ko songnok gita dakgipa music." },
+      "catechism": { "title": "Catechism", "desc": "Chadeng aro baksa Catholic gitala-o form ka·ani." },
+      "legion": { "title": "Legion of Mary", "desc": "Apostolic prayer aro visitation ministry." },
+      "altarServers": { "title": "Altar Serverrang", "desc": "Altar-o reverence aro kusi baksa service." },
+      "family": { "title": "Family Ministry", "desc": "Familyrangko Christian janggi-o gita nang·e." },
+      "women": { "title": "Me·chik Association", "desc": "Gitala, service, aro fellowship-o gipin gipin." },
+      "men": { "title": "Mande Association", "desc": "Parish steward-rang gita ding·tangani." },
+      "socialService": { "title": "Social Service", "desc": "Dakgipa manderangna ka·sae aro dignity on·ani." },
+      "bibleStudy": { "title": "Bible Study", "desc": "Sacred Scripture baksa Christ-ko naba." }
+    },
+    "stats": {
+      "families": "Familyrang",
+      "members": "Memberrang",
+      "baptisms": "Baptism / sal",
+      "marriages": "Marriage / sal",
+      "children": "Chadeng",
+      "catechism": "Catechism",
+      "youth": "Youth",
+      "choir": "Choir"
+    },
+    "news": {
+      "n1": { "title": "Parish Feast Celebration 2026", "excerpt": "Novena, solemn Mass, aro Sacred Heart community feast-o join ka·bo." },
+      "n2": { "title": "First Holy Communion Classrang", "excerpt": "Eucharist man·ani-ni gimin prepare ka·gipa chadengrangna registration open." },
+      "n3": { "title": "Youth Retreat — Disciples on Mission", "excerpt": "Gitala, fellowship, aro vocation discernment-ni weekend." }
+    },
+    "events": {
+      "e1": { "title": "Parish Feast Day Novena", "location": "Main Church" },
+      "e2": { "title": "Youth Ministry Meeting", "location": "Parish Hall" },
+      "e3": { "title": "First Holy Communion", "location": "Main Church" },
+      "e4": { "title": "Parish Council Meeting", "location": "Parish Office" }
+    },
+    "testimonials": {
+      "t1": { "quote": "Parish-ko nok gita nang·e. Liturgy gitala aro community gipin gipin-ko nang·e.", "name": "Maria Sangma", "role": "Parish Family" },
+      "t2": { "quote": "Youth ministry an·ko gitala naba aro Christ baksa chala manderangko man·aha.", "name": "David Momin", "role": "Youth Member" },
+      "t3": { "quote": "Tura-o cha·a salan gitala ska·e. Gitala church aro living faith.", "name": "Anita & Joseph", "role": "Visitors" }
+    },
+    "videos": {
+      "v1": { "title": "Chongmotgipa Homily", "sub": "Sunday Gospel reflection" },
+      "v2": { "title": "Sunday Mass", "sub": "Sacred Heart-ni live" },
+      "v3": { "title": "Parish Feast", "sub": "Celebration-ni highlights" }
+    },
+    "donate": {
+      "body": "Na·simangni generosity worship, catechesis, charity, aro Tura parish-ni upkeep-ko support ka·a.",
+      "upi": "UPI",
+      "creditCard": "Credit Card",
+      "debitCard": "Debit Card",
+      "bankTransfer": "Bank Transfer"
+    },
+    "prayer": {
+      "hint": "Intention share ka·bo. An·chingni parish community gitala-ni gimin ka·gen.",
+      "submit": "Request submit ka·bo",
+      "formTitle": "Prayer Request",
+      "fields": { "name": "Bimung", "phone": "Phone", "intention": "Prayer Intention" }
+    },
+    "contact": {
+      "officeHours": "Office samay: Mon–Sat · 9:00 AM – 5:00 PM",
+      "emergency": "Emergency / Anointing",
+      "whatsapp": "WhatsApp",
+      "donate": "Donate",
+      "mapTitle": "Sacred Heart Parish Tura Map"
+    },
+    "footer": {
+      "tagline": "Tura-o Catholic parish family, Sacred Heart of Jesus-ko centre ka·e.",
+      "massTimings": "Mass Samay",
+      "sacraments": "Sacramentrang",
+      "gallery": "Gallery",
+      "news": "News",
+      "contact": "Contact",
+      "copyright": "Sacred Heart Parish, Tura. Jensang right reserved.",
+      "developedBy": "Developed by"
+    }
+  }
+}

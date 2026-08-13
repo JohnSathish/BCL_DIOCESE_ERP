@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @bcl/types build
+      - run: pnpm --filter @bcl/auth-client build
+      - run: pnpm --filter @bcl/sdk build
+      - run: pnpm --filter @bcl/i18n build
+      - run: pnpm --filter @bcl/api exec prisma generate
+      - run: pnpm --filter @bcl/api run build
+      - run: pnpm --filter @bcl/web run build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:4000/api/v1

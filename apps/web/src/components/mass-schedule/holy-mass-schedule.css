@@ -1,0 +1,495 @@
+/* Holy Mass Schedule — compact, balanced grid inside parish panel */
+
+.hms-shell {
+  --hms-navy: var(--shp-navy, #0b1f4a);
+  --hms-gold: var(--shp-gold, #c5a059);
+  --hms-burgundy: var(--shp-burgundy, #7b1113);
+  --hms-green: #16a34a;
+  --hms-amber: #d97706;
+  --hms-blue: #2563eb;
+  --hms-border: rgba(11, 31, 74, 0.08);
+  --hms-shadow: 0 2px 12px rgba(11, 31, 74, 0.05);
+  --hms-card-min: 172px;
+}
+
+.hms-loading {
+  font-size: 0.875rem;
+  color: #5c6478;
+}
+
+/* Section header — aligned with .shp-section-head */
+.hms-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45rem 0.75rem;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--hms-border);
+}
+
+.hms-eyebrow {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--hms-gold);
+}
+
+.hms-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 1.25rem;
+  height: 2px;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+  background: linear-gradient(90deg, var(--hms-burgundy), var(--hms-gold));
+}
+
+.hms-title {
+  font-family: var(--font-shp-display, var(--font-display, Georgia, serif));
+  font-size: clamp(1.2rem, 1.6vw, 1.55rem);
+  color: var(--hms-navy);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+/* Status bar */
+.hms-status-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.85rem;
+  min-height: 52px;
+  padding: 0.55rem 0.85rem;
+  margin-bottom: 0.55rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--hms-navy) 0%, #16356f 100%);
+  color: #fff;
+}
+
+.hms-status-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.hms-status-season {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.hms-status-active {
+  margin-left: 0.3rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--hms-gold);
+}
+
+.hms-status-next {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.55rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.hms-status-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.hms-status-mass {
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.hms-countdown-compact {
+  font-family: ui-monospace, monospace;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--hms-gold);
+  padding: 0.12rem 0.4rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.hms-status-reminder {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: none;
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  background: #fff;
+  color: var(--hms-navy);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  white-space: nowrap;
+}
+
+.hms-status-reminder:hover {
+  transform: translateY(-1px);
+}
+
+/* Meta row — single compact strip */
+.hms-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+  padding: 0.4rem 0.65rem;
+  border-radius: 10px;
+  background: var(--shp-mist, #f3f4f7);
+  border: 1px solid var(--hms-border);
+}
+
+.hms-status-widget {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1.1rem;
+}
+
+.hms-status-widget-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #475569;
+}
+
+.hms-celebrant {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--hms-navy);
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(197, 160, 89, 0.14);
+  border: 1px solid rgba(197, 160, 89, 0.28);
+}
+
+/* Grid — equal-height cards */
+.hms-grid {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .hms-grid--premium {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-rows: 1fr;
+    align-items: stretch;
+  }
+
+  /* Bottom row with 2 cards: center them when 5 total */
+  .hms-grid--premium.hms-grid--count-5 .hms-card:nth-child(4) {
+    grid-column: 1 / 2;
+  }
+
+  .hms-grid--premium.hms-grid--count-5 .hms-card:nth-child(5) {
+    grid-column: 2 / 3;
+  }
+}
+
+/* Cards */
+.hms-card {
+  display: flex;
+  flex-direction: column;
+  min-height: var(--hms-card-min);
+  height: 100%;
+  border-radius: 14px;
+  border: 1px solid var(--hms-border);
+  background: #fafbfc;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.hms-card:hover {
+  border-color: rgba(197, 160, 89, 0.35);
+  box-shadow: var(--hms-shadow);
+  transform: translateY(-1px);
+}
+
+.hms-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.6rem 0.3rem;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, #fff 0%, #fafbfc 100%);
+  border-bottom: 1px solid var(--hms-border);
+}
+
+.hms-card-toggle {
+  width: 100%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.hms-card-icon {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 8px;
+  background: rgba(123, 17, 19, 0.08);
+  color: var(--hms-burgundy);
+  flex-shrink: 0;
+}
+
+.hms-card-head-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.hms-card-title {
+  font-family: var(--font-shp-display, Georgia, serif);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--hms-navy);
+  line-height: 1.2;
+}
+
+.hms-card-sub {
+  font-size: 0.6875rem;
+  color: #64748b;
+}
+
+.hms-card-chevron {
+  width: 1rem;
+  height: 1rem;
+  color: #64748b;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.hms-card-chevron--open {
+  transform: rotate(180deg);
+}
+
+.hms-card-items {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.35rem 0.5rem 0.45rem;
+  scrollbar-width: thin;
+}
+
+.hms-card--accordion .hms-card-items {
+  border-top: 1px solid var(--hms-border);
+}
+
+/* Mass items */
+.hms-item {
+  display: grid;
+  grid-template-columns: 4.25rem 1fr auto;
+  gap: 0.3rem 0.4rem;
+  align-items: center;
+  padding: 0.28rem 0.3rem;
+  border-radius: 8px;
+  border-left: 3px solid transparent;
+  transition: background 0.15s ease;
+}
+
+.hms-item + .hms-item {
+  margin-top: 0.12rem;
+}
+
+.hms-item:hover {
+  background: rgba(11, 31, 74, 0.04);
+}
+
+.hms-item--next {
+  border-left-color: var(--hms-gold);
+  background: rgba(197, 160, 89, 0.1);
+}
+
+.hms-item--live {
+  border-left-color: var(--hms-burgundy);
+  background: rgba(123, 17, 19, 0.07);
+}
+
+.hms-item-time {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--hms-burgundy);
+  line-height: 1.15;
+}
+
+.hms-item-title {
+  font-size: 0.78125rem;
+  font-weight: 600;
+  color: var(--hms-navy);
+  line-height: 1.2;
+}
+
+.hms-item-meta {
+  font-size: 0.65rem;
+  color: #64748b;
+  line-height: 1.2;
+}
+
+.hms-item-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  align-items: flex-end;
+}
+
+.hms-adoration-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+  margin-top: 0.2rem;
+  padding: 0.35rem 0.3rem 0;
+  border-top: 1px dashed var(--hms-border);
+}
+
+.hms-adoration-range {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--hms-burgundy);
+}
+
+/* Language badges */
+.hms-lang {
+  display: inline-block;
+  font-size: 0.5625rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 0.08rem 0.32rem;
+  border-radius: 4px;
+  line-height: 1.35;
+}
+
+.hms-lang--english {
+  background: rgba(37, 99, 235, 0.12);
+  color: var(--hms-blue);
+}
+
+.hms-lang--garo {
+  background: rgba(22, 163, 74, 0.12);
+  color: var(--hms-green);
+}
+
+.hms-lang--khasi,
+.hms-lang--hindi,
+.hms-lang--tamil,
+.hms-lang--default {
+  background: rgba(11, 31, 74, 0.08);
+  color: var(--hms-navy);
+}
+
+/* Status chips */
+.hms-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  font-size: 0.5625rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.38rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.hms-chip-dot {
+  width: 0.38rem;
+  height: 0.38rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.hms-chip--open {
+  background: rgba(22, 163, 74, 0.15);
+  color: var(--hms-green);
+}
+
+.hms-chip--closed {
+  background: rgba(11, 31, 74, 0.08);
+  color: #64748b;
+}
+
+.hms-chip--warning {
+  background: rgba(217, 119, 6, 0.15);
+  color: var(--hms-amber);
+}
+
+.hms-chip--next {
+  background: rgba(197, 160, 89, 0.22);
+  color: #7a5a0a;
+}
+
+.hms-chip--today {
+  background: rgba(123, 17, 19, 0.1);
+  color: var(--hms-burgundy);
+}
+
+.hms-chip--live {
+  background: rgba(123, 17, 19, 0.18);
+  color: var(--hms-burgundy);
+  animation: hms-pulse 2s ease-in-out infinite;
+}
+
+@keyframes hms-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.75;
+  }
+}
+
+.hms-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.55rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 10px;
+  border: 1px solid var(--hms-border);
+  background: #fff;
+  color: var(--hms-navy);
+}
+
+.hms-footer-name {
+  font-size: 0.78125rem;
+  font-weight: 700;
+}
+
+.hms-footer-addr {
+  font-size: 0.6875rem;
+  color: #64748b;
+}
+
+@media (max-width: 767px) {
+  .hms-card {
+    min-height: 0;
+  }
+
+  .hms-card--accordion:not(.hms-card--open) .hms-card-items {
+    display: none;
+  }
+}

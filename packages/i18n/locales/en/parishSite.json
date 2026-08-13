@@ -1,0 +1,288 @@
+{
+  "topbar": {
+    "welcome": "Welcome to {parish} · Tura",
+    "email": "Email",
+    "diocese": "Diocese of Tura"
+  },
+  "hero": {
+    "eyebrow": "Roman Catholic Diocese of Tura",
+    "title": "Sacred Heart Parish",
+    "tagline": "A welcoming Catholic community rooted in faith, hope, and love — serving the people of Tura with the joy of the Gospel.",
+    "verse": "Come to me, all you who are weary and burdened, and I will give you rest.",
+    "verseRef": "Matthew 11:28",
+    "ctaAbout": "About Parish",
+    "ctaMass": "Mass Timings",
+    "ctaLive": "Watch Live"
+  },
+  "header": {
+    "login": "Login",
+    "donate": "Donate Now",
+    "donateShort": "Donate",
+    "searchPlaceholder": "Search Mass, Sacraments, Ministries…",
+    "searchGo": "Go",
+    "menu": "Menu"
+  },
+  "nav": {
+    "home": "Home",
+    "aboutUs": "About Us",
+    "parishLife": "Parish Life",
+    "sacraments": "Sacraments",
+    "worship": "Worship",
+    "newsEvents": "News & Events",
+    "services": "Services",
+    "contact": "Contact"
+  },
+  "navAbout": {
+    "history": "Parish History",
+    "patron": "Our Patron Saint",
+    "vision": "Vision & Mission",
+    "priestMessage": "Parish Priest's Message",
+    "assistantPriests": "Assistant Priests",
+    "office": "Parish Office",
+    "council": "Parish Council",
+    "contactUs": "Contact Us"
+  },
+  "navLife": {
+    "ministries": "Ministries",
+    "community": "Community",
+    "choir": "Choir",
+    "catechism": "Catechism",
+    "altarServers": "Altar Servers",
+    "legion": "Legion of Mary",
+    "socialService": "Social Service",
+    "youth": "Youth Ministry",
+    "bcc": "BCC / SCC",
+    "family": "Family Ministry",
+    "women": "Women's Association",
+    "men": "Men's Association"
+  },
+  "navSacraments": {
+    "sacraments": "Sacraments",
+    "pastoralCare": "Pastoral Care",
+    "baptism": "Baptism",
+    "communion": "First Holy Communion",
+    "confirmation": "Confirmation",
+    "marriage": "Marriage",
+    "anointing": "Anointing of the Sick",
+    "funeral": "Funeral Services",
+    "certificates": "Certificate Requests",
+    "guidelines": "Sacramental Guidelines"
+  },
+  "navWorship": {
+    "dailyMass": "Daily Mass Timings",
+    "sundayMass": "Sunday Mass Timings",
+    "holyDays": "Holy Days",
+    "confession": "Confession",
+    "adoration": "Eucharistic Adoration",
+    "rosary": "Rosary",
+    "novena": "Novena",
+    "liturgicalCalendar": "Liturgical Calendar"
+  },
+  "navNews": {
+    "news": "Parish News",
+    "events": "Upcoming Events",
+    "feasts": "Feast Celebrations",
+    "announcements": "Announcements",
+    "bulletin": "Parish Bulletin",
+    "photoGallery": "Photo Gallery",
+    "videoGallery": "Video Gallery"
+  },
+  "navServices": {
+    "prayer": "Prayer Requests",
+    "donate": "Donate Online",
+    "intentions": "Mass Intentions",
+    "forms": "Parish Forms",
+    "downloads": "Downloads",
+    "cemetery": "Cemetery Information"
+  },
+  "liveCards": {
+    "mass": "Today's Mass",
+    "gospel": "Today's Gospel",
+    "confession": "Confession",
+    "rosary": "Rosary",
+    "prayer": "Prayer Request",
+    "emergency": "Emergency"
+  },
+  "sections": {
+    "welcomeTitle": "Welcome to Our Parish",
+    "welcomeBody": "We are a faith-filled Catholic community of the Diocese of Tura, gathering in the Sacred Heart of Jesus for worship, formation, and service.",
+    "welcomeReadMore": "Read More About Us →",
+    "newsTitle": "News & Announcements",
+    "newsViewAll": "View All →",
+    "eventsTitle": "Upcoming Events",
+    "eventsViewCalendar": "View Calendar →",
+    "eventsViewAll": "View All Events →",
+    "announcement": "Announcement",
+    "parishLifeEyebrow": "Parish Life",
+    "calendarEyebrow": "Calendar",
+    "calendarTitle": "Parish Calendar",
+    "graceEyebrow": "Grace",
+    "sacramentsTitle": "Sacraments",
+    "serveEyebrow": "Serve",
+    "ministriesTitle": "Our Ministries",
+    "statsEyebrow": "Parish at a Glance",
+    "statsTitle": "A Living Community of Faith",
+    "momentsEyebrow": "Moments",
+    "galleryTitle": "Photo Gallery",
+    "watchEyebrow": "Watch",
+    "videoTitle": "Homilies & Live Mass",
+    "donateTitle": "Support Sacred Heart Parish",
+    "donateOnline": "Donate Online",
+    "testimonialsEyebrow": "Voices",
+    "testimonialsTitle": "From Our Parish Family",
+    "prayerEyebrow": "Pray With Us",
+    "prayerTitle": "Prayer Request",
+    "contactEyebrow": "Visit",
+    "contactTitle": "Contact & Office",
+    "footerQuickLinks": "Quick Links",
+    "footerParish": "Parish",
+    "footerNewsletter": "Newsletter",
+    "footerNewsletterHint": "Receive parish updates and feast announcements.",
+    "footerEmailPlaceholder": "Your email",
+    "footerJoin": "Join",
+    "apply": "Apply →",
+    "readMore": "Read More →",
+    "register": "Register",
+    "venueParish": "Parish"
+  },
+  "massSchedule": {
+    "loading": "Loading Holy Mass schedule…",
+    "eyebrow": "Worship",
+    "title": "Holy Mass Schedule",
+    "subtitle": "Join us in worship and celebrate the Holy Eucharist.",
+    "currentlyActive": "Active",
+    "nextMass": "Next Mass",
+    "hours": "Hours",
+    "minutes": "Minutes",
+    "seconds": "Seconds",
+    "today": "Today",
+    "next": "Next",
+    "live": "Live",
+    "setReminder": "Reminder",
+    "reminderSaved": "Saved",
+    "celebrant": "Celebrant",
+    "chapelTitle": "Today's Chapel",
+    "openNow": "Open Now",
+    "closed": "Closed",
+    "open": "Open",
+    "churchStatus": "Church",
+    "churchLabel": "Church",
+    "adorationLabel": "Adoration",
+    "officeLabel": "Office",
+    "closesAt": "Closes 5 PM",
+    "subtitleDaily": "Every Day",
+    "subtitleSunday": "Every Sunday",
+    "subtitleFirstFriday": "Monthly",
+    "subtitleFirstSaturday": "Monthly",
+    "subtitleAdoration": "Daily",
+    "subtitleFeast": "Today",
+    "subtitleSpecial": "Special",
+    "icsDescription": "Holy Mass at Sacred Heart Shrine",
+    "unavailable": "Mass schedule is temporarily unavailable. Please try again shortly.",
+    "empty": "No Mass timings have been published yet."
+  },
+  "content": {
+    "priest": {
+      "title": "Parish Priest",
+      "message": "May the Sacred Heart of Jesus bless every family in our parish. You are warmly welcome here — come and find rest in Christ.",
+      "readFullMessage": "Read Full Message",
+      "meetPriests": "Meet Our Priests"
+    },
+    "staff": {
+      "assistantPriests": "Assistant Priests",
+      "officeStaff": "Office Staff",
+      "seminarians": "Seminarians",
+      "religiousSisters": "Religious Sisters"
+    },
+    "liveCards": {
+      "mass": { "sub": "Weekday Mass", "cta": "View all" },
+      "gospel": { "sub": "Remain in my love", "cta": "Read now" },
+      "confession": { "sub": "Before evening Mass", "cta": "Learn more" },
+      "rosary": { "sub": "Before Holy Mass", "cta": "Join us" },
+      "prayer": { "sub": "Share your intention", "cta": "Submit" },
+      "emergency": { "sub": "Anointing & pastoral care", "cta": "Call now" }
+    },
+    "sacraments": {
+      "baptism": { "title": "Baptism", "desc": "Initiation into the life of Christ and His Church." },
+      "marriage": { "title": "Marriage", "desc": "Covenant of love blessed in the presence of God." },
+      "confirmation": { "title": "Confirmation", "desc": "Strengthened by the Holy Spirit for mission." },
+      "communion": { "title": "Holy Communion", "desc": "Receiving the Body of Christ for the first time." },
+      "confession": { "title": "Confession", "desc": "Mercy, healing, and a new beginning in grace." },
+      "anointing": { "title": "Anointing", "desc": "Comfort and strength in illness and old age." },
+      "holyOrders": { "title": "Holy Orders", "desc": "Vocations to priesthood and consecrated life." }
+    },
+    "ministries": {
+      "youth": { "title": "Youth Ministry", "desc": "Faith, friendship, and missionary discipleship." },
+      "choir": { "title": "Parish Choir", "desc": "Sacred music that lifts the liturgy in beauty." },
+      "catechism": { "title": "Catechism", "desc": "Forming children and adults in the Catholic faith." },
+      "legion": { "title": "Legion of Mary", "desc": "Apostolic prayer and visitation ministry." },
+      "altarServers": { "title": "Altar Servers", "desc": "Serving at the altar with reverence and joy." },
+      "family": { "title": "Family Ministry", "desc": "Accompanying households in Christian living." },
+      "women": { "title": "Women's Association", "desc": "Sisterhood in prayer, service, and fellowship." },
+      "men": { "title": "Men's Association", "desc": "Brothers growing as stewards of the parish." },
+      "socialService": { "title": "Social Service", "desc": "Charity that restores dignity to the poor." },
+      "bibleStudy": { "title": "Bible Study", "desc": "Encountering Christ through Sacred Scripture." }
+    },
+    "stats": {
+      "families": "Families",
+      "members": "Members",
+      "baptisms": "Baptisms / yr",
+      "marriages": "Marriages / yr",
+      "children": "Children",
+      "catechism": "Catechism",
+      "youth": "Youth",
+      "choir": "Choir"
+    },
+    "news": {
+      "n1": { "title": "Parish Feast Celebration 2026", "excerpt": "Join the novena, solemn Mass, and community feast of the Sacred Heart." },
+      "n2": { "title": "First Holy Communion Classes", "excerpt": "Registration open for children preparing to receive the Eucharist." },
+      "n3": { "title": "Youth Retreat — Disciples on Mission", "excerpt": "A weekend of prayer, fellowship, and vocational discernment." }
+    },
+    "events": {
+      "e1": { "title": "Parish Feast Day Novena", "location": "Main Church" },
+      "e2": { "title": "Youth Ministry Meeting", "location": "Parish Hall" },
+      "e3": { "title": "First Holy Communion", "location": "Main Church" },
+      "e4": { "title": "Parish Council Meeting", "location": "Parish Office" }
+    },
+    "testimonials": {
+      "t1": { "quote": "This parish feels like home. The liturgy is prayerful and the community genuinely cares for one another.", "name": "Maria Sangma", "role": "Parish Family" },
+      "t2": { "quote": "Youth ministry helped me rediscover my faith and find friends who walk with Christ.", "name": "David Momin", "role": "Youth Member" },
+      "t3": { "quote": "We were welcomed with warmth when we visited Tura. A beautiful church and a living faith.", "name": "Anita & Joseph", "role": "Visitors" }
+    },
+    "videos": {
+      "v1": { "title": "Latest Homily", "sub": "Sunday Gospel reflection" },
+      "v2": { "title": "Sunday Mass", "sub": "Live from Sacred Heart" },
+      "v3": { "title": "Parish Feast", "sub": "Highlights from the celebration" }
+    },
+    "donate": {
+      "body": "Your generosity sustains worship, catechesis, charity, and the upkeep of our parish home in Tura.",
+      "upi": "UPI",
+      "creditCard": "Credit Card",
+      "debitCard": "Debit Card",
+      "bankTransfer": "Bank Transfer"
+    },
+    "prayer": {
+      "hint": "Share your intention. Our parish community will hold it in prayer.",
+      "submit": "Submit Request",
+      "formTitle": "Prayer Request",
+      "fields": { "name": "Name", "phone": "Phone", "intention": "Prayer Intention" }
+    },
+    "contact": {
+      "officeHours": "Office hours: Mon–Sat · 9:00 AM – 5:00 PM",
+      "emergency": "Emergency / Anointing",
+      "whatsapp": "WhatsApp",
+      "donate": "Donate",
+      "mapTitle": "Sacred Heart Parish Tura Map"
+    },
+    "footer": {
+      "tagline": "A Catholic parish family in Tura, centred on the Sacred Heart of Jesus.",
+      "massTimings": "Mass Timings",
+      "sacraments": "Sacraments",
+      "gallery": "Gallery",
+      "news": "News",
+      "contact": "Contact",
+      "copyright": "Sacred Heart Parish, Tura. All rights reserved.",
+      "developedBy": "Developed by"
+    }
+  }
+}

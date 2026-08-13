@@ -1,0 +1,30 @@
+{
+  "nav": {
+    "cmsTitle": "Website CMS",
+    "cmsSubtitle": "Parish site builder",
+    "dashboard": "Dashboard",
+    "pages": "Pages",
+    "news": "News",
+    "events": "Events",
+    "announcements": "Announcements",
+    "gallery": "Gallery",
+    "media": "Media Library",
+    "menus": "Menus",
+    "forms": "Forms",
+    "massTimings": "Mass Timings",
+    "homepage": "Homepage Builder",
+    "theme": "Theme Settings",
+    "seo": "SEO",
+    "settings": "Website Settings"
+  },
+  "editor": {
+    "languageTab": "Language",
+    "copyFromEnglish": "Copy from English",
+    "publishLocale": "Publish this language",
+    "aiTranslate": "AI Translate from English"
+  },
+  "public": {
+    "switchLanguage": "Language",
+    "readMore": "Read more"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "tabs": {
+    "home": "முகப்பு",
+    "gospel": "நற்செய்தி",
+    "notifications": "அறிவிப்புகள்",
+    "profile": "சுயவிவரம்",
+    "settings": "அமைப்புகள்"
+  },
+  "gospel": {
+    "title": "தினசரி வாசகங்கள்",
+    "reading1": "முதல் வாசகம்",
+    "psalm": "திருப்பாடல்",
+    "alleluia": "அல்லேலூயா",
+    "gospel": "நற்செய்தி",
+    "openUsccb": "USCCB-ல் திற"
+  },
+  "settings": {
+    "language": "மொழி",
+    "languageHint": "மாற்றங்கள் உடனடியாக பொருந்தும்"
+  }
+}

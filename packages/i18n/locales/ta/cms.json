@@ -1,0 +1,26 @@
+{
+  "nav": {
+    "pages": "பக்கங்கள்",
+    "news": "செய்திகள்",
+    "events": "நிகழ்வுகள்",
+    "announcements": "அறிவிப்புகள்",
+    "gallery": "காட்சியகம்",
+    "media": "ஊடகம்",
+    "menus": "மெனுக்கள்",
+    "forms": "படிவங்கள்",
+    "homepage": "முகப்பு",
+    "theme": "தீம்",
+    "seo": "SEO",
+    "settings": "வலைத்தள அமைப்புகள்"
+  },
+  "editor": {
+    "languageTab": "மொழி",
+    "copyFromEnglish": "ஆங்கிலத்திலிருந்து நகல்",
+    "publishLocale": "இந்த மொழியை வெளியிடு",
+    "aiTranslate": "ஆங்கிலத்திலிருந்து AI மொழிபெயர்ப்பு"
+  },
+  "public": {
+    "switchLanguage": "மொழி",
+    "readMore": "மேலும் படிக்க"
+  }
+}

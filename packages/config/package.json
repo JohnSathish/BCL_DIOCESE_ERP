@@ -1,0 +1,15 @@
+{
+  "name": "@bcl/config",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    "./typescript/base": "./typescript/base.json",
+    "./typescript/nextjs": "./typescript/nextjs.json",
+    "./typescript/nestjs": "./typescript/nestjs.json"
+  },
+  "scripts": {
+    "build": "echo ok",
+    "typecheck": "echo ok",
+    "lint": "echo ok"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "nav": {
+    "dashboard": "டாஷ்போர்டு",
+    "parishes": "பங்காளிகள்",
+    "families": "குடும்பங்கள்",
+    "members": "உறுப்பினர்கள்",
+    "sacraments": "திருநிகழ்வுகள்",
+    "certificates": "சான்றிதழ்கள்",
+    "registers": "பதிவேடுகள்",
+    "mass": "திருப்பலி",
+    "donations": "நன்கொடைகள்",
+    "finance": "நிதி",
+    "cemetery": "கல்லறை",
+    "accommodation": "விடுதி",
+    "catechism": "கatechism",
+    "communications": "தொடர்புகள்",
+    "calendar": "நாள்காட்டி",
+    "reports": "அறிக்கைகள்",
+    "cms": "வலைத்தள CMS",
+    "appControl": "ஆப் கட்டுப்பாடு",
+    "readings": "தினசரி வாசகங்கள்",
+    "clergy": "போதகர்கள்",
+    "settings": "அமைப்புகள்",
+    "appearance": "தோற்றம்",
+    "languages": "மொழிகள்",
+    "rbac": "பயனர்கள் & பாத்திரங்கள்",
+    "audit": "தணிக்கை"
+  },
+  "dashboard": {
+    "title": "பங்காளி கOMMAND மையம்",
+    "welcome": "மீண்டும் வரவேற்கிறோம்",
+    "families": "குடும்பங்கள்",
+    "members": "உறுப்பினர்கள்",
+    "sacraments": "இந்த ஆண்டு திருநிகழ்வுகள்",
+    "donations": "நன்கொடைகள்"
+  },
+  "topbar": {
+    "home": "முகப்பு",
+    "diocese": "ம епarchy",
+    "parish": "பங்காளி",
+    "profile": "சுயவிவரம்",
+    "theme": "தீம்"
+  },
+  "settings": {
+    "title": "அமைப்புகள்",
+    "languagePreference": "விருப்ப மொழி",
+    "languageHint": "ERP, மின்னஞ்சல் மற்றும் அறிவிப்புகளுக்கு பொருந்தும்."
+  }
+}

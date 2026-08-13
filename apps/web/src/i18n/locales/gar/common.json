@@ -1,0 +1,46 @@
+{
+  "app": {
+    "name": "BCL Diocese ERP",
+    "tagline": "Gital · Songnok · Bakrim"
+  },
+  "actions": {
+    "save": "Rakkibo",
+    "cancel": "Cancelled",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "publish": "Publish",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "close": "Close",
+    "loading": "Loading…",
+    "retry": "Retry"
+  },
+  "language": {
+    "label": "Ku·sik",
+    "switch": "Ku·sik sokatbo",
+    "default": "Default ku·sik",
+    "enabled": "Enabled ku·sikrang",
+    "manage": "Ku·sik Management"
+  },
+  "auth": {
+    "login": "Sign in",
+    "logout": "Sign out",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "notFound": "Not found",
+    "forbidden": "You do not have permission."
+  },
+  "fallback": {
+    "missingTranslation": "Translation unavailable — showing English."
+  }
+}

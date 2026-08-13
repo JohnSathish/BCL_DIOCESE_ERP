@@ -1,0 +1,318 @@
+:root {
+
+  --bcl-bg: #F5F7FA;
+
+  --bcl-surface: #ffffff;
+
+  --bcl-border: #e6e6ea;
+
+  --bcl-text: #1a1a1f;
+
+  --bcl-muted: #6b6b76;
+
+  --bcl-primary: #722f37;
+
+  --bcl-primary-soft: #8b3a42;
+
+  --bcl-burgundy: var(--bcl-primary);
+
+  --bcl-burgundy-soft: var(--bcl-primary-soft);
+
+  --bcl-gold: #c4a35a;
+
+  --bcl-gold-soft: #d4b978;
+
+  --bcl-accent: var(--bcl-gold);
+
+  --bcl-accent-soft: var(--bcl-gold-soft);
+
+  --bcl-sidebar: #FAFBFC;
+
+  --bcl-sidebar-text: #2C2C2C;
+
+  --bcl-nav-active: var(--bcl-primary);
+
+  --bcl-nav-accent: var(--bcl-gold);
+
+  --bcl-brand-mark: var(--bcl-primary);
+
+  --bcl-topbar-bg: rgba(255, 255, 255, 0.82);
+
+  --bcl-glow-primary: rgba(114, 47, 55, 0.08);
+
+  --bcl-glow-accent: rgba(196, 163, 90, 0.1);
+
+  --bcl-radius: 12px;
+
+  --bcl-shadow: 0 1px 2px rgba(28, 20, 22, 0.06), 0 8px 24px rgba(28, 20, 22, 0.04);
+
+  --bcl-sidebar-muted: #8a7f82;
+
+  --bcl-sidebar-border: #ebe4e2;
+
+  --bcl-sidebar-gradient: linear-gradient(180deg, #2a1518 0%, #722f37 55%, #8b3a42 100%);
+
+  --bcl-nav-active-bg: rgba(114, 47, 55, 0.1);
+
+  --bcl-nav-hover: rgba(114, 47, 55, 0.06);
+
+  --bcl-hero-gradient: linear-gradient(135deg, #2a1518 0%, #722f37 50%, #8b3a42 100%);
+
+  --bcl-card-gradient: linear-gradient(145deg, #722f37, #c45c67);
+
+  --bcl-success: #059669;
+
+  --bcl-warning: #d97706;
+
+  --bcl-danger: #dc2626;
+
+  --bcl-info: #2563eb;
+
+  --bcl-sidebar-width: 300px;
+
+  --bcl-nav-pad-y: 0.625rem;
+
+}
+
+
+
+.dark {
+
+  color-scheme: dark;
+
+}
+
+
+
+/* Sidebar style engine — same palette family as dashboard hero / KPI cards */
+
+.bcl-sidebar {
+  background: var(--bcl-sidebar);
+  transition:
+    background 0.28s ease,
+    color 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    width 0.2s ease;
+}
+
+/* Corporate solid: soft theme-tinted panel (not orphan gray) */
+html[data-sidebar-style='solid'] .bcl-sidebar {
+  background:
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--bcl-primary) 8%, var(--bcl-sidebar)) 0%,
+      var(--bcl-sidebar) 42%,
+      color-mix(in srgb, var(--bcl-accent) 6%, var(--bcl-sidebar)) 100%
+    ) !important;
+  box-shadow: inset -1px 0 0 var(--bcl-sidebar-border);
+}
+
+/* Premium gradient: same language as dashboard hero */
+html[data-sidebar-style='gradient'] .bcl-sidebar {
+  background: var(--bcl-sidebar-gradient) !important;
+  color: #f8fafc;
+  --bcl-sidebar-text: #f8fafc;
+  --bcl-sidebar-muted: rgba(248, 250, 252, 0.72);
+  --bcl-sidebar-border: rgba(255, 255, 255, 0.14);
+  --bcl-nav-active: #ffffff;
+  --bcl-nav-active-bg: rgba(255, 255, 255, 0.16);
+  --bcl-nav-hover: rgba(255, 255, 255, 0.1);
+  --bcl-nav-accent: var(--bcl-accent);
+  box-shadow:
+    inset -1px 0 0 rgba(255, 255, 255, 0.08),
+    8px 0 32px color-mix(in srgb, var(--bcl-primary) 18%, transparent);
+}
+
+html[data-sidebar-style='gradient'] .bcl-sidebar::before {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(600px 280px at 0% 0%, color-mix(in srgb, var(--bcl-accent) 22%, transparent), transparent 60%),
+    radial-gradient(500px 240px at 100% 100%, color-mix(in srgb, #fff 10%, transparent), transparent 55%);
+  opacity: 0.9;
+}
+
+html[data-sidebar-style='glass'] .bcl-sidebar {
+  background: color-mix(in srgb, var(--bcl-primary) 12%, color-mix(in srgb, var(--bcl-sidebar) 78%, transparent)) !important;
+  backdrop-filter: blur(20px) saturate(1.25);
+  -webkit-backdrop-filter: blur(20px) saturate(1.25);
+  box-shadow:
+    inset -1px 0 0 color-mix(in srgb, var(--bcl-primary) 12%, transparent),
+    8px 0 28px color-mix(in srgb, var(--bcl-primary) 8%, transparent);
+}
+
+html[data-density='compact'] .bcl-sidebar a,
+html[data-density='compact'] .bcl-sidebar button {
+  padding-top: var(--bcl-nav-pad-y);
+  padding-bottom: var(--bcl-nav-pad-y);
+}
+
+/* Brand crest in sidebar */
+.bcl-sidebar__crest {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: calc(var(--bcl-radius) + 2px);
+  background: var(--bcl-card-gradient);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--bcl-accent) 55%, transparent),
+    0 8px 20px color-mix(in srgb, var(--bcl-primary) 28%, transparent);
+}
+
+.bcl-sidebar__crest::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  border: 1px solid color-mix(in srgb, var(--bcl-accent) 40%, transparent);
+  pointer-events: none;
+}
+
+.bcl-sidebar__brand-title {
+  font-family: var(--bcl-font-display, Fraunces, Georgia, serif);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  color: var(--bcl-sidebar-text);
+}
+
+.bcl-sidebar__nav-item.is-active {
+  background: var(--bcl-nav-active-bg);
+  color: var(--bcl-nav-active);
+  font-weight: 600;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--bcl-nav-accent) 35%, transparent),
+    0 8px 20px color-mix(in srgb, var(--bcl-primary) 12%, transparent);
+}
+
+html[data-sidebar-style='gradient'] .bcl-sidebar__nav-item.is-active {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.18),
+    0 10px 24px rgba(0, 0, 0, 0.18);
+}
+
+
+
+/* Enterprise card / KPI helpers */
+
+.bcl-kpi-card {
+
+  background: var(--bcl-surface);
+
+  border: 1px solid var(--bcl-border);
+
+  border-radius: var(--bcl-radius);
+
+  box-shadow: var(--bcl-shadow);
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+}
+
+
+
+.bcl-kpi-card:hover {
+
+  transform: translateY(-2px);
+
+  box-shadow: var(--bcl-shadow), 0 0 0 1px color-mix(in srgb, var(--bcl-primary) 18%, transparent);
+
+}
+
+
+
+.bcl-kpi-icon {
+
+  background: var(--bcl-card-gradient);
+
+  color: #fff;
+
+}
+
+
+
+.bcl-hero-band {
+
+  background: var(--bcl-hero-gradient);
+
+  color: #fff;
+
+  border-radius: calc(var(--bcl-radius) + 4px);
+
+}
+
+
+
+* {
+
+  box-sizing: border-box;
+
+}
+
+
+
+body {
+
+  margin: 0;
+
+  color: var(--bcl-text);
+
+  background:
+
+    radial-gradient(1200px 600px at 10% -10%, var(--bcl-glow-primary), transparent 60%),
+
+    radial-gradient(900px 500px at 100% 0%, var(--bcl-glow-accent), transparent 55%),
+
+    var(--bcl-bg);
+
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+
+  transition: background-color 0.2s ease, color 0.2s ease;
+
+}
+
+
+
+h1, h2, h3, .font-display {
+
+  font-family: "Fraunces", Georgia, serif;
+
+  letter-spacing: -0.02em;
+
+}
+
+
+
+@media print {
+
+  aside {
+
+    display: none !important;
+
+  }
+
+  body {
+
+    background: white !important;
+
+  }
+
+  main {
+
+    max-width: none !important;
+
+  }
+
+}
+
+

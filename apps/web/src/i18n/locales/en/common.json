@@ -1,0 +1,46 @@
+{
+  "app": {
+    "name": "BCL Diocese ERP",
+    "tagline": "Faith · Family · Fellowship"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "publish": "Publish",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "close": "Close",
+    "loading": "Loading…",
+    "retry": "Retry"
+  },
+  "language": {
+    "label": "Language",
+    "switch": "Switch language",
+    "default": "Default language",
+    "enabled": "Enabled languages",
+    "manage": "Language Management"
+  },
+  "auth": {
+    "login": "Sign in",
+    "logout": "Sign out",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "notFound": "Not found",
+    "forbidden": "You do not have permission to perform this action."
+  },
+  "fallback": {
+    "missingTranslation": "Translation unavailable — showing English."
+  }
+}
