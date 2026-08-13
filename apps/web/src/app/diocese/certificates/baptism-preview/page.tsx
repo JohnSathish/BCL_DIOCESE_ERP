@@ -1,10 +1,14 @@
 'use client';
 
 import { PremiumLandscapeBaptismCert } from '@/components/certificates/templates/PremiumLandscapeBaptismCert';
-import type { BaptismCertViewModel } from '@/components/certificates/templates/baptism-types';
+import {
+  DEFAULT_BAPTISM_LABELS,
+  type BaptismCertViewModel,
+} from '@/components/certificates/templates/baptism-types';
 import '../../../print/print.css';
 
 const DEMO: BaptismCertViewModel = {
+  labels: DEFAULT_BAPTISM_LABELS,
   dioceseName: 'Roman Catholic Diocese of Tura',
   parishName: 'Sacred Heart Parish',
   parishLocation: 'Tura, Meghalaya',

@@ -21,8 +21,31 @@ export type BaptismCertLabels = {
   verifyQr: string;
 };
 
+export const DEFAULT_BAPTISM_LABELS: BaptismCertLabels = {
+  title: 'Baptism Certificate',
+  certifyIntro: 'Was baptised in the name of the Father and of the Son and of the Holy Spirit',
+  son: 'Son',
+  daughter: 'Daughter',
+  child: 'Child',
+  dateOfBirth: 'Date of Birth',
+  dateOfBaptism: 'Date of Baptism',
+  placeOfBaptism: 'Place of Baptism',
+  celebratedBy: 'Celebrant',
+  godfather: 'Godfather',
+  godmother: 'Godmother',
+  registerNo: 'Baptism Register No.',
+  pageNo: 'Page No.',
+  bookNo: 'Book No.',
+  certificateNo: 'Certificate No.',
+  issuedOn: 'Date Issued',
+  placeOfIssue: 'Place of Issue',
+  parishPriest: 'Parish Priest',
+  parishSecretary: 'Parish Secretary',
+  verifyQr: 'Scan to verify',
+};
+
 export type BaptismCertViewModel = {
-  labels: BaptismCertLabels;
+  labels?: BaptismCertLabels;
   dioceseName: string;
   parishName: string;
   parishLocation: string;

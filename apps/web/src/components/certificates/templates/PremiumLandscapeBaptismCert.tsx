@@ -1,6 +1,7 @@
 'use client';
 
 import type { BaptismCertViewModel } from './baptism-types';
+import { DEFAULT_BAPTISM_LABELS } from './baptism-types';
 
 function Line({
   label,
@@ -32,6 +33,7 @@ function Line({
  * Designed for ERP dynamic data + print at 300 DPI.
  */
 export function PremiumLandscapeBaptismCert({ data }: { data: BaptismCertViewModel }) {
+  const labels = data.labels ?? DEFAULT_BAPTISM_LABELS;
   return (
     <div className="bp-page">
       <style>{`
@@ -760,16 +762,16 @@ export function PremiumLandscapeBaptismCert({ data }: { data: BaptismCertViewMod
           </p>
 
           <div className="bp-grid">
-            <Line label={data.labels.dateOfBirth} value={data.birthDate} icon="☽" />
-            <Line label={data.labels.dateOfBaptism} value={data.baptismDate} icon="✝" />
-            <Line label={data.labels.placeOfBaptism} value={data.placeOfBaptism} icon="⛪" wide />
-            <Line label={data.labels.celebratedBy} value={data.celebratedBy} icon="†" wide />
-            <Line label={data.labels.godfather} value={data.godFather} icon="◆" />
-            <Line label={data.labels.godmother} value={data.godMother} icon="◆" />
-            <Line label={data.labels.registerNo} value={data.registerNo} icon="№" />
-            <Line label={`${data.labels.pageNo} / ${data.labels.bookNo}`} value={[data.pageNo, data.bookNo].filter(Boolean).join(' · ')} icon="☰" />
-            <Line label={data.labels.certificateNo} value={data.certificateNo} icon="✦" />
-            <Line label={data.labels.issuedOn} value={data.issuedOn} icon="◎" />
+            <Line label={labels.dateOfBirth} value={data.birthDate} icon="☽" />
+            <Line label={labels.dateOfBaptism} value={data.baptismDate} icon="✝" />
+            <Line label={labels.placeOfBaptism} value={data.placeOfBaptism} icon="⛪" wide />
+            <Line label={labels.celebratedBy} value={data.celebratedBy} icon="†" wide />
+            <Line label={labels.godfather} value={data.godFather} icon="◆" />
+            <Line label={labels.godmother} value={data.godMother} icon="◆" />
+            <Line label={labels.registerNo} value={data.registerNo} icon="№" />
+            <Line label={`${labels.pageNo} / ${labels.bookNo}`} value={[data.pageNo, data.bookNo].filter(Boolean).join(' · ')} icon="☰" />
+            <Line label={labels.certificateNo} value={data.certificateNo} icon="✦" />
+            <Line label={labels.issuedOn} value={data.issuedOn} icon="◎" />
           </div>
 
           <p className="bp-blessing">
