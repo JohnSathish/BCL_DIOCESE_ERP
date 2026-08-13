@@ -70,8 +70,8 @@ export const DEFAULT_APPEARANCE: AppearancePrefs = {
   radius: 'md',
   shadow: 'enterprise',
   density: 'comfortable',
-  /** Gradient matches dashboard hero — unified enterprise chrome by default */
-  sidebarStyle: 'gradient',
+  /** Solid deep-navy chrome — MNC SaaS navigation (not full maroon) */
+  sidebarStyle: 'solid',
 };
 
 export const RADIUS_VALUES: Record<RadiusPreset, string> = {
@@ -245,70 +245,70 @@ export const COLOR_THEMES: ColorTheme[] = [
   },
   {
     id: 'navy',
-    label: 'Corporate Blue',
-    description: 'Navy + white + sky',
-    swatch: '#0f3d91',
+    label: 'Enterprise Navy',
+    description: 'Deep navy + slate + blue active (MNC SaaS)',
+    swatch: '#0F172A',
     light: tokens({
-      bg: '#f4f7fb',
+      bg: '#F8FAFC',
       surface: '#ffffff',
-      border: '#e2e8f0',
-      text: '#0f172a',
-      muted: '#64748b',
-      primary: '#0f3d91',
-      primarySoft: '#1e56c9',
-      accent: '#38bdf8',
-      accentSoft: '#7dd3fc',
-      sidebar: '#0b2a66',
-      sidebarText: '#f8fafc',
-      sidebarMuted: '#94a3b8',
-      sidebarBorder: 'rgba(148, 163, 184, 0.25)',
-      sidebarGradient: 'linear-gradient(180deg, #071c45 0%, #0f3d91 55%, #1e56c9 100%)',
-      navActive: '#ffffff',
-      navActiveBg: 'rgba(255, 255, 255, 0.14)',
-      navHover: 'rgba(255, 255, 255, 0.08)',
-      navAccent: '#38bdf8',
-      brandMark: '#38bdf8',
-      heroGradient: 'linear-gradient(135deg, #071c45, #0f3d91, #38bdf8)',
-      cardGradient: 'linear-gradient(145deg, #0f3d91, #38bdf8)',
-      success: '#059669',
+      border: '#E2E8F0',
+      text: '#0F172A',
+      muted: '#64748B',
+      primary: '#722f37',
+      primarySoft: '#8b3a42',
+      accent: '#C4A35A',
+      accentSoft: '#D4B978',
+      sidebar: '#0F172A',
+      sidebarText: '#F8FAFC',
+      sidebarMuted: '#94A3B8',
+      sidebarBorder: '#334155',
+      sidebarGradient: 'linear-gradient(180deg, #020617 0%, #0F172A 52%, #1E293B 100%)',
+      navActive: '#2563EB',
+      navActiveBg: 'rgba(37, 99, 235, 0.2)',
+      navHover: '#1E293B',
+      navAccent: '#2563EB',
+      brandMark: '#722f37',
+      heroGradient: 'linear-gradient(135deg, #0F172A 0%, #1E293B 48%, #2563EB 100%)',
+      cardGradient: 'linear-gradient(145deg, #722f37, #C4A35A)',
+      success: '#22C55E',
       warning: '#d97706',
       danger: '#dc2626',
-      info: '#0284c7',
+      info: '#2563EB',
       shadow: SHADOW_VALUES.enterprise.light,
-      glowPrimary: 'rgba(15, 61, 145, 0.1)',
-      glowAccent: 'rgba(56, 189, 248, 0.12)',
-      topbarBg: 'rgba(255, 255, 255, 0.88)',
+      glowPrimary: 'rgba(37, 99, 235, 0.12)',
+      glowAccent: 'rgba(196, 163, 90, 0.14)',
+      topbarBg: 'rgba(255, 255, 255, 0.92)',
     }),
     dark: tokens({
-      bg: '#0b1220',
-      surface: '#121a2b',
-      border: '#243049',
-      text: '#e8eef8',
-      muted: '#94a3b8',
-      primary: '#60a5fa',
-      primarySoft: '#93c5fd',
-      accent: '#38bdf8',
-      accentSoft: '#7dd3fc',
-      sidebar: '#0a1424',
-      sidebarText: '#e8eef8',
-      sidebarMuted: '#7c8da6',
-      sidebarBorder: '#1e2d45',
-      sidebarGradient: 'linear-gradient(180deg, #060d18, #0f1c33 70%)',
-      navActive: '#93c5fd',
-      navActiveBg: 'rgba(96, 165, 250, 0.16)',
-      navHover: 'rgba(96, 165, 250, 0.08)',
-      navAccent: '#38bdf8',
-      brandMark: '#60a5fa',
-      heroGradient: 'linear-gradient(135deg, #060d18, #0f3d91, #0284c7)',
-      cardGradient: 'linear-gradient(145deg, #1e56c9, #38bdf8)',
-      success: '#34d399',
+      bg: '#020617',
+      surface: '#0F172A',
+      border: '#334155',
+      text: '#F8FAFC',
+      muted: '#94A3B8',
+      primary: '#C45C67',
+      primarySoft: '#E07A84',
+      accent: '#D4B978',
+      accentSoft: '#E8D4A8',
+      sidebar: '#020617',
+      sidebarText: '#F8FAFC',
+      sidebarMuted: '#94A3B8',
+      sidebarBorder: '#334155',
+      sidebarGradient: 'linear-gradient(180deg, #000000 0%, #020617 50%, #0F172A 100%)',
+      navActive: '#3B82F6',
+      navActiveBg: 'rgba(37, 99, 235, 0.28)',
+      navHover: '#1E293B',
+      navAccent: '#3B82F6',
+      brandMark: '#722f37',
+      heroGradient: 'linear-gradient(135deg, #020617, #0F172A, #2563EB)',
+      cardGradient: 'linear-gradient(145deg, #722f37, #C4A35A)',
+      success: '#22C55E',
       warning: '#fbbf24',
       danger: '#f87171',
-      info: '#38bdf8',
+      info: '#60a5fa',
       shadow: SHADOW_VALUES.enterprise.dark,
-      glowPrimary: 'rgba(96, 165, 250, 0.12)',
-      glowAccent: 'rgba(56, 189, 248, 0.1)',
-      topbarBg: 'rgba(18, 26, 43, 0.92)',
+      glowPrimary: 'rgba(37, 99, 235, 0.16)',
+      glowAccent: 'rgba(196, 163, 90, 0.12)',
+      topbarBg: 'rgba(15, 23, 42, 0.94)',
     }),
   },
   {
@@ -857,14 +857,14 @@ export const COLOR_THEMES: ColorTheme[] = [
   },
 ];
 
-export const COLOR_STORAGE_KEY = 'bcl_color_theme';
+export const COLOR_STORAGE_KEY = 'bcl_color_theme_v2';
 export const MODE_STORAGE_KEY = 'bcl_theme_mode';
-export const APPEARANCE_STORAGE_KEY = 'bcl_appearance';
+export const APPEARANCE_STORAGE_KEY = 'bcl_appearance_v2';
 /** Legacy toggle key used by Providers */
 export const LEGACY_THEME_KEY = 'bcl_theme';
 
 export function getColorTheme(id: ColorThemeId): ColorTheme {
-  return COLOR_THEMES.find((t) => t.id === id) || COLOR_THEMES[0];
+  return COLOR_THEMES.find((t) => t.id === id) || COLOR_THEMES.find((t) => t.id === 'navy') || COLOR_THEMES[0];
 }
 
 export function resolveDark(mode: ThemeMode, prefersDark: boolean) {
@@ -935,10 +935,10 @@ export function applyThemeTokens(
 }
 
 export function readStoredColor(): ColorThemeId {
-  if (typeof window === 'undefined') return 'burgundy';
+  if (typeof window === 'undefined') return 'navy';
   const v = localStorage.getItem(COLOR_STORAGE_KEY) as ColorThemeId | null;
   if (v && COLOR_THEMES.some((t) => t.id === v)) return v;
-  return 'burgundy';
+  return 'navy';
 }
 
 export function readStoredMode(): ThemeMode {

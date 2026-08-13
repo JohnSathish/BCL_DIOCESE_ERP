@@ -56,7 +56,7 @@ import { translateNavItems } from '@/lib/translate-nav';
 import { useTheme } from '@/components/theme/ThemeProvider';
 import { COLOR_STORAGE_KEY } from '@/lib/theme';
 
-const icon = 'h-6 w-6';
+const icon = 'h-5 w-5';
 
 const dioceseNav: NavItem[] = [
   {
@@ -271,11 +271,11 @@ export function DioceseShell({ children }: { children: React.ReactNode }) {
         if (theme && typeof theme === 'object') {
           hydrateFromServer(theme as never);
         } else if (!localStorage.getItem(COLOR_STORAGE_KEY)) {
-          setColor('burgundy');
+          setColor('navy');
         }
       })
       .catch(() => {
-        if (!localStorage.getItem(COLOR_STORAGE_KEY)) setColor('burgundy');
+        if (!localStorage.getItem(COLOR_STORAGE_KEY)) setColor('navy');
       });
   }, [hydrated, user, hydrateFromServer, setColor]);
 
@@ -315,7 +315,7 @@ export function DioceseShell({ children }: { children: React.ReactNode }) {
       brandSub={brandSub}
       brandMark={brandMark}
       brandExtra={
-        <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--bcl-nav-accent)]">
+        <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--bcl-accent)]">
           {isParish ? t('shell.parishCommand') : t('shell.dioceseCommand')}
         </p>
       }

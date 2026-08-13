@@ -64,7 +64,7 @@ export function ThemeProvider({
   children: ReactNode;
   defaultColor?: ColorThemeId;
 }) {
-  const [color, setColorState] = useState<ColorThemeId>('burgundy');
+  const [color, setColorState] = useState<ColorThemeId>(defaultColor || 'navy');
   const [mode, setModeState] = useState<ThemeMode>('system');
   const [appearance, setAppearanceState] = useState<AppearancePrefs>(DEFAULT_APPEARANCE);
   const [isDark, setIsDark] = useState(false);

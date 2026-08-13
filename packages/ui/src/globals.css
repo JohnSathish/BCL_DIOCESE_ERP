@@ -1,90 +1,49 @@
 :root {
-
-  --bcl-bg: #F5F7FA;
-
+  --bcl-bg: #F8FAFC;
   --bcl-surface: #ffffff;
-
-  --bcl-border: #e6e6ea;
-
-  --bcl-text: #1a1a1f;
-
-  --bcl-muted: #6b6b76;
-
+  --bcl-border: #E2E8F0;
+  --bcl-text: #0F172A;
+  --bcl-muted: #64748B;
   --bcl-primary: #722f37;
-
   --bcl-primary-soft: #8b3a42;
-
   --bcl-burgundy: var(--bcl-primary);
-
   --bcl-burgundy-soft: var(--bcl-primary-soft);
-
   --bcl-gold: #c4a35a;
-
   --bcl-gold-soft: #d4b978;
-
   --bcl-accent: var(--bcl-gold);
-
   --bcl-accent-soft: var(--bcl-gold-soft);
-
-  --bcl-sidebar: #FAFBFC;
-
-  --bcl-sidebar-text: #2C2C2C;
-
-  --bcl-nav-active: var(--bcl-primary);
-
-  --bcl-nav-accent: var(--bcl-gold);
-
-  --bcl-brand-mark: var(--bcl-primary);
-
-  --bcl-topbar-bg: rgba(255, 255, 255, 0.82);
-
-  --bcl-glow-primary: rgba(114, 47, 55, 0.08);
-
-  --bcl-glow-accent: rgba(196, 163, 90, 0.1);
-
+  /* Enterprise navy sidebar (MNC SaaS) — diocese identity stays on crest / accents */
+  --bcl-sidebar: #0F172A;
+  --bcl-sidebar-text: #F8FAFC;
+  --bcl-nav-active: #2563EB;
+  --bcl-nav-accent: #2563EB;
+  --bcl-brand-mark: #722f37;
+  --bcl-topbar-bg: rgba(255, 255, 255, 0.92);
+  --bcl-glow-primary: rgba(37, 99, 235, 0.12);
+  --bcl-glow-accent: rgba(196, 163, 90, 0.14);
   --bcl-radius: 12px;
-
-  --bcl-shadow: 0 1px 2px rgba(28, 20, 22, 0.06), 0 8px 24px rgba(28, 20, 22, 0.04);
-
-  --bcl-sidebar-muted: #8a7f82;
-
-  --bcl-sidebar-border: #ebe4e2;
-
-  --bcl-sidebar-gradient: linear-gradient(180deg, #2a1518 0%, #722f37 55%, #8b3a42 100%);
-
-  --bcl-nav-active-bg: rgba(114, 47, 55, 0.1);
-
-  --bcl-nav-hover: rgba(114, 47, 55, 0.06);
-
-  --bcl-hero-gradient: linear-gradient(135deg, #2a1518 0%, #722f37 50%, #8b3a42 100%);
-
-  --bcl-card-gradient: linear-gradient(145deg, #722f37, #c45c67);
-
-  --bcl-success: #059669;
-
+  --bcl-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.04);
+  --bcl-sidebar-muted: #94A3B8;
+  --bcl-sidebar-section: #64748B;
+  --bcl-sidebar-border: #334155;
+  --bcl-sidebar-gradient: linear-gradient(180deg, #020617 0%, #0F172A 52%, #1E293B 100%);
+  --bcl-nav-active-bg: rgba(37, 99, 235, 0.2);
+  --bcl-nav-hover: #1E293B;
+  --bcl-hero-gradient: linear-gradient(135deg, #0F172A 0%, #1E293B 48%, #2563EB 100%);
+  --bcl-card-gradient: linear-gradient(145deg, #722f37, #C4A35A);
+  --bcl-success: #22C55E;
   --bcl-warning: #d97706;
-
   --bcl-danger: #dc2626;
-
   --bcl-info: #2563eb;
-
   --bcl-sidebar-width: 300px;
-
   --bcl-nav-pad-y: 0.625rem;
-
 }
-
-
 
 .dark {
-
   color-scheme: dark;
-
 }
 
-
-
-/* Sidebar style engine — same palette family as dashboard hero / KPI cards */
+/* Sidebar style engine — navy chrome; crest keeps diocese maroon/gold */
 
 .bcl-sidebar {
   background: var(--bcl-sidebar);
@@ -96,32 +55,36 @@
     width 0.2s ease;
 }
 
-/* Corporate solid: soft theme-tinted panel (not orphan gray) */
+/* Solid enterprise navy panel */
 html[data-sidebar-style='solid'] .bcl-sidebar {
-  background:
-    linear-gradient(
-      165deg,
-      color-mix(in srgb, var(--bcl-primary) 8%, var(--bcl-sidebar)) 0%,
-      var(--bcl-sidebar) 42%,
-      color-mix(in srgb, var(--bcl-accent) 6%, var(--bcl-sidebar)) 100%
-    ) !important;
-  box-shadow: inset -1px 0 0 var(--bcl-sidebar-border);
+  background: var(--bcl-sidebar) !important;
+  color: var(--bcl-sidebar-text);
+  --bcl-sidebar-text: #F8FAFC;
+  --bcl-sidebar-muted: #94A3B8;
+  --bcl-sidebar-border: #334155;
+  --bcl-nav-active: #2563EB;
+  --bcl-nav-active-bg: rgba(37, 99, 235, 0.2);
+  --bcl-nav-hover: #1E293B;
+  --bcl-nav-accent: #2563EB;
+  box-shadow:
+    inset -1px 0 0 var(--bcl-sidebar-border),
+    8px 0 28px rgba(2, 6, 23, 0.35);
 }
 
-/* Premium gradient: same language as dashboard hero */
+/* Optional deep navy gradient (still not maroon) */
 html[data-sidebar-style='gradient'] .bcl-sidebar {
   background: var(--bcl-sidebar-gradient) !important;
   color: #f8fafc;
   --bcl-sidebar-text: #f8fafc;
-  --bcl-sidebar-muted: rgba(248, 250, 252, 0.72);
-  --bcl-sidebar-border: rgba(255, 255, 255, 0.14);
-  --bcl-nav-active: #ffffff;
-  --bcl-nav-active-bg: rgba(255, 255, 255, 0.16);
-  --bcl-nav-hover: rgba(255, 255, 255, 0.1);
-  --bcl-nav-accent: var(--bcl-accent);
+  --bcl-sidebar-muted: #94a3b8;
+  --bcl-sidebar-border: #334155;
+  --bcl-nav-active: #2563EB;
+  --bcl-nav-active-bg: rgba(37, 99, 235, 0.22);
+  --bcl-nav-hover: #1E293B;
+  --bcl-nav-accent: #2563EB;
   box-shadow:
-    inset -1px 0 0 rgba(255, 255, 255, 0.08),
-    8px 0 32px color-mix(in srgb, var(--bcl-primary) 18%, transparent);
+    inset -1px 0 0 rgba(51, 65, 85, 0.9),
+    8px 0 32px rgba(2, 6, 23, 0.4);
 }
 
 html[data-sidebar-style='gradient'] .bcl-sidebar::before {
@@ -130,18 +93,22 @@ html[data-sidebar-style='gradient'] .bcl-sidebar::before {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(600px 280px at 0% 0%, color-mix(in srgb, var(--bcl-accent) 22%, transparent), transparent 60%),
-    radial-gradient(500px 240px at 100% 100%, color-mix(in srgb, #fff 10%, transparent), transparent 55%);
+    radial-gradient(600px 280px at 0% 0%, color-mix(in srgb, var(--bcl-accent) 16%, transparent), transparent 60%),
+    radial-gradient(500px 240px at 100% 100%, rgba(37, 99, 235, 0.12), transparent 55%);
   opacity: 0.9;
 }
 
 html[data-sidebar-style='glass'] .bcl-sidebar {
-  background: color-mix(in srgb, var(--bcl-primary) 12%, color-mix(in srgb, var(--bcl-sidebar) 78%, transparent)) !important;
+  background: color-mix(in srgb, #0F172A 88%, transparent) !important;
   backdrop-filter: blur(20px) saturate(1.25);
   -webkit-backdrop-filter: blur(20px) saturate(1.25);
+  --bcl-sidebar-text: #F8FAFC;
+  --bcl-sidebar-muted: #94A3B8;
+  --bcl-nav-active: #2563EB;
+  --bcl-nav-hover: #1E293B;
   box-shadow:
-    inset -1px 0 0 color-mix(in srgb, var(--bcl-primary) 12%, transparent),
-    8px 0 28px color-mix(in srgb, var(--bcl-primary) 8%, transparent);
+    inset -1px 0 0 #334155,
+    8px 0 28px rgba(2, 6, 23, 0.3);
 }
 
 html[data-density='compact'] .bcl-sidebar a,
@@ -150,7 +117,7 @@ html[data-density='compact'] .bcl-sidebar button {
   padding-bottom: var(--bcl-nav-pad-y);
 }
 
-/* Brand crest in sidebar */
+/* Brand crest — diocese maroon + gold ring (identity accent) */
 .bcl-sidebar__crest {
   position: relative;
   display: grid;
@@ -165,7 +132,7 @@ html[data-density='compact'] .bcl-sidebar button {
   letter-spacing: 0.04em;
   box-shadow:
     0 0 0 2px color-mix(in srgb, var(--bcl-accent) 55%, transparent),
-    0 8px 20px color-mix(in srgb, var(--bcl-primary) 28%, transparent);
+    0 8px 20px rgba(114, 47, 55, 0.35);
 }
 
 .bcl-sidebar__crest::after {
@@ -188,17 +155,22 @@ html[data-density='compact'] .bcl-sidebar button {
 
 .bcl-sidebar__nav-item.is-active {
   background: var(--bcl-nav-active-bg);
-  color: var(--bcl-nav-active);
+  color: #F8FAFC;
   font-weight: 600;
   box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--bcl-nav-accent) 35%, transparent),
-    0 8px 20px color-mix(in srgb, var(--bcl-primary) 12%, transparent);
+    0 0 0 1px color-mix(in srgb, var(--bcl-nav-active) 45%, transparent),
+    0 8px 18px rgba(37, 99, 235, 0.18);
 }
 
-html[data-sidebar-style='gradient'] .bcl-sidebar__nav-item.is-active {
+html[data-sidebar-style='gradient'] .bcl-sidebar__nav-item.is-active,
+html[data-sidebar-style='solid'] .bcl-sidebar__nav-item.is-active {
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.18),
-    0 10px 24px rgba(0, 0, 0, 0.18);
+    0 0 0 1px color-mix(in srgb, #2563EB 50%, transparent),
+    0 10px 22px rgba(2, 6, 23, 0.35);
+}
+
+.bcl-sidebar__section-label {
+  color: var(--bcl-sidebar-section, #64748B) !important;
 }
 
 

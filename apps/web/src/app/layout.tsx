@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 const themeBootScript = `
 (function(){
   try {
-    var color = localStorage.getItem('bcl_color_theme') || 'burgundy';
+    var color = localStorage.getItem('bcl_color_theme_v2') || 'navy';
     var mode = localStorage.getItem('bcl_theme_mode') || localStorage.getItem('bcl_theme') || 'system';
     if (mode === 'auto') mode = 'system';
     var dark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -23,9 +23,9 @@ const themeBootScript = `
     document.documentElement.dataset.colorTheme = color;
     document.documentElement.dataset.themeMode = dark ? 'dark' : 'light';
     var appearance = {};
-    try { appearance = JSON.parse(localStorage.getItem('bcl_appearance') || '{}') || {}; } catch (e) {}
+    try { appearance = JSON.parse(localStorage.getItem('bcl_appearance_v2') || '{}') || {}; } catch (e) {}
     document.documentElement.dataset.density = appearance.density === 'compact' ? 'compact' : 'comfortable';
-    document.documentElement.dataset.sidebarStyle = appearance.sidebarStyle || 'gradient';
+    document.documentElement.dataset.sidebarStyle = appearance.sidebarStyle || 'solid';
     var radii = { sm: '6px', md: '12px', lg: '16px', xl: '20px', corporate: '8px' };
     if (appearance.radius && radii[appearance.radius]) {
       document.documentElement.style.setProperty('--bcl-radius', radii[appearance.radius]);
@@ -36,7 +36,7 @@ const themeBootScript = `
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning data-sidebar-style="gradient">
+    <html lang="en" suppressHydrationWarning data-sidebar-style="solid" data-color-theme="navy">
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />

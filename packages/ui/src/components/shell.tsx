@@ -70,7 +70,7 @@ function NavLink({
       ) : null}
       <span
         className={cn(
-          'flex h-6 w-6 shrink-0 items-center justify-center transition-colors duration-200 [&>svg]:h-[1.35rem] [&>svg]:w-[1.35rem] [&>svg]:stroke-[1.85]',
+          'flex h-5 w-5 shrink-0 items-center justify-center transition-colors duration-200 [&>svg]:h-5 [&>svg]:w-5 [&>svg]:stroke-[1.75]',
           active
             ? 'text-[var(--bcl-nav-active)]'
             : 'text-[var(--bcl-sidebar-muted)] group-hover:text-[var(--bcl-nav-active)]',
@@ -151,7 +151,7 @@ function NavGroup({
         )}
       >
         {!isSection && item.icon ? (
-          <span className="flex h-6 w-6 shrink-0 items-center justify-center text-[var(--bcl-sidebar-muted)] [&>svg]:h-6 [&>svg]:w-6">
+          <span className="flex h-5 w-5 shrink-0 items-center justify-center text-[var(--bcl-sidebar-muted)] [&>svg]:h-5 [&>svg]:w-5">
             {item.icon}
           </span>
         ) : null}
@@ -159,7 +159,7 @@ function NavGroup({
           className={cn(
             'flex-1 truncate',
             isSection
-              ? 'text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--bcl-sidebar-muted)]'
+              ? 'bcl-sidebar__section-label text-[11px] font-bold uppercase tracking-[0.14em]'
               : 'font-medium',
           )}
         >
