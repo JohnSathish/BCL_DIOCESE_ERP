@@ -4,9 +4,11 @@
 # Host Nginx/Apache proxies domains → localhost ports below.
 #
 # Usage on VPS:
-#   cd /var/www/bcl-diocese-erp   # or your path
+#   cd /opt/bcl-diocese-erp
 #   cp .env.hostinger.example .env.production
-#   # edit secrets
+#   # edit secrets, then either:
+#   #   ln -sf .env.production .env
+#   # or always pass: --env-file .env.production
 #   docker compose -f docker/docker-compose.hostinger.yml --env-file .env.production up -d --build
 #
 # Project name isolates containers/volumes from other Compose apps on the same host.
@@ -56,7 +58,8 @@ services:
       - ../.env.production
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://${POSTGRES_USER:-bcl}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-bcl_enterprise}?schema=public
+      # Do not put ?query in this value — Compose treats ? specially. Prisma defaults to public schema.
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-bcl}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-bcl_enterprise}"
       REDIS_URL: redis://redis:6379
       API_PORT: "4000"
       API_URL: ${API_URL:-https://api.turadiocese.in}
