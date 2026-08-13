@@ -27,7 +27,48 @@ Point these A records to `82.25.110.120`:
 **turadiocese.in:** `@`, `www`, `erp`, `api`, `sacredheart`  
 **sacredheartshrinetura.in:** `@`, `www` (optional `erp`, `api`)
 
+## Safety rule (read first)
+
+**Until you approve an Nginx change, we only:**
+
+1. Take backups (read-only copies)
+2. Clone BCL into `/opt/bcl-diocese-erp` (new folder)
+3. Run BCL Docker on `127.0.0.1:13100` / `14100` only
+
+**We will NOT** edit `/opt/nep-erp/nginx/nginx.conf`, restart College/Moodle/Dosa, or bind ports 80/443.
+
+### Backup before anything else
+
+After clone (or upload this script alone first):
+
+```bash
+bash /opt/bcl-diocese-erp/scripts/backup-shared-proxy.sh
+```
+
+Or run the one-liner block in § “Manual backup now” below.
+
+Backups land in `/root/backups/bcl-predeploy-TIMESTAMP/`.
+
+### Manual backup now (run on VPS before clone if you want)
+
+```bash
+STAMP=$(date +%Y%m%d-%H%M%S)
+DEST=/root/backups/bcl-predeploy-$STAMP
+mkdir -p "$DEST"
+cp -a /opt/nep-erp/nginx "$DEST/nginx"
+cp -a /opt/nep-erp/docker-compose.yml "$DEST/" 2>/dev/null || true
+cp -a /opt/nep-erp/docker-compose.prod.yml "$DEST/" 2>/dev/null || true
+cp -a /opt/nep-erp/.env "$DEST/nep-erp.env" 2>/dev/null && chmod 600 "$DEST/nep-erp.env" || true
+cp -a /opt/mercy-dosa-house/docker-compose.yml "$DEST/mercy-dosa-compose.yml" 2>/dev/null || true
+docker ps --format 'table {{.Names}}\t{{.Ports}}\t{{.Status}}' > "$DEST/docker-ps.txt"
+ss -tlnp > "$DEST/ss-tlnp.txt"
+sha256sum /opt/nep-erp/nginx/nginx.conf | tee "$DEST/nginx.conf.sha256"
+ls -la "$DEST"
+echo "Backup OK — no live configs were changed."
+```
+
 ## Project location on this VPS
+
 
 College ERP / Dosa live under **`/opt/nep-erp/`** (not `/var/www`).
 
