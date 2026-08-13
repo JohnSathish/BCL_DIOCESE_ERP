@@ -62,6 +62,9 @@ importers:
       class-validator:
         specifier: ^0.14.2
         version: 0.14.4
+      multer:
+        specifier: ^2.2.0
+        version: 2.2.0
       nodemailer:
         specifier: ^9.0.3
         version: 9.0.3
@@ -268,9 +271,6 @@ importers:
       '@bcl/auth-client':
         specifier: workspace:*
         version: link:../../packages/auth-client
-      '@bcl/i18n':
-        specifier: workspace:*
-        version: link:../../packages/i18n
       '@bcl/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
