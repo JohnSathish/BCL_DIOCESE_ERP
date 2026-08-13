@@ -26,7 +26,7 @@ import {
  * Screen: light toolbar + certificate preview.
  * Print: only #certificate-print via @media print in print.css.
  */
-export function CertificatePrintView({ certificateId }: { certificateId: string }) {
+function CertificatePrintView({ certificateId }: { certificateId: string }) {
   const qc = useQueryClient();
   const router = useRouter();
   const searchParams = useSearchParams();
