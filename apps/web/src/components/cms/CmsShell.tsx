@@ -19,11 +19,13 @@ import {
   Settings,
   Globe,
   FormInput,
+  BarChart3,
 } from 'lucide-react';
 import './cms.css';
 
 const NAV = [
   { href: '/diocese/cms', labelKey: 'nav.dashboard', icon: LayoutDashboard, exact: true },
+  { href: '/diocese/cms/analytics', labelKey: 'nav.analytics', icon: BarChart3 },
   { href: '/diocese/cms/pages', labelKey: 'nav.pages', icon: FileText },
   { href: '/diocese/cms/news', labelKey: 'nav.news', icon: Newspaper },
   { href: '/diocese/cms/events', labelKey: 'nav.events', icon: CalendarDays },
@@ -57,7 +59,8 @@ export function CmsShell({ children }: { children: React.ReactNode }) {
         </div>
         <nav className="space-y-0.5">
           {NAV.map((item) => {
-            const active = item.exact
+            const exact = 'exact' in item && item.exact;
+            const active = exact
               ? pathname === item.href
               : pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (

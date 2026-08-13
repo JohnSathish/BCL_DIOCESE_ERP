@@ -67,6 +67,9 @@ export default function CmsDashboardPage() {
           visitorsWeek?: number;
           visitorsMonth?: number;
           totalVisitors?: number;
+          onlineNow?: number;
+          uniqueVisitorsToday?: number;
+          uniqueVisitorsTotal?: number;
         }
       >('/cms/me/dashboard'),
   });
@@ -91,10 +94,11 @@ export default function CmsDashboardPage() {
     else setWorkflow('draft');
   }, [site, d?.pendingApproval]);
 
-  const visitorsToday = d?.visitorsToday ?? 0;
+  const visitorsToday = d?.uniqueVisitorsToday ?? d?.visitorsToday ?? 0;
   const visitorsWeek = d?.visitorsWeek ?? 0;
   const visitorsMonth = d?.visitorsMonth ?? 0;
-  const activeUsers = d?.newSubmissions ?? 0;
+  const onlineNow = d?.onlineNow ?? 0;
+  const totalUnique = d?.uniqueVisitorsTotal ?? d?.totalVisitors ?? 0;
 
   const healthStrip = useMemo(
     () => [
@@ -459,24 +463,26 @@ export default function CmsDashboardPage() {
         <section className="wcc-card">
           <div className="wcc-card__head">
             <h3>Website Statistics</h3>
-            <BarChart3 size={16} color="#722f37" />
+            <Link href="/diocese/cms/analytics" className="text-xs font-semibold text-[var(--bcl-burgundy)]">
+              Full analytics →
+            </Link>
           </div>
           <div className="wcc-stat-row">
             <div className="wcc-stat-pill">
-              <span>Today</span>
-              <strong>{visitorsToday}</strong>
+              <span>Online now</span>
+              <strong style={{ color: '#059669' }}>{onlineNow}</strong>
             </div>
             <div className="wcc-stat-pill">
-              <span>This Week</span>
-              <strong>{visitorsWeek}</strong>
+              <span>Today</span>
+              <strong>{visitorsToday}</strong>
             </div>
             <div className="wcc-stat-pill">
               <span>This Month</span>
               <strong>{visitorsMonth}</strong>
             </div>
             <div className="wcc-stat-pill">
-              <span>Active Users</span>
-              <strong>{activeUsers}</strong>
+              <span>Total visitors</span>
+              <strong>{totalUnique.toLocaleString()}</strong>
             </div>
           </div>
           <div className="wcc-bars" aria-hidden>
@@ -484,13 +490,14 @@ export default function CmsDashboardPage() {
               <i
                 key={i}
                 style={{
-                  height: `${Math.max(12, Math.round(((visitorsMonth || visitorsToday || 1) / Math.max(visitorsMonth, 1)) * ratio * 100))}%`,
+                  height: `${Math.max(12, Math.round(((visitorsMonth || visitorsToday || 1) / Math.max(visitorsMonth || 1, 1)) * ratio * 100))}%`,
                 }}
               />
             ))}
           </div>
           <p style={{ margin: '0.55rem 0 0', fontSize: '0.72rem', color: 'var(--bcl-muted)' }}>
-            Real page views from public parish sites · Form submissions: {d?.newSubmissions ?? 0} new
+            Anonymous unique visitors · page views this week: {visitorsWeek.toLocaleString()} · Form submissions:{' '}
+            {d?.newSubmissions ?? 0} new
           </p>
         </section>
       </div>

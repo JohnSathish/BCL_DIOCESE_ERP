@@ -39,18 +39,37 @@ export async function generateMetadata({
     }
     const site = (await res.json()) as PublicSite;
     const seo = site.seoJson || {};
-    const title = seo.metaTitle || site.siteTitle || site.parish?.name || 'Parish Website';
+    const title =
+      seo.metaTitle ||
+      site.siteTitle ||
+      site.parish?.name ||
+      (slug === 'sacred-heart'
+        ? 'Sacred Heart Shrine Parish, Tura, Meghalaya'
+        : 'Parish Website');
     const description =
-      seo.metaDescription || site.tagline || `${title} — Catholic parish website`;
+      seo.metaDescription ||
+      site.tagline ||
+      (slug === 'sacred-heart'
+        ? 'Sacred Heart Shrine Parish in Tura, Meghalaya — Mass times, sacraments, prayer requests, events, and parish life. A welcoming Catholic community of faith, prayer, and service.'
+        : `${title} — Catholic parish website`);
     const canonicalPath = seo.canonicalUrl || `/site/${site.slug || slug}`;
     const canonical = canonicalPath.startsWith('http')
       ? canonicalPath
       : `${WEB_URL.replace(/\/$/, '')}${canonicalPath.startsWith('/') ? '' : '/'}${canonicalPath}`;
+    const ogImage =
+      seo.ogImage ||
+      (slug === 'sacred-heart'
+        ? 'https://images.unsplash.com/photo-1548625149-fc4a29cf7092?auto=format&fit=crop&w=1200&q=80'
+        : undefined);
 
     return {
       title,
       description,
-      keywords: seo.keywords || undefined,
+      keywords:
+        seo.keywords ||
+        (slug === 'sacred-heart'
+          ? 'Sacred Heart Shrine Parish, Tura, Meghalaya, Catholic Church, Mass Times, Diocese of Tura'
+          : undefined),
       robots: seo.robots || 'index,follow',
       alternates: { canonical },
       icons: site.faviconUrl ? { icon: site.faviconUrl } : undefined,
@@ -59,14 +78,15 @@ export async function generateMetadata({
         description,
         url: canonical,
         siteName: title,
-        images: seo.ogImage ? [{ url: seo.ogImage }] : undefined,
+        images: ogImage ? [{ url: ogImage }] : undefined,
         type: 'website',
+        locale: 'en_IN',
       },
       twitter: {
         card: (seo.twitterCard as 'summary_large_image') || 'summary_large_image',
         title,
         description,
-        images: seo.ogImage ? [seo.ogImage] : undefined,
+        images: ogImage ? [ogImage] : undefined,
       },
     };
   } catch {

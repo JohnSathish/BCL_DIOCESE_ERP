@@ -5,27 +5,19 @@ import { useTranslations } from 'next-intl';
 import {
   defaultNews,
   events as eventTemplate,
-  liveCards as liveCardTemplate,
   ministries as ministryTemplate,
   sacraments as sacramentTemplate,
   stats as statTemplate,
   testimonials as testimonialTemplate,
+  quickAccess as quickAccessTemplate,
+  donateFunds,
 } from './data';
 import { pt } from './useSacredHeartI18n';
-
-const VIDEO_IDS = ['v1', 'v2', 'v3'] as const;
 
 export function useSacredHeartContent() {
   const t = useTranslations('parishSite');
 
   return useMemo(() => {
-    const liveCards = liveCardTemplate.map((c) => ({
-      ...c,
-      title: pt(t, `liveCards.${c.id}`),
-      sub: pt(t, `content.liveCards.${c.id}.sub`),
-      cta: pt(t, `content.liveCards.${c.id}.cta`),
-    }));
-
     const sacraments = sacramentTemplate.map((s) => ({
       ...s,
       title: pt(t, `content.sacraments.${s.id}.title`),
@@ -41,6 +33,11 @@ export function useSacredHeartContent() {
     const stats = statTemplate.map((s) => ({
       ...s,
       label: pt(t, `content.stats.${s.id}`),
+    }));
+
+    const quickAccess = quickAccessTemplate.map((q) => ({
+      ...q,
+      label: pt(t, `content.quickAccess.${q.id}`),
     }));
 
     const defaultNewsLocalized = defaultNews.map((n) => ({
@@ -61,46 +58,29 @@ export function useSacredHeartContent() {
       role: pt(t, `content.testimonials.${item.id}.role`),
     }));
 
-    const videos = VIDEO_IDS.map((id) => ({
-      id,
-      title: pt(t, `content.videos.${id}.title`),
-      sub: pt(t, `content.videos.${id}.sub`),
-    }));
-
     return {
-      liveCards,
       sacraments,
       ministries,
       stats,
+      quickAccess,
       defaultNews: defaultNewsLocalized,
       events,
       testimonials,
-      videos,
+      donateFunds: donateFunds.map((f) => f),
       priest: {
         title: pt(t, 'content.priest.title'),
         message: pt(t, 'content.priest.message'),
         readFullMessage: pt(t, 'content.priest.readFullMessage'),
-        meetPriests: pt(t, 'content.priest.meetPriests'),
-      },
-      staff: {
-        assistantPriests: pt(t, 'content.staff.assistantPriests'),
-        officeStaff: pt(t, 'content.staff.officeStaff'),
-        seminarians: pt(t, 'content.staff.seminarians'),
-        religiousSisters: pt(t, 'content.staff.religiousSisters'),
+        fromPriest: pt(t, 'content.priest.fromPriest'),
       },
       donate: {
         body: pt(t, 'content.donate.body'),
-        methods: [
-          pt(t, 'content.donate.upi'),
-          pt(t, 'content.donate.creditCard'),
-          pt(t, 'content.donate.debitCard'),
-          pt(t, 'content.donate.bankTransfer'),
-        ],
       },
       prayer: {
         hint: pt(t, 'content.prayer.hint'),
         submit: pt(t, 'content.prayer.submit'),
         formTitle: pt(t, 'content.prayer.formTitle'),
+        needPrayer: pt(t, 'content.prayer.needPrayer'),
         fields: {
           name: pt(t, 'content.prayer.fields.name'),
           phone: pt(t, 'content.prayer.fields.phone'),
@@ -116,11 +96,6 @@ export function useSacredHeartContent() {
       },
       footer: {
         tagline: pt(t, 'content.footer.tagline'),
-        massTimings: pt(t, 'content.footer.massTimings'),
-        sacraments: pt(t, 'content.footer.sacraments'),
-        gallery: pt(t, 'content.footer.gallery'),
-        news: pt(t, 'content.footer.news'),
-        contact: pt(t, 'content.footer.contact'),
         copyright: pt(t, 'content.footer.copyright'),
         developedBy: pt(t, 'content.footer.developedBy'),
       },

@@ -77,7 +77,8 @@ services:
       - bcl_diocese_uploads:/app/uploads
     ports:
       # Localhost only — host Nginx proxies here. Does not expose to the public internet directly.
-      - "127.0.0.1:14100:4000"
+      # 0.0.0.0 so nep-erp-nginx can reach via 172.17.0.1 (same pattern as Mercy :13000)
+      - "0.0.0.0:14100:4000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -102,7 +103,7 @@ services:
       # Server-side host resolve (container network — not public URL)
       CMS_RESOLVE_API_URL: http://api:4000/api/v1
     ports:
-      - "127.0.0.1:13100:3000"
+      - "0.0.0.0:13100:3000"
     depends_on:
       - api
     networks:

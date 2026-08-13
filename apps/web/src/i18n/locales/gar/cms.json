@@ -1,5 +1,9 @@
 {
   "nav": {
+    "cmsTitle": "Website CMS",
+    "cmsSubtitle": "Parish site builder",
+    "dashboard": "Dashboard",
+    "analytics": "Website Analytics",
     "pages": "Pages",
     "news": "News",
     "events": "Events",
@@ -8,6 +12,7 @@
     "media": "Media",
     "menus": "Menus",
     "forms": "Forms",
+    "massTimings": "Mass Timings",
     "homepage": "Homepage",
     "theme": "Theme",
     "seo": "SEO",

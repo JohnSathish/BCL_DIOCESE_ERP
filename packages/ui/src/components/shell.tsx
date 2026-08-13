@@ -9,8 +9,11 @@ export interface NavItem {
   label: string;
   icon?: React.ReactNode;
   children?: NavItem[];
-  /** Uppercase section accordion (PARISH, SACRAMENTS, …) */
+  /** Uppercase section accordion (DIOCESE, SACRAMENTS, …) */
   section?: boolean;
+  /** Optional RBAC permission keys — filtered by host app before pass-in */
+  permissions?: string[];
+  roles?: string[];
 }
 
 function isActiveHref(activeHref: string | undefined, href: string | undefined) {
@@ -19,7 +22,7 @@ function isActiveHref(activeHref: string | undefined, href: string | undefined) 
   return activeHref === href || activeHref.startsWith(href + '/');
 }
 
-function useTabletCollapsed() {
+function useCollapsedMode() {
   const [collapsed, setCollapsed] = React.useState(false);
   React.useEffect(() => {
     const mq = window.matchMedia('(min-width: 768px) and (max-width: 1023px)');
@@ -34,13 +37,11 @@ function useTabletCollapsed() {
 function NavLink({
   item,
   activeHref,
-  nested,
   onNavigate,
   collapsed,
 }: {
   item: NavItem;
   activeHref?: string;
-  nested?: boolean;
   onNavigate?: () => void;
   collapsed?: boolean;
 }) {
@@ -52,28 +53,28 @@ function NavLink({
       title={collapsed ? item.label : undefined}
       onClick={onNavigate}
       className={cn(
-        'bcl-sidebar__nav-item group relative flex items-center rounded-[14px] text-[13.5px] font-medium transition-all duration-200',
-        collapsed ? 'justify-center px-2 py-2.5' : nested ? 'gap-3 px-3 py-2.5' : 'gap-3 px-3.5 py-2.5',
+        'bcl-sidebar__nav-item group relative flex h-10 items-center rounded-lg text-[13px] font-medium transition-colors duration-150',
+        collapsed ? 'justify-center px-2' : 'gap-2.5 px-3',
         active
           ? 'is-active font-semibold text-[var(--bcl-nav-active)]'
-          : 'text-[var(--bcl-sidebar-text)] hover:bg-[var(--bcl-nav-hover)] hover:translate-x-0.5',
+          : 'text-[var(--bcl-sidebar-text)] hover:bg-[var(--bcl-nav-hover)]',
       )}
     >
       {active ? (
         <span
           className={cn(
-            'absolute left-0 top-1/2 -translate-y-1/2 rounded-r-full bg-[var(--bcl-nav-accent)] transition-all duration-200',
-            collapsed ? 'h-8 w-1' : 'h-[62%] w-1 shadow-[0_0_14px_var(--bcl-glow-accent)]',
+            'absolute left-0 top-1/2 -translate-y-1/2 rounded-r-full bg-[var(--bcl-nav-accent)]',
+            collapsed ? 'h-6 w-[3px]' : 'h-6 w-[3px]',
           )}
           aria-hidden
         />
       ) : null}
       <span
         className={cn(
-          'flex h-5 w-5 shrink-0 items-center justify-center transition-colors duration-200 [&>svg]:h-5 [&>svg]:w-5 [&>svg]:stroke-[1.75]',
+          'flex h-[18px] w-[18px] shrink-0 items-center justify-center [&>svg]:h-[18px] [&>svg]:w-[18px] [&>svg]:stroke-[1.75]',
           active
             ? 'text-[var(--bcl-nav-active)]'
-            : 'text-[var(--bcl-sidebar-muted)] group-hover:text-[var(--bcl-nav-active)]',
+            : 'text-[var(--bcl-sidebar-muted)] group-hover:text-[var(--bcl-sidebar-text)]',
         )}
       >
         {item.icon}
@@ -134,24 +135,25 @@ function NavGroup({
   }
 
   return (
-    <div className={cn(isSection ? 'mt-4 first:mt-0' : 'space-y-0.5')}>
+    <div className={cn(isSection ? 'mt-3 first:mt-0' : 'space-y-0.5')}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          'flex w-full items-center gap-2 rounded-[14px] text-left transition-all duration-150',
+          'flex w-full items-center gap-2 rounded-lg text-left transition-colors duration-150',
           isSection
-            ? 'px-2 py-1.5'
+            ? 'px-3 py-1.5'
             : cn(
-                'gap-3 px-3.5 py-2.5 text-[13.5px] font-medium',
+                'h-10 gap-2.5 px-3 text-[13px] font-medium',
                 childActive
                   ? 'text-[var(--bcl-nav-active)]'
                   : 'text-[var(--bcl-sidebar-text)] hover:bg-[var(--bcl-nav-hover)]',
               ),
         )}
+        aria-expanded={open}
       >
         {!isSection && item.icon ? (
-          <span className="flex h-5 w-5 shrink-0 items-center justify-center text-[var(--bcl-sidebar-muted)] [&>svg]:h-5 [&>svg]:w-5">
+          <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center text-[var(--bcl-sidebar-muted)] [&>svg]:h-[18px] [&>svg]:w-[18px]">
             {item.icon}
           </span>
         ) : null}
@@ -159,7 +161,7 @@ function NavGroup({
           className={cn(
             'flex-1 truncate',
             isSection
-              ? 'bcl-sidebar__section-label text-[11px] font-bold uppercase tracking-[0.14em]'
+              ? 'bcl-sidebar__section-label text-[10px] font-semibold uppercase tracking-[0.12em]'
               : 'font-medium',
           )}
         >
@@ -169,7 +171,7 @@ function NavGroup({
           viewBox="0 0 20 20"
           fill="currentColor"
           className={cn(
-            'h-4 w-4 shrink-0 text-[var(--bcl-sidebar-muted)] transition-transform duration-200',
+            'h-3.5 w-3.5 shrink-0 text-[var(--bcl-sidebar-muted)] transition-transform duration-200',
             open && 'rotate-180',
           )}
           aria-hidden
@@ -188,12 +190,7 @@ function NavGroup({
         )}
       >
         <div className="overflow-hidden">
-          <div
-            className={cn(
-              'space-y-0.5',
-              isSection ? 'mt-1' : 'ml-2 mt-0.5 border-l border-[var(--bcl-sidebar-border)] pl-2',
-            )}
-          >
+          <div className="mt-0.5 space-y-0.5">
             {item.children?.map((child) =>
               child.children?.length ? (
                 <NavGroup
@@ -207,7 +204,6 @@ function NavGroup({
                   key={`${child.label}:${child.href || 'link'}`}
                   item={child}
                   activeHref={activeHref}
-                  nested
                   onNavigate={onNavigate}
                 />
               ),
@@ -237,7 +233,7 @@ export function AppShell({
   brandSub?: React.ReactNode;
   /** Crest initials override (e.g. SH, BCL) */
   brandMark?: string;
-  /** Extra lines under brand (diocese name, product line) */
+  /** Extra lines under brand (product line) */
   brandExtra?: React.ReactNode;
   nav: NavItem[];
   userSlot?: React.ReactNode;
@@ -249,7 +245,7 @@ export function AppShell({
   topBar?: React.ReactNode;
 }) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const tabletCollapsed = useTabletCollapsed();
+  const tabletCollapsed = useCollapsedMode();
   const crest =
     brandMark ||
     (typeof brand === 'string'
@@ -274,52 +270,35 @@ export function AppShell({
       <aside
         className={cn(
           'bcl-sidebar relative flex h-full min-h-0 flex-col overflow-hidden border-r border-[var(--bcl-sidebar-border)] text-[var(--bcl-sidebar-text)] transition-[width] duration-200',
-          collapsed ? 'w-20' : 'w-[var(--bcl-sidebar-width,300px)] max-w-[85vw]',
+          collapsed ? 'w-[72px]' : 'w-[var(--bcl-sidebar-width,260px)] max-w-[85vw]',
         )}
       >
         <div
           className={cn(
-            'relative z-[1] border-b border-[var(--bcl-sidebar-border)]',
-            collapsed ? 'px-2 py-4' : 'px-5 py-5',
+            'relative z-[1] flex min-h-[64px] items-center border-b border-[var(--bcl-sidebar-border)]',
+            collapsed ? 'justify-center px-2 py-3' : 'gap-2.5 px-3 py-3',
           )}
         >
-          <div className={cn('flex items-start gap-3', collapsed && 'justify-center')}>
-            <div className="bcl-sidebar__crest" title={typeof brand === 'string' ? brand : undefined}>
-              {crest}
-            </div>
-            {!collapsed ? (
-              <div className="min-w-0 pt-0.5">
-                <div className="bcl-sidebar__brand-title truncate">{brand}</div>
-                {brandSub ? (
-                  <p className="mt-0.5 text-[12px] leading-snug text-[var(--bcl-sidebar-muted)]">
-                    {brandSub}
-                  </p>
-                ) : null}
-                {brandExtra}
-              </div>
-            ) : null}
+          <div className="bcl-sidebar__crest" title={typeof brand === 'string' ? brand : undefined}>
+            {crest}
           </div>
           {!collapsed ? (
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[color-mix(in_srgb,var(--bcl-success)_18%,transparent)] px-2.5 py-1 text-[10px] font-semibold text-[var(--bcl-success)]">
-                <i className="h-1.5 w-1.5 rounded-full bg-[var(--bcl-success)]" aria-hidden />
-                Connected
-              </span>
-              <span className="text-[10px] font-medium text-[var(--bcl-sidebar-muted)]">
-                Last Sync · Today
-              </span>
+            <div className="min-w-0 flex-1">
+              <div className="bcl-sidebar__brand-title">{brand}</div>
+              {brandSub ? (
+                <p className="mt-0.5 text-[11px] leading-snug text-[var(--bcl-sidebar-muted)]">
+                  {brandSub}
+                </p>
+              ) : null}
+              {brandExtra}
             </div>
-          ) : (
-            <div className="mt-3 flex justify-center" title="Connected · Last Sync Today">
-              <i className="h-2 w-2 rounded-full bg-[var(--bcl-success)]" aria-hidden />
-            </div>
-          )}
+          ) : null}
         </div>
 
         <nav
           className={cn(
-            'relative z-[1] flex-1 space-y-0.5 overflow-y-auto py-4',
-            collapsed ? 'px-1.5' : 'px-3',
+            'relative z-[1] flex-1 overflow-y-auto py-3',
+            collapsed ? 'px-1.5' : 'px-2.5',
           )}
         >
           {nav.map((item) =>
@@ -346,13 +325,13 @@ export function AppShell({
         {userSlot ? (
           <div
             className={cn(
-              'relative z-[1] border-t border-[var(--bcl-sidebar-border)] py-3',
-              collapsed ? 'px-1.5' : 'px-3',
+              'relative z-[1] border-t border-[var(--bcl-sidebar-border)] py-2.5',
+              collapsed ? 'px-1.5' : 'px-2.5',
             )}
           >
             {collapsed ? (
               <div className="flex justify-center" title="Account">
-                <div className="bcl-sidebar__crest !h-10 !w-10 !text-[0.65rem]">···</div>
+                <div className="bcl-sidebar__crest !h-9 !w-9 !text-[0.6rem] !rounded-full">···</div>
               </div>
             ) : (
               userSlot
@@ -360,7 +339,7 @@ export function AppShell({
           </div>
         ) : null}
         {footerSlot && !collapsed ? (
-          <div className="relative z-[1] border-t border-[var(--bcl-sidebar-border)] px-4 py-3">
+          <div className="relative z-[1] border-t border-[var(--bcl-sidebar-border)] px-3 py-2">
             {footerSlot}
           </div>
         ) : null}
@@ -372,27 +351,25 @@ export function AppShell({
     <div
       className={cn(
         'min-h-screen bg-[var(--bcl-bg)]',
-        'md:grid md:grid-cols-[80px_1fr] lg:grid-cols-[var(--bcl-sidebar-width,300px)_1fr]',
+        'md:grid md:grid-cols-[72px_1fr] lg:grid-cols-[var(--bcl-sidebar-width,260px)_1fr]',
       )}
     >
-      {/* Desktop / tablet sidebar */}
       <div className="sticky top-0 hidden h-screen md:block">{aside()}</div>
 
-      {/* Mobile top bar + drawer */}
       <div className="md:hidden">
         <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-[var(--bcl-border)] bg-[var(--bcl-surface)] px-4 py-3">
           <button
             type="button"
             aria-label="Open menu"
             onClick={() => setMobileOpen(true)}
-            className="grid h-10 w-10 place-items-center rounded-[var(--bcl-radius)] border border-[var(--bcl-border)] bg-[var(--bcl-surface)] text-[var(--bcl-text)] shadow-[var(--bcl-shadow)]"
+            className="grid h-10 w-10 place-items-center rounded-lg border border-[var(--bcl-border)] bg-[var(--bcl-surface)] text-[var(--bcl-text)]"
           >
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.75">
               <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
             </svg>
           </button>
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-[var(--bcl-text)]">{brand}</p>
+            <p className="line-clamp-2 text-sm font-semibold text-[var(--bcl-text)]">{brand}</p>
             {brandSub ? <p className="truncate text-xs text-[var(--bcl-muted)]">{brandSub}</p> : null}
           </div>
         </div>
@@ -401,10 +378,10 @@ export function AppShell({
             <button
               type="button"
               aria-label="Close menu"
-              className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"
+              className="absolute inset-0 bg-slate-900/30"
               onClick={() => setMobileOpen(false)}
             />
-            <div className="relative z-10 h-full shadow-xl">{aside({ forceExpanded: true })}</div>
+            <div className="relative z-10 h-full shadow-lg">{aside({ forceExpanded: true })}</div>
           </div>
         ) : null}
       </div>

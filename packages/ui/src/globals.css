@@ -12,103 +12,78 @@
   --bcl-gold-soft: #d4b978;
   --bcl-accent: var(--bcl-gold);
   --bcl-accent-soft: var(--bcl-gold-soft);
-  /* Enterprise navy sidebar (MNC SaaS) — diocese identity stays on crest / accents */
-  --bcl-sidebar: #0F172A;
-  --bcl-sidebar-text: #F8FAFC;
+  /* Light enterprise sidebar (M365 / Salesforce style) — crest keeps diocese maroon/gold */
+  --bcl-sidebar: #FFFFFF;
+  --bcl-sidebar-text: #1E293B;
   --bcl-nav-active: #2563EB;
   --bcl-nav-accent: #2563EB;
   --bcl-brand-mark: #722f37;
   --bcl-topbar-bg: rgba(255, 255, 255, 0.92);
   --bcl-glow-primary: rgba(37, 99, 235, 0.12);
   --bcl-glow-accent: rgba(196, 163, 90, 0.14);
-  --bcl-radius: 12px;
-  --bcl-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.04);
-  --bcl-sidebar-muted: #94A3B8;
+  --bcl-radius: 8px;
+  --bcl-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --bcl-sidebar-muted: #64748B;
   --bcl-sidebar-section: #64748B;
-  --bcl-sidebar-border: #334155;
-  --bcl-sidebar-gradient: linear-gradient(180deg, #020617 0%, #0F172A 52%, #1E293B 100%);
-  --bcl-nav-active-bg: rgba(37, 99, 235, 0.2);
-  --bcl-nav-hover: #1E293B;
+  --bcl-sidebar-border: #E2E8F0;
+  --bcl-sidebar-gradient: #FFFFFF;
+  --bcl-nav-active-bg: #EFF6FF;
+  --bcl-nav-hover: #F8FAFC;
   --bcl-hero-gradient: linear-gradient(135deg, #0F172A 0%, #1E293B 48%, #2563EB 100%);
   --bcl-card-gradient: linear-gradient(145deg, #722f37, #C4A35A);
   --bcl-success: #22C55E;
   --bcl-warning: #d97706;
   --bcl-danger: #dc2626;
   --bcl-info: #2563eb;
-  --bcl-sidebar-width: 300px;
-  --bcl-nav-pad-y: 0.625rem;
+  --bcl-sidebar-width: 260px;
+  --bcl-nav-pad-y: 0.5rem;
 }
 
 .dark {
   color-scheme: dark;
 }
 
-/* Sidebar style engine — navy chrome; crest keeps diocese maroon/gold */
+/* Sidebar — locked light enterprise chrome (theme colors do not darken nav) */
 
 .bcl-sidebar {
-  background: var(--bcl-sidebar);
+  background: #ffffff !important;
+  color: #1e293b;
+  --bcl-sidebar: #ffffff;
+  --bcl-sidebar-text: #1e293b;
+  --bcl-sidebar-muted: #64748b;
+  --bcl-sidebar-section: #64748b;
+  --bcl-sidebar-border: #e2e8f0;
+  --bcl-nav-active: #2563eb;
+  --bcl-nav-active-bg: #eff6ff;
+  --bcl-nav-hover: #f8fafc;
+  --bcl-nav-accent: #2563eb;
+  box-shadow: none;
   transition:
-    background 0.28s ease,
-    color 0.22s ease,
-    border-color 0.22s ease,
-    box-shadow 0.22s ease,
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
     width 0.2s ease;
 }
 
-/* Solid enterprise navy panel */
-html[data-sidebar-style='solid'] .bcl-sidebar {
-  background: var(--bcl-sidebar) !important;
-  color: var(--bcl-sidebar-text);
-  --bcl-sidebar-text: #F8FAFC;
-  --bcl-sidebar-muted: #94A3B8;
-  --bcl-sidebar-border: #334155;
-  --bcl-nav-active: #2563EB;
-  --bcl-nav-active-bg: rgba(37, 99, 235, 0.2);
-  --bcl-nav-hover: #1E293B;
-  --bcl-nav-accent: #2563EB;
-  box-shadow:
-    inset -1px 0 0 var(--bcl-sidebar-border),
-    8px 0 28px rgba(2, 6, 23, 0.35);
-}
-
-/* Optional deep navy gradient (still not maroon) */
-html[data-sidebar-style='gradient'] .bcl-sidebar {
-  background: var(--bcl-sidebar-gradient) !important;
-  color: #f8fafc;
-  --bcl-sidebar-text: #f8fafc;
-  --bcl-sidebar-muted: #94a3b8;
-  --bcl-sidebar-border: #334155;
-  --bcl-nav-active: #2563EB;
-  --bcl-nav-active-bg: rgba(37, 99, 235, 0.22);
-  --bcl-nav-hover: #1E293B;
-  --bcl-nav-accent: #2563EB;
-  box-shadow:
-    inset -1px 0 0 rgba(51, 65, 85, 0.9),
-    8px 0 32px rgba(2, 6, 23, 0.4);
+html[data-sidebar-style='solid'] .bcl-sidebar,
+html[data-sidebar-style='gradient'] .bcl-sidebar,
+html[data-sidebar-style='glass'] .bcl-sidebar {
+  background: #ffffff !important;
+  color: #1e293b;
+  --bcl-sidebar-text: #1e293b;
+  --bcl-sidebar-muted: #64748b;
+  --bcl-sidebar-border: #e2e8f0;
+  --bcl-nav-active: #2563eb;
+  --bcl-nav-active-bg: #eff6ff;
+  --bcl-nav-hover: #f8fafc;
+  --bcl-nav-accent: #2563eb;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 html[data-sidebar-style='gradient'] .bcl-sidebar::before {
-  content: '';
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(600px 280px at 0% 0%, color-mix(in srgb, var(--bcl-accent) 16%, transparent), transparent 60%),
-    radial-gradient(500px 240px at 100% 100%, rgba(37, 99, 235, 0.12), transparent 55%);
-  opacity: 0.9;
-}
-
-html[data-sidebar-style='glass'] .bcl-sidebar {
-  background: color-mix(in srgb, #0F172A 88%, transparent) !important;
-  backdrop-filter: blur(20px) saturate(1.25);
-  -webkit-backdrop-filter: blur(20px) saturate(1.25);
-  --bcl-sidebar-text: #F8FAFC;
-  --bcl-sidebar-muted: #94A3B8;
-  --bcl-nav-active: #2563EB;
-  --bcl-nav-hover: #1E293B;
-  box-shadow:
-    inset -1px 0 0 #334155,
-    8px 0 28px rgba(2, 6, 23, 0.3);
+  display: none;
 }
 
 html[data-density='compact'] .bcl-sidebar a,
@@ -117,60 +92,80 @@ html[data-density='compact'] .bcl-sidebar button {
   padding-bottom: var(--bcl-nav-pad-y);
 }
 
-/* Brand crest — diocese maroon + gold ring (identity accent) */
+/* Brand crest — compact diocese maroon + gold accent */
 .bcl-sidebar__crest {
   position: relative;
   display: grid;
   place-items: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: calc(var(--bcl-radius) + 2px);
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 8px;
   background: var(--bcl-card-gradient);
   color: #fff;
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   font-weight: 800;
   letter-spacing: 0.04em;
-  box-shadow:
-    0 0 0 2px color-mix(in srgb, var(--bcl-accent) 55%, transparent),
-    0 8px 20px rgba(114, 47, 55, 0.35);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--bcl-accent) 45%, transparent);
+  flex-shrink: 0;
 }
 
 .bcl-sidebar__crest::after {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  border-radius: inherit;
-  border: 1px solid color-mix(in srgb, var(--bcl-accent) 40%, transparent);
-  pointer-events: none;
+  display: none;
 }
 
 .bcl-sidebar__brand-title {
-  font-family: var(--bcl-font-display, Fraunces, Georgia, serif);
-  font-size: 1.05rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-family: var(--bcl-font-sans, Inter, system-ui, sans-serif);
+  font-size: 0.8125rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
   line-height: 1.25;
   color: var(--bcl-sidebar-text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .bcl-sidebar__nav-item.is-active {
   background: var(--bcl-nav-active-bg);
-  color: #F8FAFC;
+  color: var(--bcl-nav-active);
   font-weight: 600;
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--bcl-nav-active) 45%, transparent),
-    0 8px 18px rgba(37, 99, 235, 0.18);
+  box-shadow: none;
 }
 
 html[data-sidebar-style='gradient'] .bcl-sidebar__nav-item.is-active,
-html[data-sidebar-style='solid'] .bcl-sidebar__nav-item.is-active {
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, #2563EB 50%, transparent),
-    0 10px 22px rgba(2, 6, 23, 0.35);
+html[data-sidebar-style='solid'] .bcl-sidebar__nav-item.is-active,
+html[data-sidebar-style='glass'] .bcl-sidebar__nav-item.is-active {
+  box-shadow: none;
 }
 
 .bcl-sidebar__section-label {
-  color: var(--bcl-sidebar-section, #64748B) !important;
+  color: var(--bcl-sidebar-section, #64748b) !important;
+}
+
+.bcl-sidebar__account-action {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  width: 100%;
+  height: 2.25rem;
+  padding: 0 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--bcl-sidebar-text);
+  transition: background 0.15s ease;
+}
+
+.bcl-sidebar__account-action:hover {
+  background: var(--bcl-nav-hover);
+}
+
+.bcl-sidebar__account-action svg {
+  width: 1rem;
+  height: 1rem;
+  color: var(--bcl-sidebar-muted);
+  flex-shrink: 0;
 }
 
 

@@ -428,6 +428,8 @@ model Parish {
   cmsForms         CmsForm[]
   cmsFormSubmissions CmsFormSubmission[]
   cmsVisitDaily    CmsSiteVisitDaily[]
+  cmsVisitorSessions CmsSiteVisitorSession[]
+  cmsVisitorDaily  CmsSiteVisitorDaily[]
   cmsMenus         CmsMenu[]
   importJobs       ImportJob[]
   reportSchedules  ReportSchedule[]
@@ -1873,6 +1875,8 @@ model CmsSite {
   forms        CmsForm[]
   formSubmissions CmsFormSubmission[]
   visitDaily   CmsSiteVisitDaily[]
+  visitorSessions CmsSiteVisitorSession[]
+  visitorDaily CmsSiteVisitorDaily[]
   translations CmsSiteTranslation[]
 
   @@unique([organizationId, slug])
@@ -2161,6 +2165,50 @@ model CmsSiteVisitDaily {
   parish Parish  @relation(fields: [parishId], references: [id], onDelete: Cascade)
 
   @@unique([siteId, visitDate, pageSlug])
+  @@index([siteId, visitDate])
+  @@index([parishId, visitDate])
+}
+
+/// Anonymous live session for parish website presence (no IP / PII stored).
+model CmsSiteVisitorSession {
+  id           String   @id @default(cuid())
+  siteId       String
+  parishId     String
+  /// Client-generated anonymous UUID (never an IP or personal identifier).
+  visitorKey   String
+  firstSeenAt  DateTime @default(now())
+  lastSeenAt   DateTime @default(now())
+  lastPageSlug String?  @default("home")
+  deviceType   String?
+  browser      String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  site   CmsSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  parish Parish  @relation(fields: [parishId], references: [id], onDelete: Cascade)
+
+  @@unique([siteId, visitorKey])
+  @@index([siteId, lastSeenAt])
+  @@index([parishId, lastSeenAt])
+  @@index([siteId, firstSeenAt])
+}
+
+/// Daily unique-visitor aggregates for parish websites (privacy-safe).
+model CmsSiteVisitorDaily {
+  id             String   @id @default(cuid())
+  siteId         String
+  parishId       String
+  visitDate      DateTime @db.Date
+  uniqueVisitors Int      @default(0)
+  newVisitors    Int      @default(0)
+  heartbeats     Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  site   CmsSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  parish Parish  @relation(fields: [parishId], references: [id], onDelete: Cascade)
+
+  @@unique([siteId, visitDate])
   @@index([siteId, visitDate])
   @@index([parishId, visitDate])
 }

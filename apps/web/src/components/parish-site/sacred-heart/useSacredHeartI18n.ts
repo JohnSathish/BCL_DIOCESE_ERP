@@ -13,7 +13,11 @@ type TranslatedNavItem = MainNavItemTemplate & {
 type ParishSiteKey = Parameters<ReturnType<typeof useTranslations<'parishSite'>>>[0];
 
 export function pt(t: ReturnType<typeof useTranslations<'parishSite'>>, key: string) {
-  return t(key as ParishSiteKey);
+  try {
+    return t(key as ParishSiteKey);
+  } catch {
+    return key.split('.').pop() || key;
+  }
 }
 
 export function useSacredHeartNav(): TranslatedNavItem[] {
@@ -47,6 +51,9 @@ export function useSacredHeartStrings() {
     topbar: (parish: string) => t('topbar.welcome', { parish }),
     topbarEmail: t('topbar.email'),
     topbarDiocese: t('topbar.diocese'),
+    topbarMassTimes: pt(t, 'topbar.massTimes'),
+    topbarCalendar: pt(t, 'topbar.calendar'),
+    topbarContact: pt(t, 'topbar.contact'),
     heroEyebrow: t('hero.eyebrow'),
     heroTitle: t('hero.title'),
     heroTagline: t('hero.tagline'),
@@ -100,6 +107,19 @@ export function useSacredHeartStrings() {
       footerJoin: pt(t, 'sections.footerJoin'),
       apply: pt(t, 'sections.apply'),
       readMore: pt(t, 'sections.readMore'),
+      learnMore: pt(t, 'sections.learnMore'),
+      todayMasses: pt(t, 'sections.todayMasses'),
+      viewSchedule: pt(t, 'sections.viewSchedule'),
+      todayGospel: pt(t, 'sections.todayGospel'),
+      todayGlance: pt(t, 'sections.todayGlance'),
+      quickAccess: pt(t, 'sections.quickAccess'),
+      massSchedule: pt(t, 'sections.massSchedule'),
+      setReminder: pt(t, 'sections.setReminder'),
+      addToCalendar: pt(t, 'sections.addToCalendar'),
+      summerSchedule: pt(t, 'sections.summerSchedule'),
+      winterSchedule: pt(t, 'sections.winterSchedule'),
+      resources: pt(t, 'sections.resources'),
+      aboutParish: pt(t, 'sections.aboutParish'),
     },
   };
 }

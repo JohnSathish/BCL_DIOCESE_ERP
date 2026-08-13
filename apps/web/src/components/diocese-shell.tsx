@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
@@ -17,7 +17,6 @@ import {
   Cross,
   CalendarDays,
   Wallet,
-  Landmark,
   BookOpen,
   MessageSquare,
   Globe,
@@ -36,7 +35,6 @@ import {
   Image,
   FileText,
   Menu,
-  Palette,
   Search,
   Cloud,
   LogOut,
@@ -44,20 +42,24 @@ import {
   Music,
   GraduationCap,
   Smartphone,
+  ChevronDown,
+  Palette,
 } from 'lucide-react';
 import { AppShell, type NavItem } from '@bcl/ui';
 import { useAuthStore } from '@/lib/auth-store';
 import { logout } from '@bcl/auth-client';
 import { API_BASE, api } from '@/lib/api';
 import { EnterpriseTopBar } from '@/components/EnterpriseTopBar';
-import { ThemePicker } from '@/components/theme/ThemePicker';
-import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { translateNavItems } from '@/lib/translate-nav';
 import { useTheme } from '@/components/theme/ThemeProvider';
 import { COLOR_STORAGE_KEY } from '@/lib/theme';
 
-const icon = 'h-5 w-5';
+const icon = 'h-[18px] w-[18px]';
 
+/**
+ * Canonical diocese navigation — same visual shell for all roles.
+ * Host filters by RBAC (`roles` / permissions) before render; do not fork designs per role.
+ */
 const dioceseNav: NavItem[] = [
   {
     label: 'Diocese',
@@ -65,18 +67,32 @@ const dioceseNav: NavItem[] = [
     children: [
       { href: '/diocese', label: 'Diocese Dashboard', icon: <LayoutDashboard className={icon} /> },
       { href: '/diocese/parishes', label: 'Parishes', icon: <Building2 className={icon} /> },
-      { href: '/diocese/domains', label: 'Domains', icon: <Globe className={icon} /> },
       { href: '/diocese/priests', label: 'Priests', icon: <UserRound className={icon} /> },
       { href: '/diocese/timeline', label: 'Life Timeline', icon: <CalendarDays className={icon} /> },
       { href: '/diocese/congregations', label: 'Congregations', icon: <Users className={icon} /> },
       { href: '/diocese/institutions', label: 'Institutions', icon: <Building2 className={icon} /> },
       { href: '/diocese/deaneries', label: 'Deaneries', icon: <Building2 className={icon} /> },
       { href: '/diocese/settings', label: 'Diocese Profile', icon: <Settings className={icon} /> },
-      { href: '/diocese/appearance', label: 'Theme Engine', icon: <Palette className={icon} /> },
-      { href: '/diocese/languages', label: 'Languages', icon: <Globe className={icon} /> },
+    ],
+  },
+  {
+    label: 'Administration',
+    section: true,
+    children: [
       { href: '/diocese/finance', label: 'Finance', icon: <Wallet className={icon} /> },
       { href: '/diocese/reports', label: 'Pastoral Reports', icon: <FileText className={icon} /> },
       { href: '/diocese/reports', label: 'Analytics', icon: <BarChart3 className={icon} /> },
+      {
+        href: '/diocese/communications',
+        label: 'Communications',
+        icon: <MessageSquare className={icon} />,
+      },
+      { href: '/diocese/languages', label: 'Languages', icon: <Globe className={icon} /> },
+      { href: '/diocese/domains', label: 'Domains', icon: <Globe className={icon} />, roles: ['PLATFORM_ADMIN', 'DIOCESE_ADMIN'] },
+      { href: '/diocese/rbac', label: 'Users & Roles', icon: <Shield className={icon} />, roles: ['PLATFORM_ADMIN', 'DIOCESE_ADMIN'] },
+      { href: '/diocese/audit', label: 'Audit Log', icon: <ClipboardList className={icon} />, roles: ['PLATFORM_ADMIN', 'DIOCESE_ADMIN'] },
+      { href: '/diocese/migration', label: 'Backup / Migration', icon: <DatabaseBackup className={icon} />, roles: ['PLATFORM_ADMIN'] },
+      { href: '/diocese/ai', label: 'AI Assistant', icon: <Sparkles className={icon} />, roles: ['PLATFORM_ADMIN', 'DIOCESE_ADMIN'] },
     ],
   },
   {
@@ -85,8 +101,16 @@ const dioceseNav: NavItem[] = [
     children: [
       { href: '/diocese/sacraments/baptisms', label: 'Baptism', icon: <Droplets className={icon} /> },
       { href: '/diocese/sacraments/marriages', label: 'Marriage', icon: <Heart className={icon} /> },
-      { href: '/diocese/sacraments/confirmations', label: 'Confirmation', icon: <Sparkles className={icon} /> },
-      { href: '/diocese/sacraments/communions', label: 'Holy Communion', icon: <Wheat className={icon} /> },
+      {
+        href: '/diocese/sacraments/confirmations',
+        label: 'Confirmation',
+        icon: <Sparkles className={icon} />,
+      },
+      {
+        href: '/diocese/sacraments/communions',
+        label: 'Holy Communion',
+        icon: <Wheat className={icon} />,
+      },
       { href: '/diocese/sacraments/deaths', label: 'Death Register', icon: <Cross className={icon} /> },
       { href: '/diocese/certificates', label: 'Certificates', icon: <FileBadge className={icon} /> },
       { href: '/diocese/registers', label: 'Digital Books', icon: <BookMarked className={icon} /> },
@@ -101,22 +125,11 @@ const dioceseNav: NavItem[] = [
       { href: '/diocese/masses', label: 'Mass Schedule', icon: <Church className={icon} /> },
       { href: '/diocese/halls', label: 'Hall Booking', icon: <Building2 className={icon} /> },
       { href: '/diocese/accommodation', label: 'Accommodation', icon: <Home className={icon} /> },
-      { href: '/diocese/calendar', label: 'Calendar', icon: <CalendarDays className={icon} /> },
+      { href: '/diocese/calendar', label: 'Events', icon: <CalendarDays className={icon} /> },
       { href: '/diocese/catechism', label: 'Catechism', icon: <GraduationCap className={icon} /> },
-      { href: '/diocese/communications', label: 'Communications', icon: <MessageSquare className={icon} /> },
       { href: '/diocese/app-control', label: 'App Control Center', icon: <Smartphone className={icon} /> },
       { href: '/diocese/cms', label: 'Website CMS', icon: <Globe className={icon} /> },
       { href: '/diocese/cemetery', label: 'Cemetery', icon: <Cross className={icon} /> },
-    ],
-  },
-  {
-    label: 'Administration',
-    section: true,
-    children: [
-      { href: '/diocese/rbac', label: 'Users & Roles', icon: <Shield className={icon} /> },
-      { href: '/diocese/audit', label: 'Audit Log', icon: <ClipboardList className={icon} /> },
-      { href: '/diocese/migration', label: 'Backup / Migration', icon: <DatabaseBackup className={icon} /> },
-      { href: '/diocese/ai', label: 'AI Assistant', icon: <Sparkles className={icon} /> },
     ],
   },
 ];
@@ -130,7 +143,11 @@ const parishNav: NavItem[] = [
       { href: '/diocese/families', label: 'Families', icon: <Users className={icon} /> },
       { href: '/diocese/members', label: 'Members', icon: <UserRound className={icon} /> },
       { href: '/diocese/members', label: 'Organizations', icon: <Building2 className={icon} /> },
-      { href: '/diocese/catechism', label: 'Small Christian Communities', icon: <HandHeart className={icon} /> },
+      {
+        href: '/diocese/catechism',
+        label: 'Small Christian Communities',
+        icon: <HandHeart className={icon} />,
+      },
     ],
   },
   {
@@ -139,8 +156,16 @@ const parishNav: NavItem[] = [
     children: [
       { href: '/diocese/sacraments/baptisms', label: 'Baptism', icon: <Droplets className={icon} /> },
       { href: '/diocese/sacraments/marriages', label: 'Marriage', icon: <Heart className={icon} /> },
-      { href: '/diocese/sacraments/confirmations', label: 'Confirmation', icon: <Sparkles className={icon} /> },
-      { href: '/diocese/sacraments/communions', label: 'Holy Communion', icon: <Wheat className={icon} /> },
+      {
+        href: '/diocese/sacraments/confirmations',
+        label: 'Confirmation',
+        icon: <Sparkles className={icon} />,
+      },
+      {
+        href: '/diocese/sacraments/communions',
+        label: 'Holy Communion',
+        icon: <Wheat className={icon} />,
+      },
       { href: '/diocese/sacraments/deaths', label: 'Death Register', icon: <Cross className={icon} /> },
       { href: '/diocese/certificates', label: 'Certificates', icon: <FileBadge className={icon} /> },
     ],
@@ -153,8 +178,12 @@ const parishNav: NavItem[] = [
       { href: '/diocese/halls', label: 'Hall Booking', icon: <Building2 className={icon} /> },
       { href: '/diocese/accommodation', label: 'Accommodation', icon: <Home className={icon} /> },
       { href: '/diocese/masses', label: 'Intentions', icon: <BookOpen className={icon} /> },
-      { href: '/diocese/calendar', label: 'Calendar', icon: <CalendarDays className={icon} /> },
-      { href: '/diocese/communications', label: 'Prayer Requests', icon: <HandHeart className={icon} /> },
+      { href: '/diocese/calendar', label: 'Events', icon: <CalendarDays className={icon} /> },
+      {
+        href: '/diocese/communications',
+        label: 'Prayer Requests',
+        icon: <HandHeart className={icon} />,
+      },
       { href: '/diocese/catechism', label: 'Choir', icon: <Music className={icon} /> },
       { href: '/diocese/catechism', label: 'Liturgical Groups', icon: <Users className={icon} /> },
     ],
@@ -165,7 +194,7 @@ const parishNav: NavItem[] = [
     children: [
       { href: '/diocese/donations', label: 'Collections', icon: <Wallet className={icon} /> },
       { href: '/diocese/donations', label: 'Donations', icon: <Heart className={icon} /> },
-      { href: '/diocese/finance', label: 'Accounts', icon: <Landmark className={icon} /> },
+      { href: '/diocese/finance', label: 'Accounts', icon: <Wallet className={icon} /> },
       { href: '/diocese/finance', label: 'Expenses', icon: <Wallet className={icon} /> },
       { href: '/diocese/finance', label: 'Budgets', icon: <BarChart3 className={icon} /> },
       { href: '/diocese/reports', label: 'Reports', icon: <FileText className={icon} /> },
@@ -208,7 +237,7 @@ const parishNav: NavItem[] = [
       { href: '/diocese/cms', label: 'Menus', icon: <Menu className={icon} /> },
       { href: '/diocese/cms', label: 'Media', icon: <Image className={icon} /> },
       { href: '/diocese/cms', label: 'SEO', icon: <Search className={icon} /> },
-      { href: '/diocese/cms', label: 'Theme', icon: <Palette className={icon} /> },
+      { href: '/diocese/appearance', label: 'Theme', icon: <Palette className={icon} /> },
     ],
   },
   {
@@ -221,6 +250,7 @@ const parishNav: NavItem[] = [
       { href: '/diocese/audit', label: 'Audit Log', icon: <ClipboardList className={icon} /> },
       { href: '/diocese/migration', label: 'Backup', icon: <DatabaseBackup className={icon} /> },
       { href: '/diocese/ai', label: 'Integrations', icon: <Cloud className={icon} /> },
+      { href: '/diocese/appearance', label: 'Theme & Preferences', icon: <Palette className={icon} /> },
     ],
   },
 ];
@@ -228,9 +258,32 @@ const parishNav: NavItem[] = [
 function roleLabel(roles: string[]) {
   const r = roles[0] || '';
   if (/priest/i.test(r)) return 'Parish Priest';
+  if (/platform/i.test(r)) return 'Super Admin';
   if (/admin/i.test(r)) return 'Administrator';
-  if (/diocese/i.test(r) || /bishop/i.test(r)) return 'Diocese Staff';
+  if (/bishop/i.test(r)) return 'Bishop Office';
+  if (/diocese/i.test(r)) return 'Diocese Staff';
   return r.replace(/_/g, ' ') || 'User';
+}
+
+/** Filter nav by optional `roles` on items — same sidebar chrome for every persona. */
+function filterNavByRoles(items: NavItem[], userRoles: string[]): NavItem[] {
+  const normalized = userRoles.map((r) => r.toUpperCase());
+  const isPlatform = normalized.some((r) => /PLATFORM|SUPER/.test(r));
+
+  const allow = (item: NavItem) => {
+    if (!item.roles?.length) return true;
+    if (isPlatform) return true;
+    return item.roles.some((r) => normalized.includes(r.toUpperCase()));
+  };
+
+  return items
+    .map((section) => {
+      if (!section.children?.length) return allow(section) ? section : null;
+      const children = section.children.filter(allow);
+      if (!children.length) return null;
+      return { ...section, children };
+    })
+    .filter(Boolean) as NavItem[];
 }
 
 export function DioceseShell({ children }: { children: React.ReactNode }) {
@@ -240,11 +293,13 @@ export function DioceseShell({ children }: { children: React.ReactNode }) {
   const tc = useTranslations('common');
   const { user, hydrated, hydrate, logoutLocal } = useAuthStore();
   const { setColor, hydrateFromServer } = useTheme();
+  const [accountOpen, setAccountOpen] = useState(false);
   const isParish = Boolean(user?.parishId);
-  const nav = useMemo(
-    () => translateNavItems(isParish ? parishNav : dioceseNav, t),
-    [isParish, t],
-  );
+  const nav = useMemo(() => {
+    const base = isParish ? parishNav : dioceseNav;
+    const filtered = filterNavByRoles(base, user?.roles ?? []);
+    return translateNavItems(filtered, t);
+  }, [isParish, t, user?.roles]);
 
   const parish = useQuery({
     queryKey: ['parish-me-brand'],
@@ -290,14 +345,16 @@ export function DioceseShell({ children }: { children: React.ReactNode }) {
   const parishName = parish.data?.parish?.name || 'Sacred Heart Parish';
   const displayName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User';
   const priestTitle = isParish
-    ? (/priest/i.test(user.roles?.[0] || '') ? `Rev. Fr. ${displayName.replace(/^Fr\.?\s*/i, '')}` : displayName)
+    ? /priest/i.test(user.roles?.[0] || '')
+      ? `Rev. Fr. ${displayName.replace(/^Fr\.?\s*/i, '')}`
+      : displayName
     : displayName;
   const initials = `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase() || 'U';
+  const titleLine = isParish ? priestTitle : 'Platform Admin';
+  const roleLine = isParish ? roleLabel(user.roles) : t('shell.superAdmin');
 
   const brand = isParish ? parishName : 'Roman Catholic Diocese of Tura';
-  const brandSub = isParish
-    ? 'Roman Catholic Diocese of Tura'
-    : 'Diocese Administration';
+  const brandSub = isParish ? 'Roman Catholic Diocese of Tura' : 'Diocese Administration';
   const brandMark = isParish
     ? parishName
         .split(/\s+/)
@@ -315,7 +372,7 @@ export function DioceseShell({ children }: { children: React.ReactNode }) {
       brandSub={brandSub}
       brandMark={brandMark}
       brandExtra={
-        <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--bcl-accent)]">
+        <p className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.1em] text-[var(--bcl-sidebar-muted)]">
           {isParish ? t('shell.parishCommand') : t('shell.dioceseCommand')}
         </p>
       }
@@ -324,78 +381,71 @@ export function DioceseShell({ children }: { children: React.ReactNode }) {
       layout="enterprise"
       topBar={<EnterpriseTopBar />}
       userSlot={
-        <div className="space-y-2.5">
-          <div className="rounded-[var(--bcl-radius)] border border-[var(--bcl-sidebar-border)] bg-[color-mix(in_srgb,var(--bcl-sidebar-text)_6%,transparent)] p-3 shadow-[var(--bcl-shadow)]">
-            <div className="flex items-center gap-3">
-              <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--bcl-brand-mark)] text-sm font-semibold text-white">
-                {initials}
-                <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-[var(--bcl-sidebar)] bg-[var(--bcl-success)]" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-[var(--bcl-sidebar-text)]">{priestTitle}</p>
-                <p className="truncate text-xs text-[var(--bcl-sidebar-muted)]">
-                  {isParish ? roleLabel(user.roles) : t('shell.superAdmin')}
-                </p>
-                <p className="mt-0.5 truncate text-[11px] text-[var(--bcl-sidebar-muted)]">
-                  {isParish ? parishName : t('shell.dioceseOffice')}
-                </p>
-              </div>
+        <div className="space-y-1">
+          <button
+            type="button"
+            className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left transition-colors hover:bg-[var(--bcl-nav-hover)]"
+            onClick={() => setAccountOpen((v) => !v)}
+            aria-expanded={accountOpen}
+          >
+            <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[11px] font-semibold text-slate-700 ring-1 ring-[#E2E8F0]">
+              {initials}
+              <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full border-2 border-white bg-[var(--bcl-success)]" />
             </div>
-            <p className="mt-2 inline-flex items-center gap-1.5 text-[10px] font-semibold text-[var(--bcl-success)]">
-              <i className="h-1.5 w-1.5 rounded-full bg-[var(--bcl-success)]" />
-              {t('shell.online')}
-            </p>
-          </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[13px] font-semibold text-[var(--bcl-sidebar-text)]">
+                {titleLine}
+              </p>
+              <p className="truncate text-[11px] text-[var(--bcl-sidebar-muted)]">{roleLine}</p>
+            </div>
+            <ChevronDown
+              className={`h-3.5 w-3.5 shrink-0 text-[var(--bcl-sidebar-muted)] transition-transform ${accountOpen ? 'rotate-180' : ''}`}
+            />
+          </button>
 
-          <div className={`grid gap-1.5 ${isParish ? 'grid-cols-2' : 'grid-cols-1'}`}>
+          {accountOpen ? (
+            <p className="px-2 pb-1 text-[10px] text-[var(--bcl-sidebar-muted)]">
+              {isParish ? parishName : t('shell.dioceseOffice')} · {t('shell.online')}
+            </p>
+          ) : null}
+
+          <div className="space-y-0.5 border-t border-[var(--bcl-sidebar-border)] pt-1">
             {!isParish ? (
-              <Link
-                href="/diocese/parishes"
-                className="inline-flex items-center justify-center gap-1.5 rounded-[var(--bcl-radius)] border border-[var(--bcl-sidebar-border)] bg-[color-mix(in_srgb,var(--bcl-sidebar-text)_4%,transparent)] px-2 py-2 text-[11px] font-semibold text-[var(--bcl-sidebar-text)] shadow-sm transition hover:bg-[var(--bcl-nav-hover)]"
-              >
-                <ArrowLeftRight className="h-3.5 w-3.5 text-[var(--bcl-sidebar-muted)]" />
+              <Link href="/diocese/parishes" className="bcl-sidebar__account-action">
+                <ArrowLeftRight />
                 {t('shell.switchParish')}
               </Link>
             ) : null}
-            <div className="grid grid-cols-2 gap-1.5">
-              <Link
-                href="/diocese/appearance"
-                className="inline-flex items-center justify-center gap-1.5 rounded-[var(--bcl-radius)] border border-[var(--bcl-sidebar-border)] bg-[color-mix(in_srgb,var(--bcl-sidebar-text)_4%,transparent)] px-2 py-2 text-[11px] font-semibold text-[var(--bcl-sidebar-text)] shadow-sm transition hover:bg-[var(--bcl-nav-hover)]"
-              >
-                <Palette className="h-3.5 w-3.5 text-[var(--bcl-sidebar-muted)]" />
-                {t('shell.theme')}
-              </Link>
-              <button
-                type="button"
-                className="inline-flex items-center justify-center gap-1.5 rounded-[var(--bcl-radius)] border border-[var(--bcl-sidebar-border)] bg-[color-mix(in_srgb,var(--bcl-sidebar-text)_4%,transparent)] px-2 py-2 text-[11px] font-semibold text-[var(--bcl-nav-active)] shadow-sm transition hover:bg-[var(--bcl-nav-hover)]"
-                onClick={async () => {
-                  await logout(API_BASE);
-                  logoutLocal();
-                  router.replace('/login');
-                }}
-              >
-                <LogOut className="h-3.5 w-3.5" />
-                {tc('auth.logout')}
-              </button>
-            </div>
+            <Link href="/diocese/appearance" className="bcl-sidebar__account-action">
+              <Settings />
+              Settings
+            </Link>
+            <button
+              type="button"
+              className="bcl-sidebar__account-action"
+              onClick={async () => {
+                await logout(API_BASE);
+                logoutLocal();
+                router.replace('/login');
+              }}
+            >
+              <LogOut />
+              Sign Out
+            </button>
           </div>
-
-          <ThemePicker variant="sidebar" />
         </div>
       }
       footerSlot={
-        <div className="space-y-1.5 text-[10px] leading-relaxed text-[var(--bcl-sidebar-muted)]">
-          <div className="flex items-center justify-between gap-2">
-            <span className="font-semibold text-[var(--bcl-sidebar-text)]">{tc('app.name')}</span>
-            <span className="rounded-full bg-[var(--bcl-nav-active-bg)] px-2 py-0.5 font-semibold text-[var(--bcl-nav-active)]">
-              v1.0 Enterprise
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5">
+        <div className="space-y-0.5 text-[10px] leading-snug text-[var(--bcl-sidebar-muted)]">
+          <p>
+            <span className="font-medium text-[var(--bcl-sidebar-text)]">{tc('app.name')}</span>
+            {' · '}
+            v1.0 Enterprise
+          </p>
+          <p className="inline-flex items-center gap-1">
             <Cloud className="h-3 w-3 text-[var(--bcl-nav-accent)]" />
-            <span>Cloud Connected · 99.98%</span>
-          </div>
-          <p className="font-medium text-[var(--bcl-success)]">{t('shell.secure')}</p>
+            Cloud Connected
+          </p>
         </div>
       }
     >

@@ -2,16 +2,19 @@
   "topbar": {
     "welcome": "Welcome to {parish} · Tura",
     "email": "Email",
-    "diocese": "Diocese of Tura"
+    "diocese": "Diocese of Tura",
+    "massTimes": "Mass Times",
+    "calendar": "Parish Calendar",
+    "contact": "Contact Us"
   },
   "hero": {
-    "eyebrow": "Roman Catholic Diocese of Tura",
-    "title": "Sacred Heart Parish",
-    "tagline": "A welcoming Catholic community rooted in faith, hope, and love — serving the people of Tura with the joy of the Gospel.",
-    "verse": "Come to me, all you who are weary and burdened, and I will give you rest.",
-    "verseRef": "Matthew 11:28",
+    "eyebrow": "Welcome to Our Parish",
+    "title": "Sacred Heart Shrine Parish",
+    "tagline": "A welcoming community of faith, rooted in prayer, united in love, and called to serve.",
+    "verse": "Be still and know that I am God.",
+    "verseRef": "Psalm 46:10",
     "ctaAbout": "About Parish",
-    "ctaMass": "Mass Timings",
+    "ctaMass": "Today's Mass",
     "ctaLive": "Watch Live"
   },
   "header": {
@@ -25,12 +28,26 @@
   "nav": {
     "home": "Home",
     "aboutUs": "About Us",
+    "aboutParish": "About Parish",
     "parishLife": "Parish Life",
     "sacraments": "Sacraments",
+    "ministries": "Ministries",
+    "events": "Events",
+    "news": "News",
+    "media": "Media",
     "worship": "Worship",
     "newsEvents": "News & Events",
     "services": "Services",
     "contact": "Contact"
+  },
+  "footer": {
+    "massTimes": "Mass Times",
+    "dailyReadings": "Daily Readings",
+    "prayers": "Prayers",
+    "bulletin": "Parish Bulletin",
+    "gallery": "Parish Gallery",
+    "downloads": "Downloads",
+    "liveMass": "Live Mass"
   },
   "navAbout": {
     "history": "Parish History",
@@ -105,9 +122,9 @@
   },
   "sections": {
     "welcomeTitle": "Welcome to Our Parish",
-    "welcomeBody": "We are a faith-filled Catholic community of the Diocese of Tura, gathering in the Sacred Heart of Jesus for worship, formation, and service.",
+    "welcomeBody": "A welcoming community of faith, rooted in prayer, united in love, and called to serve — gathering in the Sacred Heart of Jesus for worship, formation, and charity.",
     "welcomeReadMore": "Read More About Us →",
-    "newsTitle": "News & Announcements",
+    "newsTitle": "Parish News & Announcements",
     "newsViewAll": "View All →",
     "eventsTitle": "Upcoming Events",
     "eventsViewCalendar": "View Calendar →",
@@ -127,7 +144,7 @@
     "watchEyebrow": "Watch",
     "videoTitle": "Homilies & Live Mass",
     "donateTitle": "Support Sacred Heart Parish",
-    "donateOnline": "Donate Online",
+    "donateOnline": "Donate Now",
     "testimonialsEyebrow": "Voices",
     "testimonialsTitle": "From Our Parish Family",
     "prayerEyebrow": "Pray With Us",
@@ -139,11 +156,24 @@
     "footerNewsletter": "Newsletter",
     "footerNewsletterHint": "Receive parish updates and feast announcements.",
     "footerEmailPlaceholder": "Your email",
-    "footerJoin": "Join",
+    "footerJoin": "Subscribe",
     "apply": "Apply →",
     "readMore": "Read More →",
+    "learnMore": "Learn More →",
     "register": "Register",
-    "venueParish": "Parish"
+    "venueParish": "Parish",
+    "todayMasses": "Today's Masses",
+    "viewSchedule": "View Full Schedule →",
+    "todayGospel": "Today's Gospel",
+    "todayGlance": "Today at a Glance",
+    "quickAccess": "Quick Access",
+    "massSchedule": "Mass Schedule",
+    "setReminder": "Set Reminder",
+    "addToCalendar": "Add to Calendar",
+    "summerSchedule": "Summer Schedule",
+    "winterSchedule": "Winter Schedule",
+    "resources": "Resources",
+    "aboutParish": "About Parish"
   },
   "massSchedule": {
     "loading": "Loading Holy Mass schedule…",
@@ -184,9 +214,20 @@
   "content": {
     "priest": {
       "title": "Parish Priest",
-      "message": "May the Sacred Heart of Jesus bless every family in our parish. You are warmly welcome here — come and find rest in Christ.",
+      "fromPriest": "From Our Parish Priest",
+      "message": "May the Sacred Heart of Jesus bless every family in our parish. You are warmly welcome here — come and find rest in Christ, grow in faith, and serve with love.",
       "readFullMessage": "Read Full Message",
       "meetPriests": "Meet Our Priests"
+    },
+    "quickAccess": {
+      "mass": "Mass Times",
+      "announcements": "Announcements",
+      "events": "Events",
+      "prayer": "Prayer Requests",
+      "donate": "Donate",
+      "family": "My Family",
+      "sacraments": "Sacraments",
+      "certificates": "Certificates"
     },
     "staff": {
       "assistantPriests": "Assistant Priests",
@@ -203,21 +244,27 @@
       "emergency": { "sub": "Anointing & pastoral care", "cta": "Call now" }
     },
     "sacraments": {
-      "baptism": { "title": "Baptism", "desc": "Initiation into the life of Christ and His Church." },
-      "marriage": { "title": "Marriage", "desc": "Covenant of love blessed in the presence of God." },
+      "baptism": { "title": "Baptism", "desc": "Welcome into the life of Christ and His Church." },
+      "marriage": { "title": "Marriage", "desc": "A covenant of love blessed before God." },
       "confirmation": { "title": "Confirmation", "desc": "Strengthened by the Holy Spirit for mission." },
-      "communion": { "title": "Holy Communion", "desc": "Receiving the Body of Christ for the first time." },
+      "communion": { "title": "Holy Communion", "desc": "Receiving the Body of Christ with reverence." },
+      "funeral": { "title": "Funeral / Christian Burial", "desc": "Pastoral accompaniment in hope of the resurrection." },
+      "certificates": { "title": "Certificates", "desc": "Request sacramental certificates from the parish office." },
       "confession": { "title": "Confession", "desc": "Mercy, healing, and a new beginning in grace." },
       "anointing": { "title": "Anointing", "desc": "Comfort and strength in illness and old age." },
       "holyOrders": { "title": "Holy Orders", "desc": "Vocations to priesthood and consecrated life." }
     },
     "ministries": {
       "youth": { "title": "Youth Ministry", "desc": "Faith, friendship, and missionary discipleship." },
-      "choir": { "title": "Parish Choir", "desc": "Sacred music that lifts the liturgy in beauty." },
+      "choir": { "title": "Choir & Music", "desc": "Sacred music that lifts the liturgy in beauty." },
+      "children": { "title": "Children's Ministry", "desc": "Nurturing young hearts in prayer and joy." },
+      "prayer": { "title": "Prayer Ministry", "desc": "Intercession, rosary, and contemplative prayer." },
+      "charity": { "title": "Charity & Outreach", "desc": "Serving the poor with dignity and compassion." },
+      "family": { "title": "Family Ministry", "desc": "Accompanying households in Christian living." },
+      "council": { "title": "Parish Pastoral Council", "desc": "Shared leadership for parish mission." },
       "catechism": { "title": "Catechism", "desc": "Forming children and adults in the Catholic faith." },
       "legion": { "title": "Legion of Mary", "desc": "Apostolic prayer and visitation ministry." },
       "altarServers": { "title": "Altar Servers", "desc": "Serving at the altar with reverence and joy." },
-      "family": { "title": "Family Ministry", "desc": "Accompanying households in Christian living." },
       "women": { "title": "Women's Association", "desc": "Sisterhood in prayer, service, and fellowship." },
       "men": { "title": "Men's Association", "desc": "Brothers growing as stewards of the parish." },
       "socialService": { "title": "Social Service", "desc": "Charity that restores dignity to the poor." },
@@ -226,6 +273,10 @@
     "stats": {
       "families": "Families",
       "members": "Members",
+      "sacraments": "Sacraments",
+      "certificates": "Certificates",
+      "ministries": "Ministries",
+      "masses": "Masses",
       "baptisms": "Baptisms / yr",
       "marriages": "Marriages / yr",
       "children": "Children",
@@ -245,7 +296,7 @@
       "e4": { "title": "Parish Council Meeting", "location": "Parish Office" }
     },
     "testimonials": {
-      "t1": { "quote": "This parish feels like home. The liturgy is prayerful and the community genuinely cares for one another.", "name": "Maria Sangma", "role": "Parish Family" },
+      "t1": { "quote": "This parish has been a blessing to our family. The priests, the people and the community make us feel at home.", "name": "The Sangma Family", "role": "Parish Family" },
       "t2": { "quote": "Youth ministry helped me rediscover my faith and find friends who walk with Christ.", "name": "David Momin", "role": "Youth Member" },
       "t3": { "quote": "We were welcomed with warmth when we visited Tura. A beautiful church and a living faith.", "name": "Anita & Joseph", "role": "Visitors" }
     },
@@ -255,15 +306,16 @@
       "v3": { "title": "Parish Feast", "sub": "Highlights from the celebration" }
     },
     "donate": {
-      "body": "Your generosity sustains worship, catechesis, charity, and the upkeep of our parish home in Tura.",
+      "body": "Your generosity helps us continue our pastoral mission, support families, serve the poor and maintain our parish community.",
       "upi": "UPI",
       "creditCard": "Credit Card",
       "debitCard": "Debit Card",
       "bankTransfer": "Bank Transfer"
     },
     "prayer": {
-      "hint": "Share your intention. Our parish community will hold it in prayer.",
-      "submit": "Submit Request",
+      "hint": "We are here to pray with you. Share your prayer intention and we will remember you in our prayers.",
+      "submit": "Submit Prayer Request",
+      "needPrayer": "Need Prayer?",
       "formTitle": "Prayer Request",
       "fields": { "name": "Name", "phone": "Phone", "intention": "Prayer Intention" }
     },
@@ -272,16 +324,16 @@
       "emergency": "Emergency / Anointing",
       "whatsapp": "WhatsApp",
       "donate": "Donate",
-      "mapTitle": "Sacred Heart Parish Tura Map"
+      "mapTitle": "Sacred Heart Shrine Parish Tura Map"
     },
     "footer": {
-      "tagline": "A Catholic parish family in Tura, centred on the Sacred Heart of Jesus.",
+      "tagline": "A Catholic parish family in Tura, centred on the Sacred Heart of Jesus — faith, community, prayer, and service.",
       "massTimings": "Mass Timings",
       "sacraments": "Sacraments",
       "gallery": "Gallery",
       "news": "News",
       "contact": "Contact",
-      "copyright": "Sacred Heart Parish, Tura. All rights reserved.",
+      "copyright": "Sacred Heart Shrine Parish, Tura. All Rights Reserved.",
       "developedBy": "Developed by"
     }
   }

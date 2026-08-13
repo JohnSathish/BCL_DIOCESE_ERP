@@ -210,6 +210,7 @@ export class CmsService {
     const site = await this.resolveSite(user);
     await this.ensureSiteDefaults(site.id);
     const now = new Date();
+    const onlineSince = new Date(Date.now() - 3 * 60 * 1000);
     const [
       draftPages,
       draftPosts,
@@ -224,6 +225,9 @@ export class CmsService {
       newSubmissions,
       recentSubmissions,
       enabledForms,
+      onlineNow,
+      uniqueToday,
+      uniqueTotal,
     ] = await Promise.all([
       this.prisma.cmsPage.count({
         where: { siteId: site.id, deletedAt: null, status: CmsPageStatus.DRAFT },
@@ -250,8 +254,8 @@ export class CmsService {
         take: 5,
       }),
       this.prisma.cmsPost.findMany({
-        where: { siteId: site.id, deletedAt: null },
-        orderBy: { updatedAt: 'desc' },
+        where: { siteId: site.id, deletedAt: null, status: CmsPageStatus.PUBLISHED },
+        orderBy: { publishedAt: 'desc' },
         take: 5,
       }),
       this.prisma.cmsMedia.aggregate({
@@ -265,11 +269,22 @@ export class CmsService {
       this.prisma.cmsFormSubmission.findMany({
         where: { siteId: site.id },
         orderBy: { createdAt: 'desc' },
-        take: 5,
+        take: 8,
         include: { form: { select: { title: true, slug: true, type: true } } },
       }),
       this.prisma.cmsForm.count({ where: { siteId: site.id, isEnabled: true } }),
+      this.prisma.cmsSiteVisitorSession.count({
+        where: { siteId: site.id, lastSeenAt: { gte: onlineSince } },
+      }),
+      this.prisma.cmsSiteVisitorDaily.findUnique({
+        where: {
+          siteId_visitDate: { siteId: site.id, visitDate: this.dayStart() },
+        },
+        select: { uniqueVisitors: true },
+      }),
+      this.prisma.cmsSiteVisitorSession.count({ where: { siteId: site.id } }),
     ]);
+    const visitStats = await this.getVisitStats(site.id);
 
     const seo = (refreshed?.seoJson || {}) as Record<string, unknown>;
     let seoScore = 40;
@@ -278,17 +293,22 @@ export class CmsService {
     if (refreshed?.logoUrl) seoScore += 10;
     if (seo.ogImage || refreshed?.logoUrl) seoScore += 10;
 
-    const visitStats = await this.getVisitStats(site.id);
-
     return {
       site: refreshed,
       websiteStatus: refreshed?.isPublished ? 'Published' : 'Unpublished',
       lastUpdated: refreshed?.updatedAt,
       lastPublishedAt: refreshed?.lastPublishedAt,
+      onlineNow,
+      uniqueVisitorsToday: uniqueToday?.uniqueVisitors || 0,
+      uniqueVisitorsTotal: uniqueTotal,
       visitorsToday: visitStats.visitorsToday,
       visitorsWeek: visitStats.visitorsWeek,
       visitorsMonth: visitStats.visitorsMonth,
-      totalVisitors: visitStats.totalVisitors,
+      totalVisitors: uniqueTotal || visitStats.totalVisitors,
+      pageViewsToday: visitStats.visitorsToday,
+      pageViewsWeek: visitStats.visitorsWeek,
+      pageViewsMonth: visitStats.visitorsMonth,
+      pageViewsTotal: visitStats.totalVisitors,
       draftPosts: draftPages + draftPosts,
       pendingApproval: pendingPages + pendingPosts,
       mediaCount,

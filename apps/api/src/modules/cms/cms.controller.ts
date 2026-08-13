@@ -16,6 +16,7 @@ import { CmsFormSubmissionStatus } from '@prisma/client';
 import { CurrentUser, AuthPayload } from '../../common/current-user.decorator';
 import { JwtAuthGuard, PermissionsGuard, Public, RequirePermissions } from '../../common/guards';
 import { CmsService } from './cms.service';
+import { CmsAnalyticsService } from './cms-analytics.service';
 import {
   CreateCmsAnnouncementDto,
   CreateCmsEventDto,
@@ -43,7 +44,10 @@ import {
 @ApiTags('cms')
 @Controller('cms')
 export class CmsController {
-  constructor(private readonly cms: CmsService) {}
+  constructor(
+    private readonly cms: CmsService,
+    private readonly analytics: CmsAnalyticsService,
+  ) {}
 
   @Public()
   @Get('resolve-host')
@@ -110,6 +114,35 @@ export class CmsController {
   @Post('public/:slug/analytics/view')
   trackView(@Param('slug') slug: string, @Body() body?: { pageSlug?: string }) {
     return this.cms.trackPublicView(slug, body?.pageSlug);
+  }
+
+  @Public()
+  @Post('public/:slug/analytics/heartbeat')
+  heartbeat(
+    @Param('slug') slug: string,
+    @Body()
+    body?: {
+      visitorKey?: string;
+      pageSlug?: string;
+      deviceType?: string;
+      browser?: string;
+    },
+  ) {
+    return this.analytics.heartbeat(slug, body || {});
+  }
+
+  @Public()
+  @Get('public/:slug/analytics/live')
+  liveStats(@Param('slug') slug: string) {
+    return this.analytics.publicLiveStats(slug);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions('cms.read')
+  @Get('me/analytics')
+  myAnalytics(@CurrentUser() user: AuthPayload, @Query('parishId') parishId?: string) {
+    return this.analytics.adminAnalytics(user, parishId);
   }
 
   @ApiBearerAuth()
