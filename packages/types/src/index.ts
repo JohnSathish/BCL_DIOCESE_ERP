@@ -193,6 +193,7 @@ export interface AuthUser {
   parishId?: string | null;
   scopeIds: string[];
   mustChangePassword?: boolean;
+  isSuperAdmin?: boolean;
 }
 
 export interface LoginRequest {
