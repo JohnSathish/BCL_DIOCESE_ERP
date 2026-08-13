@@ -6,7 +6,10 @@ export const metadata: Metadata = {
   title: 'BCL Diocese ERP',
   description: 'BCL Enterprise Suite — Catholic Diocese & Parish Management',
   icons: {
-    icon: [{ url: '/favicon.png', type: 'image/png', sizes: '1024x1024' }],
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon.png', type: 'image/png', sizes: '1024x1024' },
+    ],
     apple: [{ url: '/icon-192.png', sizes: '1024x1024' }],
   },
 };

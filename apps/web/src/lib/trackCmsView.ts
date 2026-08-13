@@ -8,5 +8,6 @@ export function trackCmsPageView(siteSlug: string, pageSlug = 'home') {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ pageSlug }),
     keepalive: true,
+    credentials: 'omit',
   }).catch(() => {});
 }

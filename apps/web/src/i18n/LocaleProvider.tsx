@@ -9,6 +9,7 @@ import {
   useState,
 } from 'react';
 import { NextIntlClientProvider } from 'next-intl';
+import { getAccessToken } from '@bcl/auth-client';
 import { api } from '@/lib/api';
 import enCommon from './locales/en/common.json';
 import enErp from './locales/en/erp.json';
@@ -40,7 +41,9 @@ type LocaleContextValue = {
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 
 const LOCALE_COOKIE = 'bcl_locale';
-const NAMESPACES = ['common', 'erp', 'cms', 'certificates', 'reports', 'parishSite'] as const;
+const ALL_NAMESPACES = ['common', 'erp', 'cms', 'certificates', 'reports', 'parishSite'] as const;
+/** Public parish websites only need these — never request ERP/certificates/reports. */
+const PUBLIC_NAMESPACES = ['common', 'cms', 'parishSite'] as const;
 
 const STATIC_NS: Record<string, Record<string, Record<string, unknown>>> = {
   en: {
@@ -68,9 +71,12 @@ function staticFallback(code: string, namespace: string): Record<string, unknown
   return localePartial ? mergeMessages(enBase, localePartial) : { ...enBase };
 }
 
-function buildStaticMessages(code: string): Record<string, unknown> {
+function buildStaticMessages(
+  code: string,
+  namespaces: readonly string[] = ALL_NAMESPACES,
+): Record<string, unknown> {
   const merged: Record<string, unknown> = {};
-  for (const ns of NAMESPACES) {
+  for (const ns of namespaces) {
     merged[ns] = staticFallback(code, ns);
   }
   return merged;
@@ -86,25 +92,56 @@ function writeCookie(name: string, value: string) {
   document.cookie = `${name}=${encodeURIComponent(value)};path=/;max-age=31536000;sameSite=lax`;
 }
 
-async function fetchNamespace(locale: string, namespace: string) {
+/** Parish public website (not ERP /login or /diocese). */
+export function isPublicParishSurface(): boolean {
+  if (typeof window === 'undefined') return false;
+  const path = window.location.pathname || '/';
+  if (
+    path.startsWith('/diocese') ||
+    path.startsWith('/login') ||
+    path.startsWith('/family') ||
+    path.startsWith('/register') ||
+    path.startsWith('/invite')
+  ) {
+    return false;
+  }
+  if (path.startsWith('/site/')) return true;
+
+  const host = window.location.hostname.replace(/^www\./, '').toLowerCase();
+  if (host === 'localhost' || host === '127.0.0.1') {
+    return path.startsWith('/site/');
+  }
+  if (host.startsWith('erp.') || host.startsWith('api.')) return false;
+  // Custom parish domains & parish subdomains (e.g. sacredheart.turadiocese.in)
+  return true;
+}
+
+async function fetchPublicNamespace(locale: string, namespace: string) {
+  if (!(PUBLIC_NAMESPACES as readonly string[]).includes(namespace)) {
+    return {};
+  }
+  try {
+    const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
+    const res = await fetch(`${base}/i18n/messages/${locale}/${namespace}`, {
+      credentials: 'omit',
+    });
+    if (!res.ok) return {};
+    return (await res.json()) as Record<string, unknown>;
+  } catch {
+    return {};
+  }
+}
+
+async function fetchAuthenticatedNamespace(locale: string, namespace: string) {
   try {
     return await api.get<Record<string, unknown>>(
       `/i18n/messages/${locale}/${namespace}/authenticated`,
     );
   } catch {
-    try {
-      const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
-      const res = await fetch(`${base}/i18n/messages/${locale}/${namespace}`);
-      if (!res.ok) return {};
-      return res.json();
-    } catch {
-      /* API offline — static fallbacks in loadMessages will apply */
-      return {};
-    }
+    return fetchPublicNamespace(locale, namespace);
   }
 }
 
-/** Static keys fill gaps; API/diocese overrides win on conflict. */
 function mergeMessages(
   base: Record<string, unknown>,
   override?: Record<string, unknown> | null,
@@ -131,26 +168,42 @@ function mergeMessages(
   return out;
 }
 
+type LoadMode = 'public' | 'guest' | 'authenticated';
+
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState('en');
-  const [messages, setMessages] = useState<Record<string, unknown>>(() => buildStaticMessages('en'));
+  const [messages, setMessages] = useState<Record<string, unknown>>(() =>
+    buildStaticMessages('en', PUBLIC_NAMESPACES),
+  );
   const [availableLocales, setAvailableLocales] = useState<LocaleOption[]>([
     { code: 'en', nativeName: 'English', enabled: true, isDefault: true },
+    { code: 'gar', nativeName: 'A∙chik', enabled: true },
   ]);
   const [loading, setLoading] = useState(true);
+  const [surface, setSurface] = useState<LoadMode>('public');
 
-  const loadMessages = useCallback(async (code: string) => {
+  const loadMessages = useCallback(async (code: string, mode: LoadMode) => {
+    const namespaces = mode === 'public' ? PUBLIC_NAMESPACES : ALL_NAMESPACES;
     const merged: Record<string, unknown> = {};
-    for (const ns of NAMESPACES) {
+
+    for (const ns of namespaces) {
       let fetched: Record<string, unknown> = {};
-      try {
-        fetched = await fetchNamespace(code, ns);
-      } catch {
-        fetched = {};
+      if (mode === 'authenticated') {
+        fetched = await fetchAuthenticatedNamespace(code, ns);
+      } else if (mode === 'public') {
+        fetched = await fetchPublicNamespace(code, ns);
       }
-      const fallback = staticFallback(code, ns);
-      merged[ns] = mergeMessages(fallback, fetched);
+      // guest: static only — no network
+      merged[ns] = mergeMessages(staticFallback(code, ns), fetched);
     }
+
+    // Keep unused ERP namespaces present as empty static so hooks never crash if mounted
+    if (mode === 'public') {
+      for (const ns of ALL_NAMESPACES) {
+        if (!(ns in merged)) merged[ns] = staticFallback(code, ns);
+      }
+    }
+
     setMessages(merged);
     if (typeof document !== 'undefined') {
       document.documentElement.lang = code;
@@ -160,6 +213,26 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      const publicSurface = isPublicParishSurface();
+      const token = getAccessToken();
+      const cookieLocale = readCookie(LOCALE_COOKIE) || 'en';
+
+      // Public parish site OR guest (no token): never call /auth/me (avoids 401 noise)
+      if (publicSurface || !token) {
+        const mode: LoadMode = publicSurface ? 'public' : 'guest';
+        if (!cancelled) {
+          setSurface(mode);
+          setLocaleState(cookieLocale);
+          setAvailableLocales([
+            { code: 'en', nativeName: 'English', enabled: true, isDefault: true },
+            { code: 'gar', nativeName: 'A∙chik', enabled: true },
+          ]);
+        }
+        await loadMessages(cookieLocale, mode);
+        if (!cancelled) setLoading(false);
+        return;
+      }
+
       try {
         const me = await api.get<{
           locale?: string;
@@ -167,9 +240,8 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
           preferences?: { locale?: string };
         }>('/auth/me');
         if (cancelled) return;
-        const cookieLocale = readCookie(LOCALE_COOKIE);
-        const resolved =
-          me.locale || me.preferences?.locale || cookieLocale || 'en';
+        const resolved = me.locale || me.preferences?.locale || cookieLocale || 'en';
+        setSurface('authenticated');
         setLocaleState(resolved);
         if (me.availableLocales?.length) {
           const locales = me.availableLocales.filter((l) => l.enabled !== false);
@@ -177,21 +249,19 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
           setAvailableLocales(
             hasGaro
               ? locales
-              : [
-                  ...locales,
-                  { code: 'gar', nativeName: 'A∙chik', enabled: true },
-                ],
+              : [...locales, { code: 'gar', nativeName: 'A∙chik', enabled: true }],
           );
         }
-        await loadMessages(resolved);
+        await loadMessages(resolved, 'authenticated');
       } catch {
-        const cookieLocale = readCookie(LOCALE_COOKIE) || 'en';
+        if (cancelled) return;
+        setSurface('guest');
         setLocaleState(cookieLocale);
         setAvailableLocales([
           { code: 'en', nativeName: 'English', enabled: true, isDefault: true },
           { code: 'gar', nativeName: 'A∙chik', enabled: true },
         ]);
-        await loadMessages(cookieLocale);
+        await loadMessages(cookieLocale, 'guest');
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -205,14 +275,17 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
     async (code: string) => {
       setLocaleState(code);
       writeCookie(LOCALE_COOKIE, code);
-      await loadMessages(code);
-      try {
-        await api.patch('/auth/me/preferences', { locale: code });
-      } catch {
-        /* guest / offline */
+      await loadMessages(code, surface);
+      // Only persist preference when authenticated ERP session exists
+      if (surface === 'authenticated' && getAccessToken()) {
+        try {
+          await api.patch('/auth/me/preferences', { locale: code });
+        } catch {
+          /* ignore */
+        }
       }
     },
-    [loadMessages],
+    [loadMessages, surface],
   );
 
   const ctx = useMemo(

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { API_BASE } from '@/lib/api';
 
 const VISITOR_KEY = 'shp_anon_vid';
@@ -49,28 +49,41 @@ function getOrCreateVisitorKey(): string {
   }
 }
 
-async function sendHeartbeat(slug: string, pageSlug: string) {
-  const visitorKey = getOrCreateVisitorKey();
-  await fetch(`${API_BASE}/cms/public/${encodeURIComponent(slug)}/analytics/heartbeat`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      visitorKey,
-      pageSlug,
-      deviceType: detectDevice(),
-      browser: detectBrowser(),
-    }),
-    keepalive: true,
-  });
+async function sendHeartbeat(slug: string, pageSlug: string): Promise<boolean> {
+  try {
+    const visitorKey = getOrCreateVisitorKey();
+    const res = await fetch(
+      `${API_BASE}/cms/public/${encodeURIComponent(slug)}/analytics/heartbeat`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          visitorKey,
+          pageSlug,
+          deviceType: detectDevice(),
+          browser: detectBrowser(),
+        }),
+        keepalive: true,
+        credentials: 'omit',
+      },
+    );
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 async function fetchLiveStats(slug: string): Promise<LiveVisitorStats | null> {
-  const res = await fetch(
-    `${API_BASE}/cms/public/${encodeURIComponent(slug)}/analytics/live`,
-    { cache: 'no-store' },
-  );
-  if (!res.ok) return null;
-  return (await res.json()) as LiveVisitorStats;
+  try {
+    const res = await fetch(
+      `${API_BASE}/cms/public/${encodeURIComponent(slug)}/analytics/live`,
+      { cache: 'no-store', credentials: 'omit' },
+    );
+    if (!res.ok) return null;
+    return (await res.json()) as LiveVisitorStats;
+  } catch {
+    return null;
+  }
 }
 
 export function useParishVisitors(siteSlug?: string | null, pageSlug = 'home') {
@@ -80,22 +93,29 @@ export function useParishVisitors(siteSlug?: string | null, pageSlug = 'home') {
     todayVisitors: 0,
   });
   const [ready, setReady] = useState(false);
+  const [supported, setSupported] = useState(true);
+  const disabledRef = useRef(false);
 
   const refresh = useCallback(async () => {
-    if (!siteSlug) return;
+    if (!siteSlug || disabledRef.current) return;
     try {
       const data = await fetchLiveStats(siteSlug);
-      if (data) {
-        setStats({
-          onlineVisitors: data.onlineVisitors || 0,
-          totalVisitors: data.totalVisitors || 0,
-          todayVisitors: data.todayVisitors || 0,
-          updatedAt: data.updatedAt,
-        });
-        setReady(true);
+      if (!data) {
+        disabledRef.current = true;
+        setSupported(false);
+        return;
       }
+      setStats({
+        onlineVisitors: data.onlineVisitors || 0,
+        totalVisitors: data.totalVisitors || 0,
+        todayVisitors: data.todayVisitors || 0,
+        updatedAt: data.updatedAt,
+      });
+      setReady(true);
+      setSupported(true);
     } catch {
-      /* ignore */
+      disabledRef.current = true;
+      setSupported(false);
     }
   }, [siteSlug]);
 
@@ -107,23 +127,35 @@ export function useParishVisitors(siteSlug?: string | null, pageSlug = 'home') {
     let statsTimer: ReturnType<typeof setInterval> | undefined;
 
     const beat = () => {
+      if (cancelled || disabledRef.current) return;
       if (document.visibilityState === 'hidden') return;
-      void sendHeartbeat(siteSlug, pageSlug).catch(() => {});
+      void sendHeartbeat(siteSlug, pageSlug)
+        .then((ok) => {
+          if (!ok) {
+            disabledRef.current = true;
+            setSupported(false);
+          }
+        })
+        .catch(() => {
+          disabledRef.current = true;
+          setSupported(false);
+        });
     };
 
     const start = async () => {
       beat();
       if (!cancelled) await refresh();
+      if (disabledRef.current || cancelled) return;
       heartbeatTimer = setInterval(beat, HEARTBEAT_MS);
       statsTimer = setInterval(() => {
-        void refresh();
+        if (!disabledRef.current) void refresh();
       }, STATS_POLL_MS);
     };
 
     void start();
 
     const onVisibility = () => {
-      if (document.visibilityState === 'visible') {
+      if (document.visibilityState === 'visible' && !disabledRef.current) {
         beat();
         void refresh();
       }
@@ -138,5 +170,5 @@ export function useParishVisitors(siteSlug?: string | null, pageSlug = 'home') {
     };
   }, [siteSlug, pageSlug, refresh]);
 
-  return { stats, ready, refresh };
+  return { stats, ready, supported, refresh };
 }

@@ -10,7 +10,23 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'upload.wikimedia.org' },
       { protocol: 'https', hostname: 'images.pexels.com' },
+      { protocol: 'https', hostname: 'api.turadiocese.in' },
+      { protocol: 'https', hostname: 'turadiocese.in' },
+      { protocol: 'https', hostname: '*.turadiocese.in' },
+      { protocol: 'https', hostname: 'sacredheartshrinetura.in' },
+      { protocol: 'https', hostname: 'www.sacredheartshrinetura.in' },
     ],
+  },
+  async rewrites() {
+    return [{ source: '/favicon.ico', destination: '/favicon.png' }];
+  },
+  async headers() {
+    return [
+      {
+        source: '/favicon.ico',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=86400' }],
+      },
+    ];
   },
 };
 

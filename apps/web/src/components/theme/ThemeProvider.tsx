@@ -29,6 +29,8 @@ import {
   type UserThemePreferences,
 } from '@/lib/theme';
 import { api } from '@/lib/api';
+import { getAccessToken } from '@bcl/auth-client';
+import { isPublicParishSurface } from '@/i18n/LocaleProvider';
 
 type ThemeContextValue = {
   color: ColorThemeId;
@@ -50,11 +52,11 @@ function prefersDarkMq() {
 }
 
 function persistRemote(prefs: UserThemePreferences) {
-  try {
-    void api.patch('/auth/me/preferences', { theme: prefs }).catch(() => undefined);
-  } catch {
-    /* unauthenticated public pages */
-  }
+  // Never hit /auth/me/preferences on public parish pages or logged-out guests
+  if (typeof window === 'undefined') return;
+  if (isPublicParishSurface()) return;
+  if (!getAccessToken()) return;
+  void api.patch('/auth/me/preferences', { theme: prefs }).catch(() => undefined);
 }
 
 export function ThemeProvider({

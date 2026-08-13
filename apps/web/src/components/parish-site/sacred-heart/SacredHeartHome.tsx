@@ -408,6 +408,7 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
             fill
             priority
             sizes="100vw"
+            unoptimized
           />
           <div className="shp-hero-overlay" aria-hidden />
         </div>
@@ -545,6 +546,7 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
                         fill
                         className="object-cover"
                         sizes="88px"
+                        unoptimized
                       />
                     </div>
                     <div className="min-w-0">
@@ -712,7 +714,14 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
       <section id="priest" className="shp-section shp-priest">
         <div className="shp-container-wide shp-priest-grid">
           <div className="shp-priest-photo">
-            <Image src={SHP.priest.photo} alt={priestName} fill className="object-cover" sizes="288px" />
+            <Image
+              src={SHP.priest.photo}
+              alt={priestName}
+              fill
+              className="object-cover"
+              sizes="288px"
+              unoptimized
+            />
           </div>
           <div>
             <p className="shp-eyebrow">{content.priest.fromPriest}</p>
@@ -781,6 +790,7 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
                     fill
                     className="object-cover opacity-70 transition-transform duration-500 group-hover:scale-105"
                     sizes="400px"
+                    unoptimized
                   />
                   <span className="absolute inset-0 flex items-center justify-center">
                     <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[var(--shp-burgundy)] shadow-lg">
@@ -978,7 +988,9 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
           </div>
         </div>
 
-        <ParishVisitorsPanel stats={visitors.stats} ready={visitors.ready} />
+        {visitors.supported ? (
+          <ParishVisitorsPanel stats={visitors.stats} ready={visitors.ready} />
+        ) : null}
 
         <div className="shp-footer-bottom">
           <div className="shp-container-wide flex flex-col sm:flex-row items-center justify-between gap-2 py-4 text-xs text-white/50">
