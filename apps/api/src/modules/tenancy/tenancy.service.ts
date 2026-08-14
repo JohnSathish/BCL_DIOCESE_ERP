@@ -28,6 +28,43 @@ export class TenancyService {
     return user.roles.some((r) => dioceseRoles.includes(r));
   }
 
+  /** User is assigned to exactly one parish — client-supplied parishId must not override. */
+  isParishLockedUser(user: AuthPayload): boolean {
+    if (!user.parishId) return false;
+    if (user.isSuperAdmin) return false;
+    if (this.isDioceseWideRole(user)) return false;
+    return true;
+  }
+
+  /**
+   * Resolve effective parish for reads/writes.
+   * Parish-locked users always get user.parishId; another parishId is rejected.
+   */
+  resolveParishId(
+    user: AuthPayload,
+    requestedParishId?: string | null,
+    options?: { required?: boolean },
+  ): string | undefined {
+    if (this.isParishLockedUser(user)) {
+      if (requestedParishId && requestedParishId !== user.parishId) {
+        throw new ForbiddenException(
+          'Your account is assigned to a single parish and cannot access another parish.',
+        );
+      }
+      return user.parishId!;
+    }
+
+    const effective = requestedParishId || user.parishId || undefined;
+    if (effective) {
+      this.assertParishAccess(user, effective);
+      return effective;
+    }
+    if (options?.required) {
+      throw new ForbiddenException('Parish context is required');
+    }
+    return undefined;
+  }
+
   assertParishAccess(user: AuthPayload, parishId: string) {
     if (user.isSuperAdmin) return;
     if (this.isDioceseWideRole(user)) return;
@@ -37,11 +74,13 @@ export class TenancyService {
     }
   }
 
-  parishFilter(user: AuthPayload): { parishId?: string } {
-    if (user.isSuperAdmin) return {};
-    if (this.isDioceseWideRole(user)) return {};
-    if (user.parishId) return { parishId: user.parishId };
-    // No parish assignment and not diocese-wide → empty filter would leak; deny via impossible id
+  parishFilter(user: AuthPayload, requestedParishId?: string): { parishId?: string } {
+    if (this.isParishLockedUser(user)) {
+      return { parishId: user.parishId! };
+    }
+    const resolved = requestedParishId || user.parishId;
+    if (resolved) return { parishId: resolved };
+    if (user.isSuperAdmin || this.isDioceseWideRole(user)) return {};
     return { parishId: '__none__' };
   }
 

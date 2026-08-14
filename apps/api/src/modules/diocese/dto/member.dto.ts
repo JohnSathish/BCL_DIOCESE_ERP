@@ -9,7 +9,7 @@ import {
 import { Gender, MaritalStatus, MemberLifeStatus, RelationshipType } from '@prisma/client';
 
 export class CreateMemberDto {
-  @IsString() parishId!: string;
+  @IsOptional() @IsString() parishId?: string;
   @IsString() firstName!: string;
   @IsString() lastName!: string;
   @IsOptional() @IsString() middleName?: string;

@@ -21,7 +21,7 @@
   },
   "confirmation": {
     "title": "Confirmation Register",
-    "description": "Digital confirmation book — canonical fields, certificates, parishioner linking, and audit trail",
+    "description": "Digital confirmation book · Canonical records · Certificates · Parishioner linking",
     "certTitle": "Confirmation Certificate",
     "certifyIntro": "Was confirmed in the Holy Catholic Church, receiving the gifts of the Holy Spirit",
     "dateOfConfirmation": "Date of Confirmation",
@@ -35,15 +35,15 @@
     "bookHeading": "CONFIRMATION",
     "bookYear": "Year {year}",
     "columns": {
-      "no": "No.",
-      "date": "Date of confirmation",
+      "no": "Register No.",
+      "date": "Date",
       "place": "Place of confirmation",
-      "name": "Name",
+      "name": "Confirmand",
       "surname": "Surname",
       "father": "Father's name",
       "mother": "Mother's name",
       "village": "Village",
-      "sponsor": "Godfather / mother",
+      "sponsor": "Sponsor",
       "minister": "Minister",
       "notanda": "Notanda",
       "status": "Status",
@@ -108,14 +108,14 @@
       "minister": "Minister"
     },
     "stats": {
-      "total": "Total entries",
-      "thisYear": "This year",
-      "thisMonth": "This month",
-      "pending": "Pending status"
+      "total": "Total Confirmations",
+      "thisYear": "This Year",
+      "thisMonth": "This Month",
+      "pending": "Pending"
     },
     "analytics": {
       "pendingCerts": "Pending certificates",
-      "printed": "Certificates printed",
+      "printed": "Certificates Printed",
       "books": "Digital register books",
       "recentPrints": "Prints (7 days)",
       "monthlyTrend": "Monthly confirmations",
@@ -150,13 +150,13 @@
       "done": "Queued {count} page(s) for review"
     },
     "actions": {
-      "registerPrint": "Register print view",
-      "exportCsv": "Export CSV",
-      "newEntry": "+ New confirmation",
+      "registerPrint": "Register Print View",
+      "exportCsv": "Export Excel",
+      "newEntry": "+ New Confirmation",
       "cancel": "Cancel",
       "back": "Back",
       "next": "Next",
-      "saveAndCert": "Save & issue certificate",
+      "saveAndCert": "Save & Generate Certificate",
       "saving": "Saving…",
       "uploadScan": "Upload scan",
       "uploading": "Uploading…",

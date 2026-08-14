@@ -1,4 +1,4 @@
-export type ConfirmationStatus = 'COMPLETED' | 'PENDING';
+export type ConfirmationStatus = 'COMPLETED' | 'PENDING' | 'DRAFT';
 
 export type ConfirmationAttachment = {
   url: string;
@@ -11,6 +11,7 @@ export type ConfirmationDetails = {
   village?: string;
   district?: string;
   state?: string;
+  birthPlace?: string;
   deanery?: string;
   status?: ConfirmationStatus;
   batchGroup?: string;
@@ -19,10 +20,16 @@ export type ConfirmationDetails = {
   baptismCertNumber?: string;
   familyId?: string;
   familyCode?: string;
+  familyName?: string;
+  godFatherName?: string;
+  godMotherName?: string;
   sponsorRelationship?: string;
   sponsorContact?: string;
+  sponsorMemberId?: string;
+  ministerId?: string;
   ministerDesignation?: string;
   ministerDiocese?: string;
+  ministerParish?: string;
   registerBookNumber?: string;
   registerPageNumber?: string;
   attachments?: ConfirmationAttachment[];
@@ -39,6 +46,7 @@ export type ConfirmationFormState = {
   registerPageNumber: string;
   celebratedAt: string;
   churchName: string;
+  placeOfConfirmation: string;
   confirmationName: string;
   status: ConfirmationStatus;
   batchGroup: string;
@@ -46,8 +54,10 @@ export type ConfirmationFormState = {
   surname: string;
   childGender: string;
   birthDate: string;
+  birthPlace: string;
   familyId: string;
   familyCode: string;
+  familyName: string;
   baptismRecordId: string;
   baptismCertNumber: string;
   fatherName: string;
@@ -56,15 +66,33 @@ export type ConfirmationFormState = {
   district: string;
   state: string;
   sponsorName: string;
+  godFatherName: string;
+  godMotherName: string;
   sponsorRelationship: string;
   sponsorContact: string;
+  sponsorMemberId: string;
+  ministerId: string;
   ministerName: string;
   ministerDesignation: string;
   ministerDiocese: string;
+  ministerParish: string;
   remarks: string;
   scanImageUrl: string;
   attachments: ConfirmationAttachment[];
+  issueCertificate: boolean;
 };
+
+export const FORM_STEPS = [
+  { id: 'details', label: 'Confirmation Details' },
+  { id: 'confirmand', label: 'Confirmand' },
+  { id: 'family', label: 'Parents & Family' },
+  { id: 'sponsor', label: 'Sponsor' },
+  { id: 'minister', label: 'Minister & Parish' },
+  { id: 'certificate', label: 'Certificate' },
+  { id: 'review', label: 'Review & Save' },
+] as const;
+
+export type FormStepId = (typeof FORM_STEPS)[number]['id'];
 
 export function emptyConfirmationForm(): ConfirmationFormState {
   return {
@@ -76,6 +104,7 @@ export function emptyConfirmationForm(): ConfirmationFormState {
     registerPageNumber: '',
     celebratedAt: new Date().toISOString().slice(0, 10),
     churchName: '',
+    placeOfConfirmation: '',
     confirmationName: '',
     status: 'COMPLETED',
     batchGroup: '',
@@ -83,8 +112,10 @@ export function emptyConfirmationForm(): ConfirmationFormState {
     surname: '',
     childGender: '',
     birthDate: '',
+    birthPlace: '',
     familyId: '',
     familyCode: '',
+    familyName: '',
     baptismRecordId: '',
     baptismCertNumber: '',
     fatherName: '',
@@ -93,14 +124,20 @@ export function emptyConfirmationForm(): ConfirmationFormState {
     district: 'West Garo Hills',
     state: 'Meghalaya',
     sponsorName: '',
+    godFatherName: '',
+    godMotherName: '',
     sponsorRelationship: '',
     sponsorContact: '',
+    sponsorMemberId: '',
+    ministerId: '',
     ministerName: '',
     ministerDesignation: 'Bishop / Priest',
     ministerDiocese: 'Diocese of Tura',
+    ministerParish: '',
     remarks: '',
     scanImageUrl: '',
     attachments: [],
+    issueCertificate: true,
   };
 }
 
@@ -118,6 +155,7 @@ export function buildDetailsJson(form: ConfirmationFormState): ConfirmationDetai
     village: form.village || undefined,
     district: form.district || undefined,
     state: form.state || undefined,
+    birthPlace: form.birthPlace || undefined,
     status: form.status,
     batchGroup: form.batchGroup || undefined,
     confirmationName: form.confirmationName || undefined,
@@ -125,47 +163,61 @@ export function buildDetailsJson(form: ConfirmationFormState): ConfirmationDetai
     baptismCertNumber: form.baptismCertNumber || undefined,
     familyId: form.familyId || undefined,
     familyCode: form.familyCode || undefined,
+    familyName: form.familyName || undefined,
+    godFatherName: form.godFatherName || undefined,
+    godMotherName: form.godMotherName || undefined,
     sponsorRelationship: form.sponsorRelationship || undefined,
     sponsorContact: form.sponsorContact || undefined,
+    sponsorMemberId: form.sponsorMemberId || undefined,
+    ministerId: form.ministerId || undefined,
     ministerDesignation: form.ministerDesignation || undefined,
     ministerDiocese: form.ministerDiocese || undefined,
+    ministerParish: form.ministerParish || undefined,
     registerBookNumber: form.registerBookNumber || undefined,
     registerPageNumber: form.registerPageNumber || undefined,
     attachments: form.attachments.length ? form.attachments : undefined,
   };
 }
 
-export function payloadFromForm(form: ConfirmationFormState) {
+export function payloadFromForm(form: ConfirmationFormState, opts?: { omitParishId?: boolean }) {
   const primaryScan =
     form.scanImageUrl ||
     form.attachments.find((a) => a.type === 'scan' || /\.(jpg|jpeg|png|webp)$/i.test(a.url))?.url ||
     form.attachments[0]?.url;
 
+  const sponsorCombined =
+    form.sponsorName ||
+    [form.godFatherName, form.godMotherName].filter(Boolean).join(' / ') ||
+    undefined;
+
   return {
     type: 'CONFIRMATION' as const,
-    parishId: form.parishId,
+    parishId: opts?.omitParishId ? undefined : form.parishId || undefined,
     memberId: form.memberId || undefined,
-    registerNumber: form.registerNumber || undefined,
+    // Leave empty so backend auto-generates CONF-{PARISH}-{YEAR}-{SEQ}
+    registerNumber: undefined,
     registerYear: form.registerYear ? Number(form.registerYear) : undefined,
     celebratedAt: form.celebratedAt,
-    churchName: form.churchName || undefined,
-    place: form.churchName || undefined,
+    churchName: form.placeOfConfirmation || form.churchName || undefined,
+    place: form.placeOfConfirmation || form.churchName || undefined,
     childName: form.childName || undefined,
     childGender: form.childGender || undefined,
     birthDate: form.birthDate || undefined,
+    birthPlace: form.birthPlace || undefined,
     fatherName: form.fatherName || undefined,
     motherName: form.motherName || undefined,
     parentsDomicile: form.village || undefined,
-    sponsorName: form.sponsorName || undefined,
+    sponsorName: sponsorCombined,
+    godFatherName: form.godFatherName || undefined,
+    godMotherName: form.godMotherName || undefined,
     ministerName: form.ministerName || undefined,
     remarks: form.remarks || undefined,
     scanImageUrl: primaryScan || undefined,
     detailsJson: buildDetailsJson(form),
-    issueCertificate: true,
+    issueCertificate: form.issueCertificate !== false,
   };
 }
 
-/** Map OCR extracted JSON into partial form fields. */
 export function ocrExtractToForm(
   extracted: Record<string, unknown>,
   parishId: string,
@@ -177,18 +229,20 @@ export function ocrExtractToForm(
 
   return {
     parishId,
-    registerNumber: extracted.registerNumber ? String(extracted.registerNumber) : '',
-    registerYear: extracted.registerYear ? String(extracted.registerYear) : String(new Date().getFullYear()),
+    registerYear: extracted.registerYear
+      ? String(extracted.registerYear)
+      : String(new Date().getFullYear()),
     celebratedAt: date || new Date().toISOString().slice(0, 10),
+    placeOfConfirmation: extracted.churchName ? String(extracted.churchName) : '',
     churchName: extracted.churchName ? String(extracted.churchName) : '',
     childName: extracted.personName ? String(extracted.personName) : '',
     surname: extracted.surname ? String(extracted.surname) : '',
     fatherName: extracted.fatherName ? String(extracted.fatherName) : '',
     motherName: extracted.motherName ? String(extracted.motherName) : '',
     village: extracted.village ? String(extracted.village) : '',
-    sponsorName: extracted.sponsorName
-      ? String(extracted.sponsorName)
-      : [extracted.godFatherName, extracted.godMotherName].filter(Boolean).join(' / '),
+    godFatherName: extracted.godFatherName ? String(extracted.godFatherName) : '',
+    godMotherName: extracted.godMotherName ? String(extracted.godMotherName) : '',
+    sponsorName: extracted.sponsorName ? String(extracted.sponsorName) : '',
     ministerName: extracted.ministerName ? String(extracted.ministerName) : '',
     remarks: extracted.remarks ? String(extracted.remarks) : '',
     scanImageUrl: extracted.imageUrl ? String(extracted.imageUrl) : '',

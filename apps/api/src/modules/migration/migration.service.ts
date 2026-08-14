@@ -204,10 +204,7 @@ export class MigrationService {
   }
 
   private resolveParishId(user: AuthPayload, parishId?: string) {
-    const id = parishId || user.parishId;
-    if (!id) throw new BadRequestException('parishId is required for import');
-    this.tenancy.assertParishAccess(user, id);
-    return id;
+    return this.tenancy.resolveParishId(user, parishId, { required: true })!;
   }
 
   private parseWorkbook(buffer: Buffer, module: ImportModule | ImportModuleCode): RowDict[] {
@@ -1051,8 +1048,11 @@ export class MigrationService {
     const dateRaw =
       row.baptismDate || row.confirmationDate || row.communionDate || row.deathDate || row.celebratedAt;
     const celebratedAt = parseDate(dateRaw)!;
-    const registerYear = celebratedAt.getFullYear();
+    const registerYear = row.registerYear
+      ? Number(row.registerYear) || celebratedAt.getFullYear()
+      : celebratedAt.getFullYear();
     const name = row.childName || row.candidateName || row.deceasedName || 'Unknown';
+    const place = row.place || row.placeOfBaptism || parish.name;
 
     const record = await this.prisma.sacramentRecord.create({
       data: {
@@ -1076,9 +1076,16 @@ export class MigrationService {
         placeOfDeath: row.placeOfDeath || undefined,
         cemeteryName: row.cemeteryName || undefined,
         graveNumber: row.graveNumber || undefined,
-        churchName: parish.name,
-        remarks: row.remarks || undefined,
-        detailsJson: { importSource: 'historical_migration', certificateNumber: row.certificateNumber || null },
+        churchName: place,
+        place,
+        parentsDomicile: row.village || undefined,
+        remarks: row.remarks || row.notanda || undefined,
+        detailsJson: {
+          importSource: 'historical_migration',
+          certificateNumber: row.certificateNumber || null,
+          surname: row.surname || null,
+          village: row.village || null,
+        },
       },
     });
     created.sacramentIds.push(record.id);

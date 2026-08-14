@@ -2,8 +2,9 @@ import { IsBoolean, IsEmail, IsEnum, IsNumber, IsOptional, IsString } from 'clas
 import { FamilyStatus } from '@prisma/client';
 
 export class CreateFamilyDto {
+  @IsOptional()
   @IsString()
-  parishId!: string;
+  parishId?: string;
 
   @IsOptional() @IsString() bccId?: string;
   @IsOptional() @IsString() photoUrl?: string;

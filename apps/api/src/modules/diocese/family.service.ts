@@ -29,8 +29,8 @@ export class FamilyService {
 
   private familyWhere(user: AuthPayload, parishId?: string) {
     const orgId = user.organizationId;
-    const parishFilter = this.tenancy.parishFilter(user);
-    const effectiveParish = parishId || parishFilter.parishId;
+    const parishFilter = this.tenancy.parishFilter(user, parishId);
+    const effectiveParish = parishFilter.parishId;
     if (effectiveParish) this.tenancy.assertParishAccess(user, effectiveParish);
     return {
       deletedAt: null as Date | null,
@@ -224,8 +224,9 @@ export class FamilyService {
   }
 
   async create(user: AuthPayload, dto: CreateFamilyDto) {
+    const parishId = this.tenancy.resolveParishId(user, dto.parishId, { required: true })!;
     const parish = await this.prisma.parish.findFirst({
-      where: { id: dto.parishId, deletedAt: null },
+      where: { id: parishId, deletedAt: null },
     });
     if (!parish) throw new NotFoundException('Parish not found');
     this.tenancy.assertOrgAccess(user, parish.organizationId);

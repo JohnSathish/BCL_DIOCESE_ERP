@@ -14,8 +14,9 @@ export class CreateSacramentDto {
   @IsEnum(SacramentType)
   type!: SacramentType;
 
+  @IsOptional()
   @IsString()
-  parishId!: string;
+  parishId?: string;
 
   @IsOptional()
   @IsString()

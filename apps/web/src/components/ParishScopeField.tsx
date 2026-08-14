@@ -86,6 +86,13 @@ export function useParishScope(options?: {
     onChange(lockedParishId);
   }, [scoped, lockedParishId, value, onChange]);
 
+  // Single-parish deployments: auto-bind diocese users to the only parish
+  useEffect(() => {
+    if (scoped || !onChange || value) return;
+    const list = parishes.data || [];
+    if (list.length === 1) onChange(list[0].id);
+  }, [scoped, onChange, value, parishes.data]);
+
   return {
     user,
     scoped,
@@ -96,6 +103,81 @@ export function useParishScope(options?: {
     parishes: parishes.data || [],
     loading: scoped ? meParish.isLoading : parishes.isLoading,
   };
+}
+
+/** Hook: active parish id + whether user may switch parish in UI. */
+export function useActiveParish(options?: {
+  value?: string;
+  onChange?: (parishId: string) => void;
+}) {
+  const scope = useParishScope(options);
+  const parishCount = scope.parishes.length;
+  const showSwitcher = scope.canSelect && parishCount > 1;
+
+  return {
+    ...scope,
+    /** Locked parish account — never show parish picker */
+    isLocked: scope.scoped,
+    /** Diocese/multi-parish — show compact switcher only when >1 parish */
+    showSwitcher,
+    activeParishId: scope.scoped ? scope.parishId : options?.value || scope.parishId || '',
+  };
+}
+
+type ParishContextBadgeProps = {
+  className?: string;
+  /** Show "Parish Account" sublabel */
+  showAccountLabel?: boolean;
+};
+
+/** Read-only parish context chip for parish-scoped users. */
+export function ParishContextBadge({
+  className,
+  showAccountLabel = true,
+}: ParishContextBadgeProps) {
+  const scope = useParishScope();
+  if (!scope.scoped) return null;
+
+  return (
+    <div className={className} aria-label="Parish context">
+      <span className="ecr-parish-badge">
+        <Building2 className="h-3.5 w-3.5 shrink-0" aria-hidden />
+        <span>{scope.loading ? 'Loading…' : scope.parishName}</span>
+        {showAccountLabel ? <em>Parish Account</em> : null}
+      </span>
+    </div>
+  );
+}
+
+type ParishSwitcherCompactProps = {
+  value: string;
+  onChange: (parishId: string) => void;
+  className?: string;
+};
+
+/** Compact parish switcher — diocese roles only, hidden for parish-locked accounts. */
+export function ParishSwitcherCompact({ value, onChange, className }: ParishSwitcherCompactProps) {
+  const scope = useParishScope({ value, onChange });
+  if (!scope.canSelect || scope.parishes.length <= 1) return null;
+
+  return (
+    <select
+      className={
+        className ||
+        'ecr-parish-switcher rounded-lg border border-[var(--bcl-border)] bg-white px-2.5 py-1.5 text-sm text-[var(--bcl-text)]'
+      }
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      aria-label="Filter by parish"
+    >
+      <option value="">All parishes</option>
+      {scope.parishes.map((p) => (
+        <option key={p.id} value={p.id}>
+          {p.name}
+        </option>
+      ))}
+    </select>
+  );
 }
 
 type ParishScopeFieldProps = {

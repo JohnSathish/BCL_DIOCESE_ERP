@@ -42,14 +42,75 @@ export class SacramentService {
     private readonly timeline: TimelineService,
   ) {}
 
+  private parishShortCode(code?: string | null) {
+    const cleaned = (code || 'PAR').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+    return (cleaned.slice(0, 3) || 'PAR').padEnd(3, 'X');
+  }
+
+  private resolveCertificateVerifyBase(parishWebsite?: string | null) {
+    const configured = this.config.get<string>('CERTIFICATE_VERIFY_BASE_URL');
+    if (configured) return configured.replace(/\/$/, '');
+    if (parishWebsite) {
+      try {
+        const raw = parishWebsite.startsWith('http') ? parishWebsite : `https://${parishWebsite}`;
+        const host = new URL(raw).hostname.replace(/^www\./, '');
+        if (host) return `https://verify.${host}`;
+      } catch {
+        /* fall through */
+      }
+    }
+    return (this.config.get<string>('WEB_URL') || 'http://localhost:3000').replace(/\/$/, '');
+  }
+
+  /** Parish + year scoped: CONF-SHS-2026-000001 (unique via DB @@unique) */
+  private async nextConfirmationSerial(parishId: string, year: number) {
+    const parish = await this.prisma.parish.findUnique({
+      where: { id: parishId },
+      select: { code: true },
+    });
+    const prefix = `CONF-${this.parishShortCode(parish?.code)}-${year}-`;
+    const last = await this.prisma.sacramentRecord.findFirst({
+      where: {
+        parishId,
+        type: SacramentType.CONFIRMATION,
+        registerYear: year,
+        deletedAt: null,
+        registerNumber: { startsWith: prefix },
+      },
+      orderBy: { registerNumber: 'desc' },
+      select: { registerNumber: true },
+    });
+    let next = 1;
+    if (last?.registerNumber) {
+      const n = parseInt(last.registerNumber.slice(prefix.length), 10);
+      if (Number.isFinite(n)) next = n + 1;
+    }
+    return `${prefix}${String(next).padStart(6, '0')}`;
+  }
+
   private async nextRegisterNumber(parishId: string, type: SacramentType, year: number) {
+    if (type === SacramentType.CONFIRMATION) {
+      return this.nextConfirmationSerial(parishId, year);
+    }
     const count = await this.prisma.sacramentRecord.count({
-      where: { parishId, type, registerYear: year },
+      where: { parishId, type, registerYear: year, deletedAt: null },
     });
     return String(count + 1).padStart(4, '0');
   }
 
-  private async nextCertSerial(parishId: string, type: CertificateType) {
+  private async nextCertSerial(
+    parishId: string,
+    type: CertificateType,
+    opts?: { year?: number; registerNumber?: string },
+  ) {
+    if (type === CertificateType.CONFIRMATION) {
+      // Share one canonical ID with the sacramental register entry
+      if (opts?.registerNumber?.startsWith('CONF-')) {
+        return opts.registerNumber;
+      }
+      const year = opts?.year || new Date().getFullYear();
+      return this.nextConfirmationSerial(parishId, year);
+    }
     const count = await this.prisma.certificate.count({ where: { parishId, type } });
     return `${type.slice(0, 3)}-${String(count + 1).padStart(6, '0')}`;
   }
@@ -104,8 +165,8 @@ export class SacramentService {
 
   async list(user: AuthPayload, type?: SacramentType, parishId?: string) {
     const orgId = user.organizationId;
-    const parishFilter = this.tenancy.parishFilter(user);
-    const effectiveParish = parishId || parishFilter.parishId;
+    const parishFilter = this.tenancy.parishFilter(user, parishId);
+    const effectiveParish = parishFilter.parishId;
     if (effectiveParish) this.tenancy.assertParishAccess(user, effectiveParish);
     return this.prisma.sacramentRecord.findMany({
       where: {
@@ -143,8 +204,9 @@ export class SacramentService {
   }
 
   async create(user: AuthPayload, dto: CreateSacramentDto) {
+    const parishId = this.tenancy.resolveParishId(user, dto.parishId, { required: true })!;
     const parish = await this.prisma.parish.findFirst({
-      where: { id: dto.parishId, deletedAt: null },
+      where: { id: parishId, deletedAt: null },
     });
     if (!parish) throw new NotFoundException('Parish not found');
     this.tenancy.assertOrgAccess(user, parish.organizationId);
@@ -465,7 +527,10 @@ export class SacramentService {
     }
 
     const issuedToName = this.subjectName(record);
-    const serialNumber = await this.nextCertSerial(record.parishId, certType);
+    const serialNumber = await this.nextCertSerial(record.parishId, certType, {
+      year: record.registerYear,
+      registerNumber: record.registerNumber,
+    });
     const qrToken = randomBytes(24).toString('hex');
     const payload = {
       sacramentType: record.type,
@@ -573,7 +638,11 @@ export class SacramentService {
     if (!cert) throw new NotFoundException('Certificate not found');
     this.tenancy.assertOrgAccess(user, cert.organizationId);
     this.tenancy.assertParishAccess(user, cert.parishId);
-    const webUrl = this.config.get('WEB_URL') || 'http://localhost:3000';
+    const parish = await this.prisma.parish.findUnique({
+      where: { id: cert.parishId },
+      select: { website: true },
+    });
+    const webUrl = this.resolveCertificateVerifyBase(parish?.website);
     const verifyUrl = `${webUrl}/verify/certificate/${cert.qrToken}`;
     const dataUrl = await QRCode.toDataURL(verifyUrl, { margin: 1, width: 256 });
     return { serialNumber: cert.serialNumber, verifyUrl, dataUrl };
@@ -587,32 +656,30 @@ export class SacramentService {
         sacrament: {
           select: {
             type: true,
-            registerNumber: true,
             registerYear: true,
-            celebratedAt: true,
-            ministerName: true,
           },
         },
       },
     });
     if (!cert) throw new NotFoundException('Certificate not found or revoked');
+    // Public page: authenticity only — no personal payload / names
     return {
+      authentic: true,
+      status: 'Certificate Authenticity: Verified',
       title: cert.title,
       type: cert.type,
       serialNumber: cert.serialNumber,
-      issuedToName: cert.issuedToName,
       issuedAt: cert.issuedAt,
-      digitalSignBy: cert.digitalSignBy,
-      parish: cert.parish,
-      sacrament: cert.sacrament,
-      payload: cert.payloadJson,
+      parish: { name: cert.parish.name },
+      registerYear: cert.sacrament?.registerYear ?? null,
+      sacramentType: cert.sacrament?.type ?? cert.type,
     };
   }
 
   async listCertificates(user: AuthPayload, parishId?: string) {
     const orgId = user.organizationId;
-    const parishFilter = this.tenancy.parishFilter(user);
-    const effectiveParish = parishId || parishFilter.parishId;
+    const parishFilter = this.tenancy.parishFilter(user, parishId);
+    const effectiveParish = parishFilter.parishId;
     if (effectiveParish) this.tenancy.assertParishAccess(user, effectiveParish);
     return this.prisma.certificate.findMany({
       where: {
@@ -645,8 +712,8 @@ export class SacramentService {
 
   async listRegisterBooks(user: AuthPayload, parishId?: string) {
     const orgId = user.organizationId;
-    const parishFilter = this.tenancy.parishFilter(user);
-    const effectiveParish = parishId || parishFilter.parishId;
+    const parishFilter = this.tenancy.parishFilter(user, parishId);
+    const effectiveParish = parishFilter.parishId;
     if (effectiveParish) this.tenancy.assertParishAccess(user, effectiveParish);
     return this.prisma.registerBook.findMany({
       where: {
@@ -742,8 +809,8 @@ export class SacramentService {
 
   async marriageDashboard(user: AuthPayload, parishId?: string) {
     const orgId = user.organizationId;
-    const parishFilter = this.tenancy.parishFilter(user);
-    const effectiveParish = parishId || parishFilter.parishId;
+    const parishFilter = this.tenancy.parishFilter(user, parishId);
+    const effectiveParish = parishFilter.parishId;
     if (effectiveParish) this.tenancy.assertParishAccess(user, effectiveParish);
     const where = {
       deletedAt: null as Date | null,
@@ -860,8 +927,8 @@ export class SacramentService {
 
   async confirmationDashboard(user: AuthPayload, parishId?: string) {
     const orgId = user.organizationId;
-    const parishFilter = this.tenancy.parishFilter(user);
-    const effectiveParish = parishId || parishFilter.parishId;
+    const parishFilter = this.tenancy.parishFilter(user, parishId);
+    const effectiveParish = parishFilter.parishId;
     if (effectiveParish) this.tenancy.assertParishAccess(user, effectiveParish);
     const where = {
       deletedAt: null as Date | null,

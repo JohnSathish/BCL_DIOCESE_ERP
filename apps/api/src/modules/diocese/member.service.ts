@@ -25,8 +25,8 @@ export class MemberService {
 
   async list(user: AuthPayload, parishId?: string) {
     const orgId = user.organizationId;
-    const parishFilter = this.tenancy.parishFilter(user);
-    const effectiveParish = parishId || parishFilter.parishId;
+    const parishFilter = this.tenancy.parishFilter(user, parishId);
+    const effectiveParish = parishFilter.parishId;
     if (effectiveParish) this.tenancy.assertParishAccess(user, effectiveParish);
     return this.prisma.member.findMany({
       where: {
@@ -69,8 +69,9 @@ export class MemberService {
   }
 
   async create(user: AuthPayload, dto: CreateMemberDto) {
+    const parishId = this.tenancy.resolveParishId(user, dto.parishId, { required: true })!;
     const parish = await this.prisma.parish.findFirst({
-      where: { id: dto.parishId, deletedAt: null },
+      where: { id: parishId, deletedAt: null },
     });
     if (!parish) throw new NotFoundException('Parish not found');
     this.tenancy.assertOrgAccess(user, parish.organizationId);
