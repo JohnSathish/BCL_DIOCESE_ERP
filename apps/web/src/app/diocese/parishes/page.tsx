@@ -531,13 +531,31 @@ export default function ParishesPage() {
                 key: 'actions',
                 header: 'Actions',
                 render: (row) => (
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex min-w-[280px] flex-wrap items-center gap-1.5">
                     <Button
                       size="sm"
                       variant="secondary"
                       onClick={() => startEdit(row as unknown as ParishRow)}
                     >
                       Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="danger"
+                      disabled={remove.isPending}
+                      onClick={() => {
+                        const name = String(row.name || 'this parish');
+                        if (
+                          !confirm(
+                            `Delete ${name}? This soft-deletes the parish and unpublishes its website. Related records remain for audit.`,
+                          )
+                        ) {
+                          return;
+                        }
+                        remove.mutate(String(row.id));
+                      }}
+                    >
+                      Delete
                     </Button>
                     <Button
                       size="sm"
@@ -559,24 +577,6 @@ export default function ParishesPage() {
                       }
                     >
                       {row.isActive === false ? 'Activate' : 'Suspend'}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="danger"
-                      disabled={remove.isPending}
-                      onClick={() => {
-                        const name = String(row.name || 'this parish');
-                        if (
-                          !confirm(
-                            `Delete ${name}? This soft-deletes the parish and unpublishes its website. Related records remain for audit.`,
-                          )
-                        ) {
-                          return;
-                        }
-                        remove.mutate(String(row.id));
-                      }}
-                    >
-                      Delete
                     </Button>
                   </div>
                 ),
