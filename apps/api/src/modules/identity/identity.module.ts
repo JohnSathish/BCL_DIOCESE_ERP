@@ -7,6 +7,8 @@ import { IdentityController } from './identity.controller';
 import { JwtStrategy } from './jwt.strategy';
 import { AuditModule } from '../audit/audit.module';
 import { I18nModule } from '../i18n/i18n.module';
+import { NotificationsModule } from '../notifications/notifications.module';
+import { AuthRateLimitService } from './auth-rate-limit.service';
 
 @Module({
   imports: [
@@ -22,10 +24,11 @@ import { I18nModule } from '../i18n/i18n.module';
       }),
     }),
     AuditModule,
+    NotificationsModule,
     forwardRef(() => I18nModule),
   ],
   controllers: [IdentityController],
-  providers: [IdentityService, JwtStrategy],
+  providers: [IdentityService, JwtStrategy, AuthRateLimitService],
   exports: [IdentityService, JwtModule],
 })
 export class IdentityModule {}

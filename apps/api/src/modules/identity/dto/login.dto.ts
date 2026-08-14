@@ -1,4 +1,4 @@
-import { IsEmail, IsObject, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsBoolean, IsEmail, IsObject, IsOptional, IsString, Length, MinLength } from 'class-validator';
 
 export class LoginDto {
   @IsEmail()
@@ -8,6 +8,7 @@ export class LoginDto {
   @MinLength(6)
   password!: string;
 
+  /** @deprecated Prefer email OTP + trusted device flow */
   @IsOptional()
   @IsString()
   totpCode?: string;
@@ -31,4 +32,32 @@ export class PatchPreferencesDto {
   @IsOptional()
   @IsString()
   locale?: string;
+}
+
+export class OtpVerifyDto {
+  @IsString()
+  challengeToken!: string;
+
+  @IsString()
+  @Length(6, 6)
+  otp!: string;
+
+  @IsOptional()
+  @IsBoolean()
+  trustDevice?: boolean;
+}
+
+export class OtpSendDto {
+  @IsString()
+  challengeToken!: string;
+}
+
+export class ChangePasswordDto {
+  @IsString()
+  @MinLength(6)
+  currentPassword!: string;
+
+  @IsString()
+  @MinLength(8)
+  newPassword!: string;
 }

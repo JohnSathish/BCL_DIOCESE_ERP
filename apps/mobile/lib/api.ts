@@ -232,9 +232,11 @@ export async function login(email: string, password: string) {
   }
   if (!data?.tokens?.accessToken || !data?.user) {
     throw new Error(
-      data?.requires2fa
-        ? 'This account requires 2FA — use the web ERP login for now.'
-        : 'Login response incomplete — check API version.',
+      data?.requiresOtp || data?.status === 'otp_required'
+        ? 'This account requires email OTP on a new device — complete login on the web ERP first, or trust this device from Security settings after web login.'
+        : data?.requires2fa
+          ? 'This account requires 2FA — use the web ERP login for now.'
+          : 'Login response incomplete — check API version.',
     );
   }
   const next: Session = {

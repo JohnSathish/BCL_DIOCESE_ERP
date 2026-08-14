@@ -251,6 +251,7 @@ const parishNav: NavItem[] = [
       { href: '/diocese/migration', label: 'Backup', icon: <DatabaseBackup className={icon} /> },
       { href: '/diocese/ai', label: 'Integrations', icon: <Cloud className={icon} /> },
       { href: '/diocese/appearance', label: 'Theme & Preferences', icon: <Palette className={icon} /> },
+      { href: '/diocese/security', label: 'Security', icon: <Shield className={icon} /> },
     ],
   },
 ];

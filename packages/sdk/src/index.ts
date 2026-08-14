@@ -19,6 +19,7 @@ export class BclApiClient {
     const res = await fetch(`${this.baseUrl}${path}`, {
       ...options,
       headers,
+      credentials: 'include',
     });
 
     if (res.status === 401 && !retried) {

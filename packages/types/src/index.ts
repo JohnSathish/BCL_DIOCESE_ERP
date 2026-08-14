@@ -202,6 +202,16 @@ export interface LoginRequest {
   totpCode?: string;
 }
 
+export interface LoginOtpRequired {
+  status: 'otp_required';
+  requiresOtp: true;
+  challengeToken: string;
+  emailMasked: string;
+  expiresIn: number;
+  resendAvailableIn: number;
+  message?: string;
+}
+
 export interface ApiError {
   statusCode: number;
   message: string | string[];

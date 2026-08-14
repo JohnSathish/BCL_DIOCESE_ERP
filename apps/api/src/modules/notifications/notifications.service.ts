@@ -89,10 +89,13 @@ export class NotificationsService {
 
     if (process.env.SMTP_HOST) {
       try {
+        const port = Number(process.env.SMTP_PORT || 587);
+        const secure =
+          process.env.SMTP_SECURE === 'true' || port === 465;
         const transporter = nodemailer.createTransport({
           host: process.env.SMTP_HOST,
-          port: Number(process.env.SMTP_PORT || 587),
-          secure: process.env.SMTP_SECURE === 'true',
+          port,
+          secure,
           auth:
             process.env.SMTP_USER && process.env.SMTP_PASS
               ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
@@ -113,7 +116,7 @@ export class NotificationsService {
       }
     }
 
-    this.logger.log(`[email stub] to=${to} subject=${subject} body=${body.slice(0, 80)}`);
+    this.logger.log(`[email stub] to=${to} subject=${subject}`);
     return { queued: true, channel: 'email', provider: 'stub' as const };
   }
 

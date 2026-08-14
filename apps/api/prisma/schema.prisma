@@ -201,6 +201,67 @@ model User {
   accommodationOccupants AccommodationOccupant[]
   uiTranslationNamespaces UiTranslationNamespace[]
   translationJobsReviewed TranslationJob[] @relation("TranslationJobReviewer")
+  loginOtpChallenges LoginOtpChallenge[]
+  trustedDevices     TrustedDevice[]
+  authEvents         AuthEvent[]
+}
+
+model LoginOtpChallenge {
+  id            String    @id @default(cuid())
+  userId        String
+  challengeHash String    @unique
+  otpHash       String
+  attempts      Int       @default(0)
+  maxAttempts   Int       @default(5)
+  expiresAt     DateTime
+  verifiedAt    DateTime?
+  consumedAt    DateTime?
+  lastSentAt    DateTime  @default(now())
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([expiresAt])
+}
+
+model TrustedDevice {
+  id              String    @id @default(cuid())
+  userId          String
+  tokenHash       String    @unique
+  deviceName      String?
+  browser         String?
+  operatingSystem String?
+  ipAddress       String?
+  userAgent       String?
+  createdAt       DateTime  @default(now())
+  lastUsedAt      DateTime  @default(now())
+  expiresAt       DateTime
+  revokedAt       DateTime?
+  isActive        Boolean   @default(true)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isActive])
+  @@index([expiresAt])
+}
+
+model AuthEvent {
+  id         String   @id @default(cuid())
+  userId     String?
+  eventType  String
+  ipAddress  String?
+  userAgent  String?
+  deviceName String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([eventType, createdAt])
 }
 
 model Session {
