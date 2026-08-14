@@ -76,12 +76,11 @@ export const SHP = {
   tagline:
     'A welcoming community of faith, rooted in prayer, united in love, and called to serve.',
   priest: {
-    name: 'Rev. Fr. John Mark',
+    name: 'Rev. Fr. Lyngdoh T Sangma',
     title: 'Parish Priest',
     message:
       'May the Sacred Heart of Jesus bless every family in our parish. You are warmly welcome here — come and find rest in Christ, grow in faith, and serve with love.',
-    photo:
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80',
+    photo: '/sacred-heart/parish-priest-lyngdoh.png',
   },
   heroImage:
     'https://images.unsplash.com/photo-1548625149-fc4a29cf7092?auto=format&fit=crop&w=2000&q=80',

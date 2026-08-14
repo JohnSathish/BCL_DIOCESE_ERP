@@ -243,9 +243,10 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
   const primaryColor = site?.primaryColor || (site?.themeJson?.primaryColor as string) || undefined;
   const priestJson =
     parish?.priestsJson && typeof parish.priestsJson === 'object'
-      ? (parish.priestsJson as { parishPriest?: string })
+      ? (parish.priestsJson as { parishPriest?: string; parishPriestPhoto?: string })
       : null;
   const priestName = priestJson?.parishPriest || SHP.priest.name;
+  const priestPhoto = priestJson?.parishPriestPhoto || SHP.priest.photo;
 
   const news =
     site?.posts?.length
@@ -715,7 +716,7 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
         <div className="shp-container-wide shp-priest-grid">
           <div className="shp-priest-photo">
             <Image
-              src={SHP.priest.photo}
+              src={priestPhoto}
               alt={priestName}
               fill
               className="object-cover"

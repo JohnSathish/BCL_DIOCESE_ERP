@@ -1272,7 +1272,8 @@ async function main() {
         confession: ['Saturday 16:30–17:30'],
       },
       priestsJson: {
-        parishPriest: 'Rev. Fr. John Marak',
+        parishPriest: 'Rev. Fr. Lyngdoh T Sangma',
+        parishPriestPhoto: '/sacred-heart/parish-priest-lyngdoh.png',
         assistants: [],
       },
     },
@@ -1285,6 +1286,11 @@ async function main() {
       address: 'Lower Chandmari, Tura, West Garo Hills, Meghalaya, India',
       history:
         'Sacred Heart Shrine Parish, Tura serves the faithful of the Roman Catholic Diocese of Tura with the Eucharist at the centre of parish life.',
+      priestsJson: {
+        parishPriest: 'Rev. Fr. Lyngdoh T Sangma',
+        parishPriestPhoto: '/sacred-heart/parish-priest-lyngdoh.png',
+        assistants: [],
+      },
     },
   });
 

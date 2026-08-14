@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { ScopeType } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuthPayload } from '../../common/current-user.decorator';
@@ -9,9 +9,46 @@ export class TenancyService {
 
   assertOrgAccess(user: AuthPayload, organizationId: string) {
     if (user.isSuperAdmin) return;
-    if (user.organizationId !== organizationId) {
+    if (user.organizationId && user.organizationId !== organizationId) {
       throw new ForbiddenException('Organization access denied');
     }
+    // Diocese-wide roles without a bound org (e.g. platform admin on single-tenant deploy)
+    if (!user.organizationId && this.isDioceseWideRole(user)) return;
+    if (user.organizationId === organizationId) return;
+    throw new ForbiddenException('Organization access denied');
+  }
+
+  /** Resolve organization from JWT, parish assignment, or first org (super admin). */
+  async resolveOrganizationId(
+    user: AuthPayload,
+    requestedOrganizationId?: string | null,
+  ): Promise<string> {
+    if (requestedOrganizationId) {
+      this.assertOrgAccess(user, requestedOrganizationId);
+      return requestedOrganizationId;
+    }
+    if (user.organizationId) return user.organizationId;
+
+    if (user.parishId) {
+      const parish = await this.prisma.parish.findFirst({
+        where: { id: user.parishId, deletedAt: null },
+        select: { organizationId: true },
+      });
+      if (parish?.organizationId) {
+        this.assertOrgAccess(user, parish.organizationId);
+        return parish.organizationId;
+      }
+    }
+
+    if (user.isSuperAdmin || this.isDioceseWideRole(user)) {
+      const first = await this.prisma.organization.findFirst({
+        where: { deletedAt: null },
+        orderBy: { createdAt: 'asc' },
+      });
+      if (first?.id) return first.id;
+    }
+
+    throw new NotFoundException('Organization required');
   }
 
   /** Roles that may see any parish within their organization (diocese control center). */

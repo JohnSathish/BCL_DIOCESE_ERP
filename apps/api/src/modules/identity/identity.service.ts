@@ -112,12 +112,21 @@ export class IdentityService {
     const parishScope = user.userRoles.find((ur) => ur.scope?.type === 'PARISH');
     if (parishScope?.scope?.refId) parishId = parishScope.scope.refId;
 
+    let organizationId = user.organizationId;
+    if (!organizationId && parishId) {
+      const parish = await this.prisma.parish.findFirst({
+        where: { id: parishId, deletedAt: null },
+        select: { organizationId: true },
+      });
+      organizationId = parish?.organizationId ?? null;
+    }
+
     return {
       id: user.id,
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      organizationId: user.organizationId,
+      organizationId,
       parishId,
       isSuperAdmin: user.isSuperAdmin,
       roles,

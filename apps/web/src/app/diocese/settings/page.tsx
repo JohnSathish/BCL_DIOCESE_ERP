@@ -131,6 +131,11 @@ export default function DioceseSettingsPage() {
               </p>
               <p className="mt-1 text-sm text-white/70">{form.chanceryAddress}</p>
             </div>
+            {profile.isError ? (
+              <p className="text-sm text-red-600">
+                {(profile.error as Error).message}
+              </p>
+            ) : null}
             {save.isSuccess ? (
               <p className="text-sm font-semibold text-emerald-700">Diocese profile saved.</p>
             ) : null}
