@@ -224,3 +224,9 @@ export interface PaginatedResult<T> {
   page: number;
   pageSize: number;
 }
+
+export {
+  marriageRegisterSequence,
+  marriageCertificateSerial,
+  marriageSerialNeedsFix,
+} from './marriage-register';

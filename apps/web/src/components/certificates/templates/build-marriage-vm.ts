@@ -1,3 +1,4 @@
+import { marriageCertificateSerial } from '@bcl/types';
 import type { MarriageCertViewModel } from './types';
 
 function isBlank(v: unknown) {
@@ -140,10 +141,13 @@ export function buildMarriageViewModel(
   const serial = text(cert.serialNumber, '—');
   const certificateId =
     registerYear && registerNumber
-      ? `MAR-${registerYear}-${String(registerNumber).padStart(6, '0')}`
+      ? marriageCertificateSerial(registerYear, registerNumber)
       : serial.startsWith('MAR-')
         ? serial
-        : `MAR-${registerYear || new Date().getFullYear()}-${serial.replace(/\D/g, '').padStart(6, '0') || '000001'}`;
+        : marriageCertificateSerial(
+            registerYear || new Date().getFullYear(),
+            serial.replace(/\D/g, '') || '1',
+          );
 
   const verificationId = text(cert.qrToken, '').slice(0, 16).toUpperCase() || simpleHash(certificateId);
   const verificationUrl = `https://verify.turadiocese.org/c/${encodeURIComponent(certificateId)}`;

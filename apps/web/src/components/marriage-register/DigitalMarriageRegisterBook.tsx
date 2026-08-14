@@ -1,5 +1,6 @@
 'use client';
 
+import { marriageCertificateSerial } from '@bcl/types';
 import { useMemo, useState, Fragment } from 'react';
 import Link from 'next/link';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -621,7 +622,7 @@ export function DigitalMarriageRegisterBook() {
                               <Link href={`/diocese/sacraments/marriages`} className="dmrb-btn" title="View">
                                 <Eye className="h-3.5 w-3.5" />
                               </Link>
-                              <Link href={`/diocese/sacraments/marriages/new`} className="dmrb-btn" title="Edit">
+                              <Link href={`/diocese/sacraments/marriages/${m.id}/edit`} className="dmrb-btn" title="Edit">
                                 <Pencil className="h-3.5 w-3.5" />
                               </Link>
                               <button
@@ -653,7 +654,7 @@ export function DigitalMarriageRegisterBook() {
                                     <div className="dmrb-book__top">
                                       <div>
                                         <strong>
-                                          Marriage No. MAR-{m.registerYear}-{String(m.registerNumber).padStart(4, '0')}
+                                          Marriage No. {marriageCertificateSerial(m.registerYear, m.registerNumber)}
                                         </strong>
                                         <div style={{ fontSize: '0.75rem', color: 'var(--dmrb-muted)', marginTop: 4 }}>
                                           {m.parish?.name || 'Parish'} · Official digital register page
@@ -774,7 +775,7 @@ export function DigitalMarriageRegisterBook() {
                                         <Link href="/diocese/sacraments/marriages" className="dmrb-btn">
                                           <Eye className="h-3.5 w-3.5" /> View
                                         </Link>
-                                        <Link href="/diocese/sacraments/marriages/new" className="dmrb-btn">
+                                        <Link href={`/diocese/sacraments/marriages/${m.id}/edit`} className="dmrb-btn">
                                           <Pencil className="h-3.5 w-3.5" /> Edit
                                         </Link>
                                         <button type="button" className="dmrb-btn" onClick={() => setOpenId(m.id)}>

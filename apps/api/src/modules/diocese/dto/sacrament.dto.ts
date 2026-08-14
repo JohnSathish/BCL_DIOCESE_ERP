@@ -138,6 +138,8 @@ export class CreateSacramentDto {
 
 export class UpdateSacramentDto {
   @IsOptional() @IsDateString() celebratedAt?: string;
+  @IsOptional() @IsString() registerNumber?: string;
+  @IsOptional() @IsInt() @Min(1900) registerYear?: number;
   @IsOptional() @IsString() churchName?: string;
   @IsOptional() @IsString() ministerName?: string;
   @IsOptional() @IsString() place?: string;

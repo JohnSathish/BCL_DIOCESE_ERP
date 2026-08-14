@@ -1,4 +1,5 @@
-﻿import {
+﻿import { marriageCertificateSerial } from '@bcl/types';
+import {
   BadRequestException,
   ForbiddenException,
   Injectable,
@@ -1314,7 +1315,7 @@ export class MigrationService {
 
     const serial =
       row.certificateNumber ||
-      `MAR-${registerYear}-${registerNumber.padStart(4, '0')}`;
+      marriageCertificateSerial(registerYear, registerNumber);
     const qrToken = randomBytes(24).toString('hex');
     const marriagePayload = {
       sacramentType: 'MARRIAGE',

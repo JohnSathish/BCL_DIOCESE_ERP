@@ -1,3 +1,4 @@
+import { marriageCertificateSerial } from '@bcl/types';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import {
   CertificateType,
@@ -110,6 +111,9 @@ export class SacramentService {
       }
       const year = opts?.year || new Date().getFullYear();
       return this.nextConfirmationSerial(parishId, year);
+    }
+    if (type === CertificateType.MARRIAGE && opts?.year != null && opts?.registerNumber) {
+      return marriageCertificateSerial(opts.year, opts.registerNumber);
     }
     const count = await this.prisma.certificate.count({ where: { parishId, type } });
     return `${type.slice(0, 3)}-${String(count + 1).padStart(6, '0')}`;
@@ -421,6 +425,8 @@ export class SacramentService {
     const updated = await this.prisma.sacramentRecord.update({
       where: { id },
       data: {
+        registerNumber: dto.registerNumber,
+        registerYear: dto.registerYear,
         celebratedAt: dto.celebratedAt ? new Date(dto.celebratedAt) : undefined,
         churchName: dto.churchName,
         ministerName: dto.ministerName,

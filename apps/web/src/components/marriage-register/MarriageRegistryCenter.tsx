@@ -548,7 +548,7 @@ export function MarriageRegistryCenter() {
                             <button type="button" className="emr-btn emr-btn--ghost" title="View" onClick={() => setActiveId(m.id)}>
                               <Eye className="h-3.5 w-3.5" />
                             </button>
-                            <Link href={`/diocese/sacraments/marriages/new`} className="emr-btn emr-btn--ghost" title="Edit">
+                            <Link href={`/diocese/sacraments/marriages/${m.id}/edit`} className="emr-btn emr-btn--ghost" title="Edit">
                               <Pencil className="h-3.5 w-3.5" />
                             </Link>
                             {m.certificateId ? (
@@ -706,6 +706,9 @@ export function MarriageRegistryCenter() {
                 ))}
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginTop: '0.5rem' }}>
+                <Link href={`/diocese/sacraments/marriages/${active.id}/edit`} className="emr-btn">
+                  Edit Record
+                </Link>
                 {!active.certificateId ? (
                   <button type="button" className="emr-btn emr-btn--primary" onClick={() => issueCert.mutate(active.id)}>
                     Issue Certificate
