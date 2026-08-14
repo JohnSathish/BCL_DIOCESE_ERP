@@ -265,7 +265,11 @@ export class IdentityService {
     });
 
     this.rateLimit.recordOtpSend(userId, meta?.ip);
-    await this.sendLoginOtpEmail(user.email, otp, device.deviceName);
+    try {
+      await this.sendLoginOtpEmail(user.email, otp, device.deviceName);
+    } catch {
+      // Challenge stays valid — user can resend. Never fail login solely on mail transport.
+    }
     await this.logAuthEvent({
       userId,
       eventType: 'OTP_SENT',
@@ -378,7 +382,12 @@ export class IdentityService {
   }
 
   async resendOtp(challengeToken: string, meta?: AuthMeta) {
-    const challenge = await this.prisma.loginOtpChallenge.findFirst({
+    if (!challengeToken?.trim()) {
+      throw new BadRequestException('Verification session missing. Please sign in again.');
+    }
+
+    // Prefer an active challenge; fall back to a recent token (handles double-click / stale UI token)
+    let challenge = await this.prisma.loginOtpChallenge.findFirst({
       where: {
         challengeHash: hashSecret(challengeToken),
         consumedAt: null,
@@ -386,8 +395,37 @@ export class IdentityService {
       },
       include: { user: true },
     });
+
+    if (!challenge) {
+      challenge = await this.prisma.loginOtpChallenge.findFirst({
+        where: {
+          challengeHash: hashSecret(challengeToken),
+          createdAt: { gte: new Date(Date.now() - 15 * 60 * 1000) },
+        },
+        include: { user: true },
+        orderBy: { createdAt: 'desc' },
+      });
+    }
+
+    // If token was rotated already, use the newest open challenge for that user
+    if (challenge?.userId) {
+      const newest = await this.prisma.loginOtpChallenge.findFirst({
+        where: {
+          userId: challenge.userId,
+          consumedAt: null,
+          verifiedAt: null,
+          expiresAt: { gt: new Date() },
+        },
+        include: { user: true },
+        orderBy: { createdAt: 'desc' },
+      });
+      if (newest) challenge = newest;
+    }
+
     if (!challenge || !challenge.user?.isActive) {
-      throw new BadRequestException('Invalid or expired verification session.');
+      throw new BadRequestException(
+        'Verification session expired. Tap “Back to Login” and sign in again.',
+      );
     }
 
     const cooldown = otpResendCooldownMs();

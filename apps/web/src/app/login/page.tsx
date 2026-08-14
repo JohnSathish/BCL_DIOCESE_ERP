@@ -21,7 +21,6 @@ import {
 import {
   createTrustedDevice,
   login,
-  resendLoginOtp,
   verifyLoginOtp,
 } from '@bcl/auth-client';
 import { API_BASE } from '@/lib/api';
@@ -201,18 +200,28 @@ export default function LoginPage() {
   }
 
   async function onResend() {
-    if (resendIn > 0 || !challengeToken) return;
+    if (resendIn > 0 || loading) return;
     setLoading(true);
     setError('');
     try {
-      const data = await resendLoginOtp(API_BASE, challengeToken);
-      setChallengeToken(data.challengeToken);
-      setEmailMasked(data.emailMasked);
-      setExpiresIn(data.expiresIn || 300);
-      setResendIn(data.resendAvailableIn || 60);
-      setOtp('');
+      // Mint a fresh challenge with email+password (avoids stale challenge tokens)
+      const result = await login(API_BASE, { email, password });
+      if (result.status === 'otp_required') {
+        setChallengeToken(result.challengeToken);
+        setEmailMasked(result.emailMasked);
+        setExpiresIn(result.expiresIn || 300);
+        setResendIn(result.resendAvailableIn || 60);
+        setOtp('');
+        return;
+      }
+      setUser(result.user);
+      goDashboard();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not resend code');
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Could not resend code. Go back and sign in again.',
+      );
     } finally {
       setLoading(false);
     }
