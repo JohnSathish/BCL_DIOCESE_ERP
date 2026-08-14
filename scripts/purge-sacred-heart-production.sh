@@ -24,9 +24,10 @@ if [[ ! -f "${SQL_FILE}" ]]; then
   exit 1
 fi
 
-echo "=== Sacred Heart (SHPTURA) sacrament purge ==="
+echo "=== Sacred Heart + demo sacrament purge (SHPTURA, STMARY) ==="
 echo "This permanently removes test Marriage, Confirmation, Communion, Baptism, Death records."
 echo ""
+echo "Tip: set SEED_ON_START=false in .env.production before restarting API."
 
 # Use postgres container env (POSTGRES_USER/POSTGRES_DB) — do not source .env.production
 # on the host; values like EMAIL_FROM=BCL Diocese ERP <...> break bash.

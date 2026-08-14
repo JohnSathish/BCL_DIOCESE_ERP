@@ -580,6 +580,7 @@ async function main() {
     update: {},
   });
 
+  if (seedDemo) {
   const existingBaptism = await prisma.sacramentRecord.findFirst({
     where: {
       parishId: parish.id,
@@ -805,6 +806,7 @@ async function main() {
       },
     });
   }
+  } // seedDemo sacraments (St. Mary demo parish only)
 
   const massCount = await prisma.massEvent.count({ where: { parishId: parish.id } });
   if (massCount === 0) {

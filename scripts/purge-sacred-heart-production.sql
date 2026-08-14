@@ -11,7 +11,7 @@ CREATE TEMP TABLE _purge_sacraments AS
 SELECT sr.id, sr."certificateId"
 FROM "SacramentRecord" sr
 JOIN "Parish" p ON p.id = sr."parishId"
-WHERE p.code = 'SHPTURA'
+WHERE p.code IN ('SHPTURA', 'STMARY')
   AND p."deletedAt" IS NULL
   AND sr.type IN ('MARRIAGE', 'CONFIRMATION', 'HOLY_COMMUNION', 'BAPTISM', 'DEATH');
 
@@ -25,7 +25,7 @@ WHERE sr.id IN (SELECT id FROM _purge_sacraments);
 DELETE FROM "Certificate" c
 USING "Parish" p
 WHERE c."parishId" = p.id
-  AND p.code = 'SHPTURA'
+  AND p.code IN ('SHPTURA', 'STMARY')
   AND c.type IN ('MARRIAGE', 'CONFIRMATION', 'COMMUNION', 'BAPTISM', 'DEATH');
 
 DELETE FROM "SacramentRecord" sr
@@ -33,13 +33,13 @@ WHERE sr.id IN (SELECT id FROM _purge_sacraments);
 
 DELETE FROM "ImportJob" ij
 USING "Parish" p
-WHERE ij."parishId" = p.id AND p.code = 'SHPTURA';
+WHERE ij."parishId" = p.id AND p.code IN ('SHPTURA', 'STMARY');
 
 COMMIT;
 
 SELECT type, COUNT(*) AS remaining
 FROM "SacramentRecord" sr
 JOIN "Parish" p ON p.id = sr."parishId"
-WHERE p.code = 'SHPTURA'
+WHERE p.code IN ('SHPTURA', 'STMARY')
   AND sr.type IN ('MARRIAGE', 'CONFIRMATION', 'HOLY_COMMUNION', 'BAPTISM', 'DEATH')
 GROUP BY type;
