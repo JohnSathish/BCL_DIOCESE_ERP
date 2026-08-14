@@ -406,9 +406,50 @@
   inset: 0;
 }
 
+.shp-hero-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.4s ease-in-out;
+  pointer-events: none;
+}
+
+.shp-hero-slide.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .shp-hero-media img {
   object-fit: cover;
+}
+
+.shp-hero-slide.is-active img {
   animation: shp-kenburns 28s ease-in-out infinite alternate;
+}
+
+.shp-hero-dots {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  gap: 0.45rem;
+  transform: translateX(-50%);
+}
+
+.shp-hero-dots button {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.25);
+  padding: 0;
+  cursor: pointer;
+}
+
+.shp-hero-dots button.is-active {
+  background: #fff;
+  border-color: #fff;
 }
 
 @keyframes shp-kenburns {

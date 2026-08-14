@@ -36,12 +36,36 @@ import { useTodayMasses } from './useTodayMasses';
 import { useParishVisitors } from './useParishVisitors';
 import { ParishVisitorsPanel } from './ParishVisitorsPanel';
 import { CmsPublicForm, type CmsPublicFormDef } from '@/components/cms/CmsPublicForm';
+import { parseHeroSlides, type HeroSlide } from '@/components/cms/types';
 import { HolyMassSchedule } from '@/components/mass-schedule/HolyMassSchedule';
 import { useLocaleContext } from '@/i18n/LocaleProvider';
 import { useTranslations } from 'next-intl';
 import './theme.css';
 
 type Props = { site?: CmsPublicSite | null; contentRefreshing?: boolean };
+
+function resolveHeroSlides(site?: CmsPublicSite | null): HeroSlide[] {
+  const sections = site?.homepageSectionsJson;
+  if (sections?.length) {
+    const hero = sections.find(
+      (sec) => sec.type === 'hero_banner' || sec.type === 'hero' || sec.id === 'hero',
+    );
+    const fromSection = parseHeroSlides(hero?.settings);
+    if (fromSection.length) return fromSection;
+  }
+  const themeSlides = site?.themeJson?.heroSlides;
+  if (Array.isArray(themeSlides)) {
+    const fromTheme = parseHeroSlides({ slides: themeSlides });
+    if (fromTheme.length) return fromTheme;
+  }
+  return [
+    {
+      id: 'default',
+      url: SHP.heroImage,
+      alt: 'Sacred Heart Shrine Parish Church, Tura',
+    },
+  ];
+}
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -286,6 +310,29 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
     [],
   );
 
+  const heroSlides = useMemo(() => resolveHeroSlides(site), [site]);
+  const heroIntervalMs = useMemo(() => {
+    const sections = site?.homepageSectionsJson;
+    const hero = sections?.find(
+      (sec) => sec.type === 'hero_banner' || sec.type === 'hero' || sec.id === 'hero',
+    );
+    const sec = Number(hero?.settings?.slideIntervalSec);
+    return Number.isFinite(sec) && sec >= 3 ? sec * 1000 : 6000;
+  }, [site]);
+  const [heroIndex, setHeroIndex] = useState(0);
+
+  useEffect(() => {
+    setHeroIndex(0);
+  }, [heroSlides]);
+
+  useEffect(() => {
+    if (heroSlides.length <= 1) return;
+    const timer = window.setInterval(() => {
+      setHeroIndex((i) => (i + 1) % heroSlides.length);
+    }, heroIntervalMs);
+    return () => window.clearInterval(timer);
+  }, [heroSlides.length, heroIntervalMs]);
+
   const schedulePreview = useMemo(() => {
     const daily = mass.sections.find((sec) => sec.category === 'DAILY');
     const sunday = mass.sections.find((sec) => sec.category === 'SUNDAY');
@@ -402,16 +449,34 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
 
       {/* Hero */}
       <section id="home" className="shp-hero" aria-label="Welcome">
-        <div className="shp-hero-media">
-          <Image
-            src={SHP.heroImage}
-            alt="Sacred Heart Shrine Parish Church, Tura"
-            fill
-            priority
-            sizes="100vw"
-            unoptimized
-          />
+        <div className="shp-hero-media" aria-hidden={heroSlides.length > 1}>
+          {heroSlides.map((slide, i) => (
+            <div key={slide.id} className={`shp-hero-slide ${i === heroIndex ? 'is-active' : ''}`}>
+              <Image
+                src={slide.url}
+                alt={slide.alt || 'Sacred Heart Shrine Parish Church, Tura'}
+                fill
+                priority={i === 0}
+                sizes="100vw"
+                unoptimized
+              />
+            </div>
+          ))}
           <div className="shp-hero-overlay" aria-hidden />
+          {heroSlides.length > 1 ? (
+            <div className="shp-hero-dots" aria-label="Hero slide navigation">
+              {heroSlides.map((slide, i) => (
+                <button
+                  key={slide.id}
+                  type="button"
+                  className={i === heroIndex ? 'is-active' : ''}
+                  aria-label={`Show slide ${i + 1}`}
+                  aria-current={i === heroIndex ? 'true' : undefined}
+                  onClick={() => setHeroIndex(i)}
+                />
+              ))}
+            </div>
+          ) : null}
         </div>
         <div className="shp-hero-grid">
           <motion.div initial="hidden" animate="show" variants={fadeUp}>

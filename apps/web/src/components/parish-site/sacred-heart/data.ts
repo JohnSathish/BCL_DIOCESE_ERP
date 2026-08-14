@@ -6,7 +6,12 @@ export type CmsPublicSite = {
   themeJson?: Record<string, unknown> | null;
   seoJson?: Record<string, unknown> | null;
   massTimingsJson?: Record<string, string[] | string> | null;
-  homepageSectionsJson?: Array<{ id: string; type: string; enabled: boolean }> | null;
+  homepageSectionsJson?: Array<{
+    id: string;
+    type: string;
+    enabled: boolean;
+    settings?: Record<string, unknown>;
+  }> | null;
   posts?: Array<{
     id: string;
     title: string;

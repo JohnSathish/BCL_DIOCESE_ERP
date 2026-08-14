@@ -4,12 +4,42 @@ export type CmsBlock = {
   props: Record<string, unknown>;
 };
 
+export type HeroSlide = {
+  id: string;
+  url: string;
+  alt?: string;
+};
+
 export type HomepageSection = {
   id: string;
   type: string;
   enabled: boolean;
   settings?: Record<string, unknown>;
 };
+
+export function parseHeroSlides(settings?: Record<string, unknown> | null): HeroSlide[] {
+  const slides = settings?.slides;
+  if (Array.isArray(slides)) {
+    return slides
+      .map((raw, i) => {
+        if (!raw || typeof raw !== 'object') return null;
+        const s = raw as Record<string, unknown>;
+        const url = typeof s.url === 'string' ? s.url.trim() : '';
+        if (!url) return null;
+        return {
+          id: typeof s.id === 'string' ? s.id : `slide-${i}`,
+          url,
+          alt: typeof s.alt === 'string' ? s.alt : '',
+        };
+      })
+      .filter(Boolean) as HeroSlide[];
+  }
+  const imageUrl = settings?.imageUrl;
+  if (typeof imageUrl === 'string' && imageUrl.trim()) {
+    return [{ id: 'legacy-image', url: imageUrl.trim(), alt: '' }];
+  }
+  return [];
+}
 
 export type CmsDashboard = {
   site: {

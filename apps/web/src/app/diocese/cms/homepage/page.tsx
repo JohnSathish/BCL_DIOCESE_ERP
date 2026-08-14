@@ -19,7 +19,9 @@ import {
   Trash2,
 } from 'lucide-react';
 import { api } from '@/lib/api';
-import type { HomepageSection } from '@/components/cms/types';
+import type { HomepageSection, HeroSlide } from '@/components/cms/types';
+import { parseHeroSlides } from '@/components/cms/types';
+import { HeroSlideManager } from '@/components/cms/HeroSlideManager';
 
 const DEFAULT_SECTIONS: HomepageSection[] = [
   { id: 'hero', type: 'hero_banner', enabled: true, settings: { background: '#722f37', padding: 'lg' } },
@@ -104,6 +106,17 @@ export default function CmsHomepagePage() {
       settings: { ...(selected.settings || {}), [key]: value },
     });
   }
+
+  function updateSettingsValue(key: string, value: unknown) {
+    if (!selected) return;
+    updateSelected({
+      settings: { ...(selected.settings || {}), [key]: value },
+    });
+  }
+
+  const isHeroSection =
+    selected?.type === 'hero_banner' || selected?.type === 'hero' || selected?.id === 'hero';
+  const heroSlides = isHeroSection ? parseHeroSlides(selected?.settings) : [];
 
   function move(i: number, dir: -1 | 1) {
     const j = i + dir;
@@ -220,6 +233,11 @@ export default function CmsHomepagePage() {
                 </div>
                 <div className="hp-block__meta">
                   {s.enabled ? 'Visible' : 'Hidden'}
+                  {(s.type === 'hero_banner' || s.type === 'hero') &&
+                  Array.isArray(s.settings?.slides) &&
+                  s.settings.slides.length
+                    ? ` · ${s.settings.slides.length} hero slide${s.settings.slides.length === 1 ? '' : 's'}`
+                    : ''}
                   {s.settings?.animation && s.settings.animation !== 'none'
                     ? ` · ${String(s.settings.animation)}`
                     : ''}
@@ -323,14 +341,33 @@ export default function CmsHomepagePage() {
                   placeholder="Learn more"
                 />
               </div>
-              <div className="hp-field">
-                <label>Image URL</label>
-                <input
-                  value={String(selected.settings?.imageUrl || '')}
-                  onChange={(e) => updateSettings('imageUrl', e.target.value)}
-                  placeholder="https://…"
-                />
-              </div>
+              {isHeroSection ? (
+                <>
+                  <HeroSlideManager
+                    slides={heroSlides}
+                    onChange={(slides: HeroSlide[]) => updateSettingsValue('slides', slides)}
+                  />
+                  <div className="hp-field">
+                    <label>Slide interval (seconds)</label>
+                    <input
+                      type="number"
+                      min={3}
+                      max={30}
+                      value={String(selected.settings?.slideIntervalSec || 6)}
+                      onChange={(e) => updateSettingsValue('slideIntervalSec', Number(e.target.value) || 6)}
+                    />
+                  </div>
+                </>
+              ) : (
+                <div className="hp-field">
+                  <label>Image URL</label>
+                  <input
+                    value={String(selected.settings?.imageUrl || '')}
+                    onChange={(e) => updateSettings('imageUrl', e.target.value)}
+                    placeholder="https://…"
+                  />
+                </div>
+              )}
               <div className="hp-field">
                 <label>Padding</label>
                 <select
