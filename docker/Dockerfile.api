@@ -26,7 +26,7 @@ WORKDIR /app/apps/api
 EXPOSE 4000
 CMD sh -c '\
   if [ "$PRISMA_SCHEMA_PUSH" = "true" ]; then \
-    pnpm exec prisma db push; \
+    pnpm exec prisma db push --accept-data-loss; \
   else \
     pnpm exec prisma migrate deploy; \
   fi && \
