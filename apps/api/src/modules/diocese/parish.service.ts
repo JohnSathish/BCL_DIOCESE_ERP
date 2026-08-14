@@ -169,8 +169,25 @@ export class ParishService {
 
   async update(user: AuthPayload, id: string, dto: UpdateParishDto) {
     const existing = await this.get(user, id);
+
+    if (dto.code?.trim()) {
+      const code = dto.code.trim().toUpperCase();
+      if (code !== existing.code) {
+        const clash = await this.prisma.parish.findFirst({
+          where: {
+            organizationId: existing.organizationId,
+            code,
+            deletedAt: null,
+            NOT: { id },
+          },
+        });
+        if (clash) throw new ConflictException(`Parish code "${code}" already exists`);
+      }
+    }
+
     const data: Prisma.ParishUpdateInput = {
-      name: dto.name,
+      ...(dto.name !== undefined ? { name: dto.name.trim() } : {}),
+      ...(dto.code?.trim() ? { code: dto.code.trim().toUpperCase() } : {}),
       ...(dto.deaneryId !== undefined
         ? dto.deaneryId
           ? { deanery: { connect: { id: dto.deaneryId } } }
@@ -209,6 +226,36 @@ export class ParishService {
       where: { id },
       data,
     });
+
+    if (dto.name?.trim() || dto.websiteSlug?.trim()) {
+      const site = await this.prisma.cmsSite.findFirst({
+        where: { parishId: id, deletedAt: null },
+      });
+      if (site) {
+        const siteData: Prisma.CmsSiteUpdateInput = {};
+        if (dto.name?.trim()) siteData.siteTitle = dto.name.trim();
+        if (dto.websiteSlug?.trim()) {
+          const slug = dto.websiteSlug
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9-]+/g, '-')
+            .replace(/^-|-$/g, '');
+          if (slug && slug !== site.slug) {
+            const slugTaken = await this.prisma.cmsSite.findFirst({
+              where: { slug, deletedAt: null, NOT: { id: site.id } },
+            });
+            if (slugTaken) {
+              throw new ConflictException(`Website slug "${slug}" is already in use`);
+            }
+            siteData.slug = slug;
+          }
+        }
+        if (Object.keys(siteData).length) {
+          await this.prisma.cmsSite.update({ where: { id: site.id }, data: siteData });
+        }
+      }
+    }
+
     await this.audit.log({
       organizationId: existing.organizationId,
       userId: user.id,
@@ -223,7 +270,11 @@ export class ParishService {
     const existing = await this.get(user, id);
     await this.prisma.parish.update({
       where: { id },
-      data: { deletedAt: new Date() },
+      data: { deletedAt: new Date(), isActive: false },
+    });
+    await this.prisma.cmsSite.updateMany({
+      where: { parishId: id, deletedAt: null },
+      data: { isPublished: false, deletedAt: new Date() },
     });
     await this.audit.log({
       organizationId: existing.organizationId,

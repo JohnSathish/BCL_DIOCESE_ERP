@@ -94,6 +94,10 @@ export class UpdateParishDto {
 
   @IsOptional()
   @IsString()
+  code?: string;
+
+  @IsOptional()
+  @IsString()
   deaneryId?: string;
 
   @IsOptional()
@@ -155,6 +159,11 @@ export class UpdateParishDto {
 
   @IsOptional()
   committeesJson?: unknown;
+
+  /** Update linked CMS website slug when present */
+  @IsOptional()
+  @IsString()
+  websiteSlug?: string;
 }
 
 export class ProvisionParishDto {

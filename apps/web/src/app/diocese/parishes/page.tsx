@@ -32,24 +32,47 @@ type ParishRow = {
   code: string;
   village?: string | null;
   patronSaint?: string | null;
+  address?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  feastDay?: string | null;
+  website?: string | null;
   isActive?: boolean;
   cmsSite?: { id: string; slug: string; isPublished: boolean; siteTitle: string } | null;
   _count?: { families: number; members: number };
 };
 
+type EditForm = {
+  id: string;
+  name: string;
+  code: string;
+  village: string;
+  patronSaint: string;
+  address: string;
+  email: string;
+  phone: string;
+  feastDay: string;
+  website: string;
+  websiteSlug: string;
+  isActive: boolean;
+};
+
+const emptyCreate = {
+  name: '',
+  code: '',
+  village: '',
+  patronSaint: '',
+  websiteSlug: '',
+  priestInviteEmail: '',
+  priestFirstName: '',
+  priestLastName: '',
+};
+
 export default function ParishesPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({
-    name: '',
-    code: '',
-    village: '',
-    patronSaint: '',
-    websiteSlug: '',
-    priestInviteEmail: '',
-    priestFirstName: '',
-    priestLastName: '',
-  });
+  const [form, setForm] = useState(emptyCreate);
+  const [editing, setEditing] = useState<EditForm | null>(null);
   const [provisionResult, setProvisionResult] = useState<{
     parishName: string;
     parishCode: string;
@@ -86,16 +109,36 @@ export default function ParishesPage() {
         provisioning: data.provisioning,
       });
       setOpen(false);
-      setForm({
-        name: '',
-        code: '',
-        village: '',
-        patronSaint: '',
-        websiteSlug: '',
-        priestInviteEmail: '',
-        priestFirstName: '',
-        priestLastName: '',
-      });
+      setForm(emptyCreate);
+    },
+  });
+
+  const update = useMutation({
+    mutationFn: (payload: EditForm) =>
+      api.patch(`/parishes/${payload.id}`, {
+        name: payload.name.trim(),
+        code: payload.code.trim(),
+        village: payload.village.trim() || null,
+        patronSaint: payload.patronSaint.trim() || null,
+        address: payload.address.trim() || null,
+        email: payload.email.trim() || null,
+        phone: payload.phone.trim() || null,
+        feastDay: payload.feastDay.trim() || null,
+        website: payload.website.trim() || null,
+        websiteSlug: payload.websiteSlug.trim() || undefined,
+        isActive: payload.isActive,
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['parishes'] });
+      setEditing(null);
+    },
+  });
+
+  const remove = useMutation({
+    mutationFn: (id: string) => api.delete(`/parishes/${id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['parishes'] });
+      setEditing((cur) => (cur ? null : cur));
     },
   });
 
@@ -121,6 +164,24 @@ export default function ParishesPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['parishes'] }),
   });
 
+  function startEdit(row: ParishRow) {
+    setOpen(false);
+    setEditing({
+      id: row.id,
+      name: row.name || '',
+      code: row.code || '',
+      village: row.village || '',
+      patronSaint: row.patronSaint || '',
+      address: row.address || '',
+      email: row.email || '',
+      phone: row.phone || '',
+      feastDay: row.feastDay || '',
+      website: row.website || '',
+      websiteSlug: row.cmsSite?.slug || '',
+      isActive: row.isActive !== false,
+    });
+  }
+
   async function copyPassword(text: string) {
     try {
       await navigator.clipboard.writeText(text);
@@ -137,7 +198,12 @@ export default function ParishesPage() {
         title="Parishes"
         description="Create a parish to auto-provision dashboard, website CMS, registers, and priest invite"
         actions={
-          <Button onClick={() => setOpen((v) => !v)}>
+          <Button
+            onClick={() => {
+              setEditing(null);
+              setOpen((v) => !v);
+            }}
+          >
             {open ? 'Cancel' : 'New parish'}
           </Button>
         }
@@ -215,6 +281,125 @@ export default function ParishesPage() {
                 re-provision with an invite email.
               </p>
             )}
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {editing ? (
+        <Card className="mb-6 border-[var(--bcl-primary)]/25">
+          <CardContent className="grid gap-3 sm:grid-cols-2">
+            <div className="sm:col-span-2 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-[var(--bcl-primary)]">
+                  Edit parish
+                </p>
+                <h2 className="text-lg font-semibold text-[var(--bcl-text)]">{editing.name}</h2>
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => setEditing(null)}>
+                Cancel
+              </Button>
+            </div>
+            <div>
+              <Label>Name *</Label>
+              <Input
+                value={editing.name}
+                onChange={(e) => setEditing({ ...editing, name: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>Code *</Label>
+              <Input
+                value={editing.code}
+                onChange={(e) => setEditing({ ...editing, code: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>Village</Label>
+              <Input
+                value={editing.village}
+                onChange={(e) => setEditing({ ...editing, village: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>Patron Saint</Label>
+              <Input
+                value={editing.patronSaint}
+                onChange={(e) => setEditing({ ...editing, patronSaint: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>Feast day</Label>
+              <Input
+                value={editing.feastDay}
+                onChange={(e) => setEditing({ ...editing, feastDay: e.target.value })}
+                placeholder="e.g. June 19"
+              />
+            </div>
+            <div>
+              <Label>Website slug</Label>
+              <Input
+                value={editing.websiteSlug}
+                onChange={(e) => setEditing({ ...editing, websiteSlug: e.target.value })}
+                placeholder="sacred-heart"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <Label>Address</Label>
+              <Input
+                value={editing.address}
+                onChange={(e) => setEditing({ ...editing, address: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>Email</Label>
+              <Input
+                type="email"
+                value={editing.email}
+                onChange={(e) => setEditing({ ...editing, email: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>Phone</Label>
+              <Input
+                value={editing.phone}
+                onChange={(e) => setEditing({ ...editing, phone: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>External website URL</Label>
+              <Input
+                value={editing.website}
+                onChange={(e) => setEditing({ ...editing, website: e.target.value })}
+              />
+            </div>
+            <div className="flex items-end">
+              <label className="flex items-center gap-2 text-sm font-medium text-[var(--bcl-text)]">
+                <input
+                  type="checkbox"
+                  checked={editing.isActive}
+                  onChange={(e) => setEditing({ ...editing, isActive: e.target.checked })}
+                />
+                Active parish
+              </label>
+            </div>
+            <div className="sm:col-span-2 flex flex-wrap items-center gap-2">
+              <Button
+                onClick={() => update.mutate(editing)}
+                disabled={
+                  update.isPending || !editing.name.trim() || !editing.code.trim()
+                }
+              >
+                {update.isPending ? 'Saving…' : 'Update parish'}
+              </Button>
+              <Button variant="ghost" onClick={() => setEditing(null)}>
+                Cancel
+              </Button>
+              {update.isError ? (
+                <p className="w-full text-sm text-red-700">
+                  {update.error instanceof Error ? update.error.message : 'Could not update parish'}
+                </p>
+              ) : null}
+            </div>
           </CardContent>
         </Card>
       ) : null}
@@ -350,6 +535,13 @@ export default function ParishesPage() {
                     <Button
                       size="sm"
                       variant="secondary"
+                      onClick={() => startEdit(row as unknown as ParishRow)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
                       disabled={reProvision.isPending}
                       onClick={() => reProvision.mutate(String(row.id))}
                     >
@@ -368,12 +560,35 @@ export default function ParishesPage() {
                     >
                       {row.isActive === false ? 'Activate' : 'Suspend'}
                     </Button>
+                    <Button
+                      size="sm"
+                      variant="danger"
+                      disabled={remove.isPending}
+                      onClick={() => {
+                        const name = String(row.name || 'this parish');
+                        if (
+                          !confirm(
+                            `Delete ${name}? This soft-deletes the parish and unpublishes its website. Related records remain for audit.`,
+                          )
+                        ) {
+                          return;
+                        }
+                        remove.mutate(String(row.id));
+                      }}
+                    >
+                      Delete
+                    </Button>
                   </div>
                 ),
               },
             ]}
             rows={(parishes.data || []) as Record<string, unknown>[]}
           />
+          {remove.isError ? (
+            <p className="px-4 py-3 text-sm text-red-700">
+              {remove.error instanceof Error ? remove.error.message : 'Could not delete parish'}
+            </p>
+          ) : null}
         </CardContent>
       </Card>
     </div>
