@@ -62,23 +62,56 @@ export class CmsAnalyticsService {
 
   private async resolveAdminSite(user: AuthPayload, parishId?: string) {
     const parishFilter = this.tenancy.parishFilter(user);
-    const effectiveParishId = parishFilter.parishId || parishId || user.parishId || undefined;
+    const effectiveParishId =
+      (parishId && parishId.trim()) || parishFilter.parishId || user.parishId || undefined;
+
     if (effectiveParishId) {
       this.tenancy.assertParishAccess(user, effectiveParishId);
+      const site = await this.prisma.cmsSite.findFirst({
+        where: { deletedAt: null, parishId: effectiveParishId },
+        include: { parish: { select: { id: true, name: true, code: true } } },
+      });
+      if (!site) {
+        throw new NotFoundException(
+          'No website for this parish. Open CMS → provision or publish the parish website first.',
+        );
+      }
+      if (!user.isSuperAdmin) {
+        this.tenancy.assertOrgAccess(user, site.organizationId);
+      }
+      return site;
     }
-    const organizationId = user.organizationId;
-    if (!organizationId) throw new NotFoundException('Organization context required');
-    const site = await this.prisma.cmsSite.findFirst({
-      where: {
-        deletedAt: null,
-        organizationId,
-        ...(effectiveParishId ? { parishId: effectiveParishId } : parishFilter),
-      },
-      include: { parish: { select: { id: true, name: true, code: true } } },
-    });
-    if (!site) throw new NotFoundException('No website for this parish scope');
-    this.tenancy.assertOrgAccess(user, site.organizationId);
-    this.tenancy.assertParishAccess(user, site.parishId);
+
+    // Diocese / platform admins with no parish selected: pick a sensible default site
+    const where = {
+      deletedAt: null as null,
+      ...(user.isSuperAdmin
+        ? {}
+        : user.organizationId
+          ? { organizationId: user.organizationId }
+          : { parishId: '__none__' }),
+    };
+
+    const site =
+      (await this.prisma.cmsSite.findFirst({
+        where: { ...where, slug: 'sacred-heart' },
+        include: { parish: { select: { id: true, name: true, code: true } } },
+      })) ||
+      (await this.prisma.cmsSite.findFirst({
+        where,
+        include: { parish: { select: { id: true, name: true, code: true } } },
+        orderBy: { createdAt: 'asc' },
+      }));
+
+    if (!site) {
+      throw new NotFoundException(
+        'No parish website found. Provision a parish site in CMS, then select that parish here.',
+      );
+    }
+    if (!user.isSuperAdmin) {
+      this.tenancy.assertOrgAccess(user, site.organizationId);
+      this.tenancy.assertParishAccess(user, site.parishId);
+    }
     return site;
   }
 
@@ -321,10 +354,15 @@ export class CmsAnalyticsService {
 
     const dioceseWide = !this.tenancy.parishFilter(user).parishId;
     if (dioceseWide) {
-      const organizationId = user.organizationId;
-      if (!organizationId) throw new NotFoundException('Organization context required');
       const sites = await this.prisma.cmsSite.findMany({
-        where: { organizationId, deletedAt: null },
+        where: {
+          deletedAt: null,
+          ...(user.isSuperAdmin
+            ? {}
+            : user.organizationId
+              ? { organizationId: user.organizationId }
+              : { id: '__none__' }),
+        },
         include: { parish: { select: { id: true, name: true, code: true } } },
       });
       parishComparison = await Promise.all(

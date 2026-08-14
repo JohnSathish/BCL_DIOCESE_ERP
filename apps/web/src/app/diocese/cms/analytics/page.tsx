@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   Activity,
@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { PageHeader } from '@bcl/ui';
 import { api } from '@/lib/api';
-import { ParishScopeField, canSelectParish } from '@/components/ParishScopeField';
+import { ParishScopeField, canSelectParish, useParishScope } from '@/components/ParishScopeField';
 import { useAuthStore } from '@/lib/auth-store';
 
 type AnalyticsPayload = {
@@ -110,17 +110,31 @@ export default function CmsAnalyticsPage() {
   const user = useAuthStore((s) => s.user);
   const canSelect = canSelectParish(user);
   const [parishId, setParishId] = useState('');
+  const scope = useParishScope({ value: parishId, onChange: setParishId });
+
+  // Auto-select first parish for diocese admins so analytics loads immediately
+  useEffect(() => {
+    if (!canSelect || parishId || !scope.parishes.length) return;
+    const sacred =
+      scope.parishes.find((p) => /sacred\s*heart/i.test(p.name)) || scope.parishes[0];
+    if (sacred?.id) setParishId(sacred.id);
+  }, [canSelect, parishId, scope.parishes]);
 
   const analytics = useQuery({
-    queryKey: ['cms-analytics', parishId || 'self'],
+    queryKey: ['cms-analytics', parishId || 'default'],
     queryFn: () => {
       const q = parishId ? `?parishId=${encodeURIComponent(parishId)}` : '';
       return api.get<AnalyticsPayload>(`/cms/me/analytics${q}`);
     },
     refetchInterval: 30_000,
+    retry: 1,
   });
 
   const d = analytics.data;
+  const errorMessage =
+    analytics.error instanceof Error
+      ? analytics.error.message
+      : 'Unable to load website analytics.';
 
   const kpis = useMemo(() => {
     if (!d) return [];
@@ -159,8 +173,15 @@ export default function CmsAnalyticsPage() {
       {analytics.isLoading ? (
         <div className="cms-panel p-8 text-sm text-[var(--bcl-muted)]">Loading analytics…</div>
       ) : analytics.isError ? (
-        <div className="cms-panel p-8 text-sm text-red-700">
-          Unable to load website analytics. Ensure a parish website is provisioned for this scope.
+        <div className="cms-panel space-y-3 p-8 text-sm text-red-700">
+          <p>{errorMessage}</p>
+          <button
+            type="button"
+            className="rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-800"
+            onClick={() => void analytics.refetch()}
+          >
+            Retry
+          </button>
         </div>
       ) : d ? (
         <>
@@ -199,7 +220,9 @@ export default function CmsAnalyticsPage() {
               <div className="mb-4 flex items-end justify-between gap-3">
                 <div>
                   <h2 className="text-sm font-semibold text-[var(--bcl-ink)]">Visitor trend</h2>
-                  <p className="text-xs text-[var(--bcl-muted)]">Last 30 days · unique visitors & page views</p>
+                  <p className="text-xs text-[var(--bcl-muted)]">
+                    Last 30 days · unique visitors & page views
+                  </p>
                 </div>
                 <div className="flex items-center gap-3 text-[10px] uppercase tracking-wide text-[var(--bcl-muted)]">
                   <span className="inline-flex items-center gap-1">
@@ -296,7 +319,7 @@ export default function CmsAnalyticsPage() {
                           <p className="font-medium">{row.parishName}</p>
                           <p className="text-xs text-[var(--bcl-muted)]">{row.parishCode}</p>
                         </td>
-                        <td className="px-4 py-3 text-emerald-700 font-semibold">{row.onlineNow}</td>
+                        <td className="px-4 py-3 font-semibold text-emerald-700">{row.onlineNow}</td>
                         <td className="px-4 py-3">{row.todayVisitors.toLocaleString()}</td>
                         <td className="px-4 py-3">{row.totalVisitors.toLocaleString()}</td>
                         <td className="px-4 py-3">{row.pageViewsMonth.toLocaleString()}</td>
