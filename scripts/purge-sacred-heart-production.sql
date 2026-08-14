@@ -1,7 +1,9 @@
 -- Purge test sacramental data for Sacred Heart Parish (SHPTURA)
 -- Run on VPS:
--- docker compose -f docker/docker-compose.hostinger.yml --env-file .env.production exec -T postgres \
---   psql -U bcl -d bcl_enterprise -f - < scripts/purge-sacred-heart-production.sql
+--   bash scripts/purge-sacred-heart-production.sh
+-- Or manually:
+--   docker compose -f docker/docker-compose.hostinger.yml --env-file .env.production exec -T postgres \
+--     psql -U bcl -d bcl_enterprise -v ON_ERROR_STOP=1 < scripts/purge-sacred-heart-production.sql
 
 BEGIN;
 
