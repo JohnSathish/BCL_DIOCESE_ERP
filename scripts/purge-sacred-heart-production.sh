@@ -24,20 +24,14 @@ if [[ ! -f "${SQL_FILE}" ]]; then
   exit 1
 fi
 
-# shellcheck disable=SC1090
-set -a
-source "${ENV_FILE}"
-set +a
-
-POSTGRES_USER="${POSTGRES_USER:-bcl}"
-POSTGRES_DB="${POSTGRES_DB:-bcl_enterprise}"
-
 echo "=== Sacred Heart (SHPTURA) sacrament purge ==="
 echo "This permanently removes test Marriage, Confirmation, Communion, Baptism, Death records."
 echo ""
 
+# Use postgres container env (POSTGRES_USER/POSTGRES_DB) — do not source .env.production
+# on the host; values like EMAIL_FROM=BCL Diocese ERP <...> break bash.
 docker compose -f "${COMPOSE_FILE}" --env-file "${ENV_FILE}" exec -T postgres \
-  psql -v ON_ERROR_STOP=1 -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" \
+  sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"' \
   < "${SQL_FILE}"
 
 echo ""
