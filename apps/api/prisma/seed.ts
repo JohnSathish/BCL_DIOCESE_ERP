@@ -91,9 +91,88 @@ const ROLES = [
   ['TRANSLATOR', 'Translator'],
 ] as const;
 
+const DEMO_PARISH_CODES = ['STMARY'] as const;
+const DEMO_SACRAMENT_TYPES: SacramentType[] = [
+  SacramentType.MARRIAGE,
+  SacramentType.BAPTISM,
+  SacramentType.CONFIRMATION,
+  SacramentType.HOLY_COMMUNION,
+  SacramentType.DEATH,
+];
+
+/** Remove St. Mary demo sacraments — safe to run on every production seed / deploy. */
+async function stripDemoSacramentRecords(organizationId: string) {
+  const demoParishes = await prisma.parish.findMany({
+    where: {
+      organizationId,
+      code: { in: [...DEMO_PARISH_CODES] },
+      deletedAt: null,
+    },
+    select: { id: true, code: true },
+  });
+
+  const parishIds = demoParishes.map((p) => p.id);
+  const fingerprintMarriages = await prisma.sacramentRecord.findMany({
+    where: {
+      organizationId,
+      deletedAt: null,
+      type: SacramentType.MARRIAGE,
+      registerYear: 2000,
+      registerNumber: '0001',
+      bridegroomName: 'John Marak',
+    },
+    select: { id: true, certificateId: true },
+  });
+
+  const parishSacraments =
+    parishIds.length > 0
+      ? await prisma.sacramentRecord.findMany({
+          where: {
+            organizationId,
+            parishId: { in: parishIds },
+            type: { in: DEMO_SACRAMENT_TYPES },
+            deletedAt: null,
+          },
+          select: { id: true, certificateId: true },
+        })
+      : [];
+
+  const byId = new Map<string, string | null>();
+  for (const row of [...fingerprintMarriages, ...parishSacraments]) {
+    byId.set(row.id, row.certificateId);
+  }
+  if (!byId.size) return { sacraments: 0, certificates: 0 };
+
+  const sacramentIds = [...byId.keys()];
+  const certificateIds = [...byId.values()].filter((id): id is string => Boolean(id));
+
+  const result = await prisma.$transaction(async (tx) => {
+    const registerEntries = await tx.registerEntry.deleteMany({
+      where: { sacramentId: { in: sacramentIds } },
+    });
+    await tx.sacramentRecord.updateMany({
+      where: { id: { in: sacramentIds } },
+      data: { certificateId: null },
+    });
+    const certs = certificateIds.length
+      ? await tx.certificate.deleteMany({ where: { id: { in: certificateIds } } })
+      : { count: 0 };
+    const sacraments = await tx.sacramentRecord.deleteMany({
+      where: { id: { in: sacramentIds } },
+    });
+    return { registerEntries: registerEntries.count, certificates: certs.count, sacraments: sacraments.count };
+  });
+
+  console.log('Stripped demo sacrament records (production guard):', result);
+  return result;
+}
+
 async function main() {
   /** development = include St. Mary demo parish; production = Sacred Heart first-tenant only */
   const seedDemo = (process.env.SEED_MODE || 'development') !== 'production';
+  if (!seedDemo) {
+    console.log('SEED_MODE=production — St. Mary demo sacraments are disabled');
+  }
 
   for (const [code, name] of PERMISSIONS) {
     await prisma.permission.upsert({
@@ -808,6 +887,7 @@ async function main() {
   }
   } // seedDemo sacraments (St. Mary demo parish only)
 
+  if (seedDemo) {
   const massCount = await prisma.massEvent.count({ where: { parishId: parish.id } });
   if (massCount === 0) {
     const sunday = await prisma.massEvent.create({
@@ -958,6 +1038,8 @@ async function main() {
     });
   }
 
+  } // seedDemo — St. Mary demo parish sample data (mass, finance, catechism, etc.)
+
   // Congregations + parish institutions
   const congDefs = [
     { name: 'Diocesan', abbreviation: 'DIO', description: 'Diocesan clergy' },
@@ -1002,6 +1084,7 @@ async function main() {
     }
   }
 
+  if (seedDemo) {
   if ((await prisma.priest.count({ where: { organizationId: org.id } })) === 0) {
     const parishInst = await prisma.institution.findFirst({
       where: { organizationId: org.id, parishId: parish.id, type: 'PARISH' },
@@ -1258,6 +1341,7 @@ async function main() {
       ],
     });
   }
+  } // seedDemo — demo clergy directory, St. Mary CMS, OCR samples
 
   // Sacred Heart Shrine Parish, Tura — first production tenant (CMS/data, not hardcoded)
   const sacredHeart = await prisma.parish.upsert({
@@ -2149,6 +2233,7 @@ async function main() {
       where: { parishId: parish.id, deletedAt: null },
       data: { isPublished: false },
     });
+    await stripDemoSacramentRecords(org.id);
   }
 
   console.log('Seed complete');

@@ -23,15 +23,8 @@ ENV SEED_ON_START=false
 ENV PRISMA_SCHEMA_PUSH=true
 RUN corepack enable
 COPY --from=build /app /app
+COPY docker/entrypoint-api.sh /app/docker/entrypoint-api.sh
+RUN chmod +x /app/docker/entrypoint-api.sh
 WORKDIR /app/apps/api
 EXPOSE 4000
-CMD sh -c '\
-  if [ "$PRISMA_SCHEMA_PUSH" = "true" ]; then \
-    pnpm exec prisma db push --accept-data-loss; \
-  else \
-    pnpm exec prisma migrate deploy; \
-  fi && \
-  if [ "$SEED_ON_START" = "true" ]; then \
-    pnpm exec ts-node --transpile-only prisma/seed.ts; \
-  fi && \
-  node dist/main.js'
+ENTRYPOINT ["/app/docker/entrypoint-api.sh"]
