@@ -172,8 +172,10 @@ type LoadMode = 'public' | 'guest' | 'authenticated';
 
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState('en');
+  // Always seed ALL namespaces (incl. erp) so useTranslations('erp') never emits
+  // MISSING_MESSAGE during the first paint before async load finishes.
   const [messages, setMessages] = useState<Record<string, unknown>>(() =>
-    buildStaticMessages('en', PUBLIC_NAMESPACES),
+    buildStaticMessages('en', ALL_NAMESPACES),
   );
   const [availableLocales, setAvailableLocales] = useState<LocaleOption[]>([
     { code: 'en', nativeName: 'English', enabled: true, isDefault: true },
@@ -183,10 +185,12 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const [surface, setSurface] = useState<LoadMode>('public');
 
   const loadMessages = useCallback(async (code: string, mode: LoadMode) => {
-    const namespaces = mode === 'public' ? PUBLIC_NAMESPACES : ALL_NAMESPACES;
-    const merged: Record<string, unknown> = {};
+    // Public surfaces only fetch public namespaces over the network;
+    // ERP namespaces still come from static JSON so hooks never crash.
+    const fetchNamespaces = mode === 'public' ? PUBLIC_NAMESPACES : ALL_NAMESPACES;
+    const merged: Record<string, unknown> = buildStaticMessages(code, ALL_NAMESPACES);
 
-    for (const ns of namespaces) {
+    for (const ns of fetchNamespaces) {
       let fetched: Record<string, unknown> = {};
       if (mode === 'authenticated') {
         fetched = await fetchAuthenticatedNamespace(code, ns);
@@ -195,13 +199,6 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
       }
       // guest: static only — no network
       merged[ns] = mergeMessages(staticFallback(code, ns), fetched);
-    }
-
-    // Keep unused ERP namespaces present as empty static so hooks never crash if mounted
-    if (mode === 'public') {
-      for (const ns of ALL_NAMESPACES) {
-        if (!(ns in merged)) merged[ns] = staticFallback(code, ns);
-      }
     }
 
     setMessages(merged);
@@ -293,9 +290,26 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
     [locale, setLocale, availableLocales, loading],
   );
 
+  const onIntlError = useCallback((error: { code?: string; message?: string }) => {
+    // Avoid flooding the console for optional keys; namespace must still be present.
+    if (error?.code === 'MISSING_MESSAGE') return;
+    if (process.env.NODE_ENV !== 'production') {
+      // eslint-disable-next-line no-console
+      console.error(error);
+    }
+  }, []);
+
   return (
     <LocaleContext.Provider value={ctx}>
-      <NextIntlClientProvider locale={locale} messages={messages} timeZone="Asia/Kolkata">
+      <NextIntlClientProvider
+        locale={locale}
+        messages={messages}
+        timeZone="Asia/Kolkata"
+        onError={onIntlError as (error: Error) => void}
+        getMessageFallback={({ namespace, key }) =>
+          key ? `${namespace}.${key}` : String(namespace || key || '')
+        }
+      >
         {children}
       </NextIntlClientProvider>
     </LocaleContext.Provider>
