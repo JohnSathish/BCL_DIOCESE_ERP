@@ -31,6 +31,7 @@ import {
   setTrustedDeviceCookie,
   trustedDeviceDurationMs,
 } from './auth-security.util';
+import { buildLoginOtpEmail, buildNewDeviceLoginEmail } from './auth-email-templates';
 
 type AuthMeta = { ip?: string; userAgent?: string };
 
@@ -193,19 +194,13 @@ export class IdentityService {
   }
 
   private async sendLoginOtpEmail(to: string, code: string, deviceName: string) {
-    const minutes = Math.round(otpTtlMs() / 60000);
-    const subject = 'Your BCL Diocese ERP verification code';
-    const body = [
-      'Your verification code for BCL Diocese ERP is:',
-      '',
+    const minutes = Math.max(1, Math.round(otpTtlMs() / 60000));
+    const mail = buildLoginOtpEmail({
       code,
-      '',
-      `This code expires in ${minutes} minute(s).`,
-      `Device: ${deviceName}`,
-      '',
-      'If you did not try to sign in, ignore this email and consider changing your password.',
-    ].join('\n');
-    await this.notifications.sendEmail(to, subject, body);
+      deviceName,
+      expiresMinutes: minutes,
+    });
+    await this.notifications.sendEmail(to, mail.subject, mail.text, { html: mail.html });
   }
 
   private async sendNewDeviceEmail(
@@ -213,21 +208,13 @@ export class IdentityService {
     device: { deviceName: string; browser: string; operatingSystem: string },
     when: Date,
   ) {
-    const subject = 'New Device Login — BCL Diocese ERP';
-    const body = [
-      'New Device Login',
-      '',
-      'Your BCL Diocese ERP account was accessed from a new device.',
-      '',
-      `Device: ${device.operatingSystem}`,
-      `Browser: ${device.browser}`,
-      `Time: ${when.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}`,
-      '',
-      'If this was you, no action is required.',
-      '',
-      'If you do not recognize this activity, please change your password and revoke the device from Security → Trusted Devices.',
-    ].join('\n');
-    await this.notifications.sendEmail(to, subject, body);
+    const mail = buildNewDeviceLoginEmail({
+      deviceName: device.deviceName,
+      browser: device.browser,
+      operatingSystem: device.operatingSystem,
+      whenLabel: when.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+    });
+    await this.notifications.sendEmail(to, mail.subject, mail.text, { html: mail.html });
   }
 
   private async createOtpChallenge(userId: string, meta?: AuthMeta) {

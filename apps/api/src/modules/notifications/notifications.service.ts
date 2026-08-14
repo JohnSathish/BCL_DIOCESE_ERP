@@ -50,12 +50,18 @@ export class NotificationsService {
     return v === '1' || v === 'true' || v === 'yes' || v === 'on';
   }
 
-  async sendEmail(to: string, subject: string, body: string) {
+  async sendEmail(
+    to: string,
+    subject: string,
+    body: string,
+    options?: { html?: string },
+  ) {
     if (!to || to.includes('@local')) {
       this.logger.log(`[email stub] skipped invalid to=${to}`);
       return { queued: true, channel: 'email', provider: 'stub' as const };
     }
 
+    const html = options?.html;
     const resendKey = process.env.RESEND_API_KEY;
     if (resendKey) {
       try {
@@ -71,6 +77,7 @@ export class NotificationsService {
             to: [to],
             subject,
             text: body,
+            ...(html ? { html } : {}),
           }),
         });
         if (!res.ok) {
@@ -106,6 +113,7 @@ export class NotificationsService {
           to,
           subject,
           text: body,
+          ...(html ? { html } : {}),
         });
         this.logger.log(`[email smtp] to=${to} subject=${subject}`);
         return { queued: true, channel: 'email', provider: 'smtp' as const };
