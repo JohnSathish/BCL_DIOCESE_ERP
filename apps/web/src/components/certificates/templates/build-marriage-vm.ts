@@ -50,11 +50,62 @@ function printLabel(count: number): MarriageCertViewModel['printLabel'] {
   return 'REPRINT';
 }
 
+/** Merge sacrament record fields when historical import stored names only on the register row. */
+function mergeMarriagePayload(
+  cert: Record<string, unknown>,
+): Record<string, unknown> {
+  const stored = (cert.payloadJson || {}) as Record<string, unknown>;
+  const sacrament = cert.sacrament as Record<string, unknown> | undefined;
+  if (!sacrament) return stored;
+
+  const fromRecord: Record<string, unknown> = {
+    sacramentType: sacrament.type,
+    registerNumber: sacrament.registerNumber,
+    registerYear: sacrament.registerYear,
+    celebratedAt: sacrament.celebratedAt,
+    churchName: sacrament.churchName,
+    ministerName: sacrament.ministerName,
+    parishPriestName: sacrament.parishPriestName,
+    placeOfMarriage: sacrament.placeOfMarriage,
+    place: sacrament.place,
+    remarks: sacrament.remarks,
+    bridegroomName: sacrament.bridegroomName,
+    bridegroomSurname: sacrament.bridegroomSurname,
+    bridegroomFatherName: sacrament.bridegroomFatherName,
+    bridegroomMotherName: sacrament.bridegroomMotherName,
+    bridegroomDob: sacrament.bridegroomDob,
+    bridegroomNationality: sacrament.bridegroomNationality,
+    bridegroomDomicile: sacrament.bridegroomDomicile,
+    bridegroomOccupation: sacrament.bridegroomOccupation,
+    bridegroomMaritalStatus: sacrament.bridegroomMaritalStatus,
+    brideName: sacrament.brideName,
+    brideSurname: sacrament.brideSurname,
+    brideFatherName: sacrament.brideFatherName,
+    brideMotherName: sacrament.brideMotherName,
+    brideDob: sacrament.brideDob,
+    brideNationality: sacrament.brideNationality,
+    brideDomicile: sacrament.brideDomicile,
+    brideOccupation: sacrament.brideOccupation,
+    brideMaritalStatus: sacrament.brideMaritalStatus,
+    witness1Name: sacrament.witness1Name,
+    witness1Village: sacrament.witness1Village,
+    witness2Name: sacrament.witness2Name,
+    witness2Village: sacrament.witness2Village,
+    detailsJson: sacrament.detailsJson,
+  };
+
+  const merged: Record<string, unknown> = { ...fromRecord, ...stored };
+  for (const [key, value] of Object.entries(fromRecord)) {
+    if (isBlank(merged[key]) && !isBlank(value)) merged[key] = value;
+  }
+  return merged;
+}
+
 export function buildMarriageViewModel(
   cert: Record<string, unknown>,
   qrDataUrl?: string,
 ): MarriageCertViewModel {
-  const payload = (cert.payloadJson || {}) as Record<string, unknown>;
+  const payload = mergeMarriagePayload(cert);
   const parish = cert.parish as {
     name?: string;
     village?: string;
@@ -97,9 +148,13 @@ export function buildMarriageViewModel(
   const verificationId = text(cert.qrToken, '').slice(0, 16).toUpperCase() || simpleHash(certificateId);
   const verificationUrl = `https://verify.turadiocese.org/c/${encodeURIComponent(certificateId)}`;
 
-  const registerEntry = cert.registerEntry as
-    | { pageNumber?: number; lineNumber?: number; book?: { title?: string; year?: number } }
-    | undefined;
+  const registerEntry =
+    (cert.registerEntry as
+      | { pageNumber?: number; lineNumber?: number; book?: { title?: string; year?: number } }
+      | undefined) ||
+    ((cert.sacrament as { registerEntry?: typeof cert.registerEntry } | undefined)?.registerEntry as
+      | { pageNumber?: number; lineNumber?: number; book?: { title?: string; year?: number } }
+      | undefined);
 
   return {
     dioceseName: 'DIOCESE OF TURA',

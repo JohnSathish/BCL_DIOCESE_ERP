@@ -701,7 +701,11 @@ export class SacramentService {
       include: {
         parish: true,
         member: true,
-        sacrament: true,
+        sacrament: {
+          include: {
+            registerEntry: { include: { book: true } },
+          },
+        },
       },
     });
     if (!cert) throw new NotFoundException('Certificate not found');

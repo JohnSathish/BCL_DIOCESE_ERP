@@ -1316,6 +1316,40 @@ export class MigrationService {
       row.certificateNumber ||
       `MAR-${registerYear}-${registerNumber.padStart(4, '0')}`;
     const qrToken = randomBytes(24).toString('hex');
+    const marriagePayload = {
+      sacramentType: 'MARRIAGE',
+      registerNumber,
+      registerYear,
+      celebratedAt: celebratedAt.toISOString(),
+      churchName: parish.name,
+      ministerName: row.minister,
+      parishPriestName: row.parishPriest || row.minister,
+      placeOfMarriage: row.marriagePlace || parish.name,
+      place: row.marriagePlace || parish.name,
+      bridegroomName: row.bridegroomName,
+      bridegroomSurname: row.bridegroomSurname || undefined,
+      bridegroomFatherName: row.bridegroomFather || undefined,
+      bridegroomMotherName: row.bridegroomMother || undefined,
+      bridegroomDob: parseDate(row.bridegroomDob)?.toISOString(),
+      bridegroomNationality: row.bridegroomNationality || undefined,
+      bridegroomDomicile: row.bridegroomVillage || undefined,
+      bridegroomOccupation: row.bridegroomOccupation || undefined,
+      brideName: row.brideName,
+      brideSurname: row.brideSurname || undefined,
+      brideFatherName: row.brideFather || undefined,
+      brideMotherName: row.brideMother || undefined,
+      brideDob: parseDate(row.brideDob)?.toISOString(),
+      brideNationality: row.brideNationality || undefined,
+      brideDomicile: row.brideVillage || undefined,
+      brideOccupation: row.brideOccupation || undefined,
+      witness1Name: row.witness1 || undefined,
+      witness1Village: row.witness1Village || undefined,
+      witness2Name: row.witness2 || undefined,
+      witness2Village: row.witness2Village || undefined,
+      uuid: record.id,
+      hash: randomBytes(16).toString('hex'),
+      verificationPath: `/verify/certificate/${qrToken}`,
+    };
     const cert = await this.prisma.certificate.create({
       data: {
         organizationId: parish.organizationId,
@@ -1325,14 +1359,8 @@ export class MigrationService {
         serialNumber: serial,
         qrToken,
         issuedToName: `${row.bridegroomName} ${row.bridegroomSurname || ''} & ${row.brideName} ${row.brideSurname || ''}`.trim(),
-        payloadJson: {
-          registerNumber,
-          registerYear,
-          celebratedAt: celebratedAt.toISOString(),
-          uuid: record.id,
-          hash: randomBytes(16).toString('hex'),
-          verificationPath: `/verify/certificate/${qrToken}`,
-        },
+        payloadJson: marriagePayload,
+        digitalSignBy: row.parishPriest || row.minister,
       },
     });
     created.certificateIds.push(cert.id);
