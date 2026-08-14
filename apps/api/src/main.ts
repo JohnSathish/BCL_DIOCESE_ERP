@@ -12,6 +12,13 @@ async function bootstrap() {
   app.enableCors({
     origin: corsOrigins,
     credentials: true,
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Accept',
+      'Accept-Language',
+      'X-BCL-Parish-Id',
+    ],
   });
   app.useGlobalPipes(
     new ValidationPipe({

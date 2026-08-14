@@ -15,6 +15,14 @@ export class BclApiClient {
       ...(options.headers as Record<string, string> | undefined),
     };
     if (token) headers.Authorization = `Bearer ${token}`;
+    if (typeof window !== 'undefined') {
+      try {
+        const parishId = localStorage.getItem('bcl_cms_parish_id');
+        if (parishId) headers['X-BCL-Parish-Id'] = parishId;
+      } catch {
+        /* ignore */
+      }
+    }
 
     const res = await fetch(`${this.baseUrl}${path}`, {
       ...options,

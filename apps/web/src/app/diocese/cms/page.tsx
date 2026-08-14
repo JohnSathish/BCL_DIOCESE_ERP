@@ -151,11 +151,22 @@ export default function CmsDashboardPage() {
 
   if (dash.isError) {
     return (
-      <div className="cms-panel p-6">
-        <h2 className="font-display text-xl text-[var(--bcl-burgundy)]">No website yet</h2>
-        <p className="mt-2 text-sm text-[var(--bcl-muted)]">
-          Ask the diocese office to provision this parish, or create a site from Parishes.
+      <div className="cms-panel space-y-3 p-6">
+        <h2 className="font-display text-xl text-[var(--bcl-burgundy)]">
+          Unable to load website CMS
+        </h2>
+        <p className="text-sm text-[var(--bcl-muted)]">
+          {dash.error instanceof Error
+            ? dash.error.message
+            : 'Ask the diocese office to provision this parish, or create a site from Parishes.'}
         </p>
+        <button
+          type="button"
+          className="rounded-lg border border-[var(--bcl-border)] px-3 py-1.5 text-xs font-semibold"
+          onClick={() => void dash.refetch()}
+        >
+          Retry
+        </button>
       </div>
     );
   }

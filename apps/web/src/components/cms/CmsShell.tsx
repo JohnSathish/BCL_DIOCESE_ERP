@@ -1,7 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import {
   LayoutDashboard,
@@ -21,7 +23,11 @@ import {
   FormInput,
   BarChart3,
 } from 'lucide-react';
+import { ParishScopeField, canSelectParish, useParishScope } from '@/components/ParishScopeField';
+import { useAuthStore } from '@/lib/auth-store';
 import './cms.css';
+
+const CMS_PARISH_KEY = 'bcl_cms_parish_id';
 
 const NAV = [
   { href: '/diocese/cms', labelKey: 'nav.dashboard', icon: LayoutDashboard, exact: true },
@@ -44,6 +50,46 @@ const NAV = [
 export function CmsShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const t = useTranslations('cms');
+  const user = useAuthStore((s) => s.user);
+  const canSelect = canSelectParish(user);
+  const qc = useQueryClient();
+  const [parishId, setParishId] = useState('');
+  const scope = useParishScope({
+    value: parishId,
+    onChange: (id) => {
+      setParishId(id);
+      try {
+        if (id) localStorage.setItem(CMS_PARISH_KEY, id);
+        else localStorage.removeItem(CMS_PARISH_KEY);
+      } catch {
+        /* ignore */
+      }
+      void qc.invalidateQueries();
+    },
+  });
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(CMS_PARISH_KEY) || '';
+      if (stored) setParishId(stored);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!canSelect || parishId || !scope.parishes.length) return;
+    const sacred =
+      scope.parishes.find((p) => /sacred\s*heart/i.test(p.name)) || scope.parishes[0];
+    if (!sacred?.id) return;
+    setParishId(sacred.id);
+    try {
+      localStorage.setItem(CMS_PARISH_KEY, sacred.id);
+    } catch {
+      /* ignore */
+    }
+    void qc.invalidateQueries();
+  }, [canSelect, parishId, scope.parishes, qc]);
 
   return (
     <div className="cms-shell">
@@ -57,6 +103,31 @@ export function CmsShell({ children }: { children: React.ReactNode }) {
             <p className="text-[10px] text-white/50">{t('nav.cmsSubtitle')}</p>
           </div>
         </div>
+
+        {canSelect ? (
+          <div className="mb-3 rounded-lg border border-white/10 bg-white/5 p-2">
+            <p className="mb-1 px-1 text-[10px] font-semibold uppercase tracking-wide text-white/55">
+              Parish website
+            </p>
+            <ParishScopeField
+              value={parishId}
+              onChange={(id) => {
+                setParishId(id);
+                try {
+                  if (id) localStorage.setItem(CMS_PARISH_KEY, id);
+                  else localStorage.removeItem(CMS_PARISH_KEY);
+                } catch {
+                  /* ignore */
+                }
+                void qc.invalidateQueries();
+              }}
+              variant="native"
+              hideLabel
+              selectClassName="w-full rounded-md border border-white/15 bg-[#1a2332] px-2 py-1.5 text-xs text-white"
+            />
+          </div>
+        ) : null}
+
         <nav className="space-y-0.5">
           {NAV.map((item) => {
             const exact = 'exact' in item && item.exact;

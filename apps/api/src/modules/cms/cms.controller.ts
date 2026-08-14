@@ -10,6 +10,7 @@ import {
   Put,
   Query,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CmsFormSubmissionStatus } from '@prisma/client';
@@ -17,6 +18,7 @@ import { CurrentUser, AuthPayload } from '../../common/current-user.decorator';
 import { JwtAuthGuard, PermissionsGuard, Public, RequirePermissions } from '../../common/guards';
 import { CmsService } from './cms.service';
 import { CmsAnalyticsService } from './cms-analytics.service';
+import { CmsParishInterceptor } from './cms-parish.interceptor';
 import {
   CreateCmsAnnouncementDto,
   CreateCmsEventDto,
@@ -42,6 +44,7 @@ import {
 } from './cms.dto';
 
 @ApiTags('cms')
+@UseInterceptors(CmsParishInterceptor)
 @Controller('cms')
 export class CmsController {
   constructor(
