@@ -23,12 +23,12 @@ function DotLine({
 }) {
   return (
     <div className={`ct-row ${className}`}>
-      {prefix != null ? <span className={`ct-prefix ${prefixClass}`}>{prefix}</span> : null}
+      <span className={`ct-prefix ${prefixClass}`}>{prefix ?? '\u00a0'}</span>
       <span className="ct-write">
         <span className="ct-value">{value || '\u00a0'}</span>
         <span className="ct-dots" aria-hidden />
       </span>
-      {suffix != null ? <span className={`ct-suffix ${suffixClass}`}>{suffix}</span> : null}
+      <span className={`ct-suffix ${suffixClass}`}>{suffix ?? '\u00a0'}</span>
     </div>
   );
 }
@@ -162,15 +162,16 @@ export function ClassicTuraMarriageCert({ data }: { data: MarriageCertViewModel 
         .ct-header {
           flex: 0 0 auto;
           text-align: center;
-          padding-right: 22mm;
+          padding: 0 24mm;
         }
 
         .ct-diocese {
           margin: 0;
           font-size: 12pt;
           font-weight: 700;
-          letter-spacing: 0.24em;
+          letter-spacing: 0.28em;
           text-transform: uppercase;
+          text-align: center;
         }
 
         .ct-title {
@@ -178,35 +179,40 @@ export function ClassicTuraMarriageCert({ data }: { data: MarriageCertViewModel 
           font-family: Oswald, 'Arial Black', Impact, sans-serif;
           font-size: 20pt;
           font-weight: 700;
-          letter-spacing: 0.05em;
+          letter-spacing: 0.08em;
           text-transform: uppercase;
-          line-height: 1.1;
+          line-height: 1.15;
+          text-align: center;
         }
 
         .ct-church-block {
           display: flex;
           align-items: flex-end;
-          gap: 3mm;
-          margin-top: 6mm;
+          justify-content: center;
+          gap: 3.5mm;
+          margin: 7mm auto 0;
+          width: 100%;
+          max-width: 148mm;
           flex: 0 0 auto;
         }
         .ct-church-label {
           font-size: 11pt;
           font-weight: 700;
-          letter-spacing: 0.04em;
+          letter-spacing: 0.08em;
           white-space: nowrap;
           padding-bottom: 1.2mm;
         }
         .ct-church-write {
-          flex: 1;
+          flex: 1 1 auto;
           min-width: 0;
+          max-width: 92mm;
           display: flex;
           flex-direction: column;
           justify-content: flex-end;
         }
         .ct-church-write .ct-value {
-          text-align: left;
-          padding-left: 1mm;
+          text-align: center;
+          padding: 0 2mm 1px;
         }
 
         .ct-certify {
@@ -251,22 +257,30 @@ export function ClassicTuraMarriageCert({ data }: { data: MarriageCertViewModel 
         }
 
         .ct-row {
-          display: flex;
+          display: grid;
+          grid-template-columns: 52mm minmax(0, 1fr) 24mm;
           align-items: flex-end;
-          gap: 2.5mm;
+          column-gap: 3mm;
           width: 100%;
         }
 
         .ct-prefix,
         .ct-suffix {
-          flex-shrink: 0;
           padding-bottom: 1mm;
           white-space: nowrap;
+        }
+        .ct-prefix {
+          text-align: right;
+          justify-self: end;
+        }
+        .ct-suffix {
+          text-align: left;
+          justify-self: start;
         }
 
         .ct-script {
           font-family: 'Great Vibes', 'Segoe Script', cursive;
-          font-size: 17pt;
+          font-size: 15.5pt;
           font-weight: 400;
           line-height: 1;
         }
@@ -277,8 +291,8 @@ export function ClassicTuraMarriageCert({ data }: { data: MarriageCertViewModel 
         }
 
         .ct-write {
-          flex: 1;
-          min-width: 14mm;
+          min-width: 0;
+          width: 100%;
           display: flex;
           flex-direction: column;
           justify-content: flex-end;
@@ -294,7 +308,7 @@ export function ClassicTuraMarriageCert({ data }: { data: MarriageCertViewModel 
           color: var(--data);
           line-height: 1.15;
           min-height: 5mm;
-          padding: 0 1mm 1px;
+          padding: 0 2mm 1px;
           word-break: break-word;
         }
 
@@ -308,16 +322,35 @@ export function ClassicTuraMarriageCert({ data }: { data: MarriageCertViewModel 
         .ct-married-row {
           display: flex;
           align-items: flex-end;
-          gap: 2.5mm;
+          justify-content: center;
+          gap: 3mm;
+          width: 100%;
+        }
+        .ct-married-lead {
+          display: flex;
+          align-items: flex-end;
+          justify-content: flex-end;
+          gap: 2.2mm;
+          padding-bottom: 0.4mm;
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+        .ct-married-lead .ct-prefix {
+          text-align: left;
         }
         .ct-married-word {
           font-family: Oswald, 'Arial Black', sans-serif;
-          font-size: 17pt;
+          font-size: 16pt;
           font-weight: 700;
           letter-spacing: 0.02em;
-          padding-bottom: 0.4mm;
-          flex-shrink: 0;
           color: var(--ink);
+        }
+        .ct-married-row .ct-write {
+          flex: 1 1 auto;
+          max-width: 68mm;
+        }
+        .ct-married-row .ct-suffix {
+          display: none;
         }
 
         .ct-rite {
@@ -333,6 +366,7 @@ export function ClassicTuraMarriageCert({ data }: { data: MarriageCertViewModel 
           font-family: 'Great Vibes', 'Segoe Script', cursive;
           font-size: 15pt;
           line-height: 1.25;
+          text-align: center;
         }
 
         .ct-footer {
@@ -345,8 +379,25 @@ export function ClassicTuraMarriageCert({ data }: { data: MarriageCertViewModel 
           align-items: end;
         }
 
+        .ct-foot-left .ct-row,
+        .ct-foot-right .ct-row {
+          display: flex;
+          align-items: flex-end;
+          gap: 2.5mm;
+        }
         .ct-foot-left .ct-row {
-          max-width: 55mm;
+          max-width: 58mm;
+        }
+        .ct-foot-left .ct-prefix,
+        .ct-foot-right .ct-prefix {
+          text-align: left;
+        }
+        .ct-foot-left .ct-write,
+        .ct-foot-right .ct-write {
+          flex: 1;
+        }
+        .ct-footer .ct-suffix {
+          display: none;
         }
         .ct-foot-center {
           text-align: center;
@@ -426,13 +477,16 @@ export function ClassicTuraMarriageCert({ data }: { data: MarriageCertViewModel 
 
           <div className="ct-section">
             <div className="ct-married-row">
-              <span className="ct-prefix ct-script">Were Lawfully</span>
-              <span className="ct-married-word">Married</span>
-              <span className="ct-prefix ct-script">on</span>
+              <span className="ct-married-lead">
+                <span className="ct-prefix ct-script">Were Lawfully</span>
+                <span className="ct-married-word">Married</span>
+                <span className="ct-prefix ct-script">on</span>
+              </span>
               <span className="ct-write">
                 <span className="ct-value">{data.marriageDateDisplay || '\u00a0'}</span>
                 <span className="ct-dots" aria-hidden />
               </span>
+              <span className="ct-suffix" />
             </div>
             <p className="ct-rite">according to Rite of the Roman Catholic Church</p>
             <DotLine prefix="Rev. Fr." value={minister} suffix="officiating," />

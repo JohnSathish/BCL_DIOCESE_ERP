@@ -350,13 +350,13 @@ export function AppShell({
   return (
     <div
       className={cn(
-        'min-h-screen bg-[var(--bcl-bg)]',
+        'min-h-screen bg-[var(--bcl-bg)] print:!block print:bg-white',
         'md:grid md:grid-cols-[72px_1fr] lg:grid-cols-[var(--bcl-sidebar-width,260px)_1fr]',
       )}
     >
-      <div className="sticky top-0 hidden h-screen md:block">{aside()}</div>
+      <div className="sticky top-0 hidden h-screen md:block print:!hidden">{aside()}</div>
 
-      <div className="md:hidden">
+      <div className="md:hidden print:!hidden">
         <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-[var(--bcl-border)] bg-[var(--bcl-surface)] px-4 py-3">
           <button
             type="button"
@@ -386,13 +386,13 @@ export function AppShell({
         ) : null}
       </div>
 
-      <main className="min-w-0 bg-[var(--bcl-bg)]">
-        {topBar}
+      <main className="min-w-0 bg-[var(--bcl-bg)] print:bg-white">
+        <div className="print:!hidden">{topBar}</div>
         <div
           className={cn(
             layout === 'enterprise'
-              ? 'w-full max-w-none p-6'
-              : 'mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8',
+              ? 'w-full max-w-none p-6 print:p-0'
+              : 'mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8 print:max-w-none print:p-0',
             contentClassName,
           )}
         >

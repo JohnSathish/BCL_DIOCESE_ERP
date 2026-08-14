@@ -20,4 +20,5 @@ export type LlmTask =
   | 'translate'
   | 'search_summary'
   | 'chat'
-  | 'ocr';
+  | 'ocr'
+  | 'assistant';

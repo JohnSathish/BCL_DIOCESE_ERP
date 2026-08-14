@@ -36,7 +36,8 @@
     "appearance": "Appearance",
     "languages": "Ku·sikrang",
     "rbac": "Users & Roles",
-    "audit": "Audit Log"
+    "audit": "Audit Log",
+    "aiAssistant": "Diocese AI Assistant"
   },
   "dashboard": {
     "title": "Parish Command Center",

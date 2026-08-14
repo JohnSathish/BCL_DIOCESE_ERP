@@ -12,6 +12,8 @@ export default function CmsThemePage() {
     queryFn: () =>
       api.get<{
         primaryColor?: string | null;
+        secondaryColor?: string | null;
+        accentColor?: string | null;
         logoUrl?: string | null;
         faviconUrl?: string | null;
         themeJson?: Record<string, unknown> | null;
@@ -33,8 +35,8 @@ export default function CmsThemePage() {
     const t = (site.data.themeJson || {}) as Record<string, string>;
     setForm({
       primaryColor: site.data.primaryColor || t.primaryColor || '#722f37',
-      secondaryColor: t.secondaryColor || '#1e3a5f',
-      accentColor: t.accentColor || '#c4a35a',
+      secondaryColor: site.data.secondaryColor || t.secondaryColor || '#1e3a5f',
+      accentColor: site.data.accentColor || t.accentColor || '#c4a35a',
       logoUrl: site.data.logoUrl || '',
       faviconUrl: site.data.faviconUrl || '',
       fontDisplay: t.fontDisplay || 'Fraunces',
@@ -46,9 +48,12 @@ export default function CmsThemePage() {
     mutationFn: () =>
       api.patch('/cms/me/site', {
         primaryColor: form.primaryColor,
+        secondaryColor: form.secondaryColor,
+        accentColor: form.accentColor,
         logoUrl: form.logoUrl || null,
         faviconUrl: form.faviconUrl || null,
         themeJson: {
+          ...(site.data?.themeJson || {}),
           primaryColor: form.primaryColor,
           secondaryColor: form.secondaryColor,
           accentColor: form.accentColor,

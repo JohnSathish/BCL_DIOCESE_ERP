@@ -493,11 +493,115 @@ html.dark .dmrb-badge--danger { background: rgba(185, 28, 28, 0.25); color: #fca
   font-size: 0.9rem;
 }
 
-.dmrb-print-table {
+.dmrb-print-sheet {
+  display: none;
+  color: #111;
+  background: #fff;
+  font-family: 'Palatino Linotype', Palatino, 'Times New Roman', serif;
+}
+
+.dmrb-print-letterhead {
+  text-align: center;
+  margin-bottom: 8mm;
+  padding-bottom: 4mm;
+  border-bottom: 2px solid #7a1725;
+}
+
+.dmrb-print-diocese {
+  margin: 0;
+  font-size: 9pt;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #7a1725;
+  font-weight: 700;
+}
+
+.dmrb-print-letterhead h1 {
+  margin: 2mm 0 1mm;
+  font-size: 18pt;
+  letter-spacing: 0.04em;
+  color: #102a4a;
+  font-weight: 700;
+}
+
+.dmrb-print-parish {
+  margin: 0;
+  font-size: 11pt;
+  font-weight: 600;
+}
+
+.dmrb-print-meta {
+  margin: 2mm 0 0;
+  font-size: 8.5pt;
+  color: #333;
+  font-family: Calibri, 'Segoe UI', sans-serif;
+}
+
+.dmrb-print-sheet table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.72rem;
+  table-layout: fixed;
+  font-size: 8pt;
+  font-family: Calibri, 'Segoe UI', sans-serif;
 }
+
+.dmrb-print-sheet thead {
+  display: table-header-group;
+}
+
+.dmrb-print-sheet th,
+.dmrb-print-sheet td {
+  border: 0.4pt solid #333;
+  padding: 1.6mm 1.8mm;
+  vertical-align: top;
+  text-align: left;
+  color: #111;
+}
+
+.dmrb-print-sheet th {
+  background: #f3ece6;
+  font-size: 7.5pt;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.dmrb-print-sheet tbody tr {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.dmrb-print-sheet td strong {
+  display: block;
+  font-weight: 650;
+}
+
+.dmrb-print-sheet td small {
+  display: block;
+  margin-top: 0.4mm;
+  font-size: 7pt;
+  color: #333;
+  font-weight: 400;
+}
+
+.dmrb-print-sheet th:nth-child(1),
+.dmrb-print-sheet td:nth-child(1) { width: 12%; }
+.dmrb-print-sheet th:nth-child(2),
+.dmrb-print-sheet td:nth-child(2) { width: 10%; }
+.dmrb-print-sheet th:nth-child(3),
+.dmrb-print-sheet td:nth-child(3) { width: 16%; }
+.dmrb-print-sheet th:nth-child(4),
+.dmrb-print-sheet td:nth-child(4) { width: 16%; }
+.dmrb-print-sheet th:nth-child(5),
+.dmrb-print-sheet td:nth-child(5) { width: 12%; }
+.dmrb-print-sheet th:nth-child(6),
+.dmrb-print-sheet td:nth-child(6) { width: 12%; }
+.dmrb-print-sheet th:nth-child(7),
+.dmrb-print-sheet td:nth-child(7) { width: 12%; }
+.dmrb-print-sheet th:nth-child(8),
+.dmrb-print-sheet td:nth-child(8) { width: 10%; }
 
 .dmrb-print-table th,
 .dmrb-print-table td {
@@ -529,12 +633,37 @@ html.dark .dmrb-badge--danger { background: rgba(185, 28, 28, 0.25); color: #fca
 }
 
 @media print {
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+
+  @page marriage-register {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  .dmrb-screen,
   .dmrb-sticky,
   .dmrb-actions,
   .dmrb-rail,
   .dmrb-analytics,
   .dmrb-action-row,
-  .dmrb-crumb { display: none !important; }
-  .dmrb-layout { display: block; }
-  .dmrb-table-wrap { max-height: none; overflow: visible; box-shadow: none; }
+  .dmrb-crumb,
+  .bcl-sidebar,
+  .bcl-enterprise-topbar {
+    display: none !important;
+  }
+
+  .dmrb-print-sheet {
+    display: block !important;
+    page: marriage-register;
+    color: #111;
+    background: #fff;
+  }
 }

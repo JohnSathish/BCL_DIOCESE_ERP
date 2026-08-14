@@ -27,6 +27,7 @@ import { HallController } from './hall.controller';
 import { CatechismController } from './catechism.controller';
 import { CommunicationController, CalendarController } from './communication.controller';
 import { Phase4Service } from './phase4.service';
+import { AiAssistantService } from '../ai/ai-assistant.service';
 import {
   AiController,
   DioceseExpansionController,
@@ -61,6 +62,7 @@ import { AppControlModule } from '../app-control/app-control.module';
     SacramentService,
     ParishOpsService,
     Phase4Service,
+    AiAssistantService,
     ClergyService,
     TimelineService,
     AccommodationService,

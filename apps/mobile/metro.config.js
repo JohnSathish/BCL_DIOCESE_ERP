@@ -12,7 +12,9 @@ config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),
   path.resolve(workspaceRoot, 'node_modules'),
 ];
-config.resolver.disableHierarchicalLookup = true;
+// pnpm nests deps under .pnpm/<pkg>/node_modules; hierarchical lookup is required
+// so Metro can resolve react-native internals (invariant, whatwg-fetch, etc.).
+config.resolver.disableHierarchicalLookup = false;
 // Web-only packages live in the monorepo root; exclude them from Metro's watcher
 // to avoid ENOENT crashes on transient pnpm/next-intl temp directories (Windows).
 config.resolver.blockList = exclusionList([

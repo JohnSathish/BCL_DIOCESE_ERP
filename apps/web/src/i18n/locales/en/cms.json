@@ -1,7 +1,7 @@
 {
   "nav": {
     "cmsTitle": "Website CMS",
-    "cmsSubtitle": "Parish site builder",
+    "cmsSubtitle": "Digital Command Center",
     "dashboard": "Dashboard",
     "analytics": "Website Analytics",
     "pages": "Pages",
@@ -10,11 +10,11 @@
     "announcements": "Announcements",
     "gallery": "Gallery",
     "media": "Media Library",
-    "menus": "Menus",
+    "menus": "Menu Builder",
     "forms": "Forms",
     "massTimings": "Mass Timings",
     "homepage": "Homepage Builder",
-    "theme": "Theme Settings",
+    "theme": "Branding",
     "seo": "SEO",
     "settings": "Website Settings"
   },

@@ -24,8 +24,12 @@ import {
   CreateCmsEventDto,
   CreateCmsGalleryDto,
   CreateCmsMediaDto,
+  CreateCmsNewsletterCampaignDto,
+  CreateCmsNewsletterSubscriberDto,
   CreateCmsPageDto,
   CreateCmsPostDto,
+  CreateCmsRedirectDto,
+  CmsAiAssistDto,
   PatchCmsSiteDto,
   ReorderDto,
   ReplaceMenuDto,
@@ -138,6 +142,24 @@ export class CmsController {
   @Get('public/:slug/analytics/live')
   liveStats(@Param('slug') slug: string) {
     return this.analytics.publicLiveStats(slug);
+  }
+
+  @Public()
+  @Post('public/:slug/newsletter')
+  subscribeNewsletter(@Param('slug') slug: string, @Body() dto: CreateCmsNewsletterSubscriberDto) {
+    return this.cms.publicSubscribe(slug, dto);
+  }
+
+  @Public()
+  @Get('public/:slug/sitemap')
+  sitemap(@Param('slug') slug: string) {
+    return this.cms.sitemap(slug);
+  }
+
+  @Public()
+  @Get('public/:slug/robots')
+  robots(@Param('slug') slug: string) {
+    return this.cms.robots(slug);
   }
 
   @ApiBearerAuth()
@@ -478,8 +500,12 @@ export class CmsController {
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @RequirePermissions('cms.read')
   @Get('media')
-  listMedia(@CurrentUser() user: AuthPayload, @Query('folder') folder?: string) {
-    return this.cms.listMedia(user, folder);
+  listMedia(
+    @CurrentUser() user: AuthPayload,
+    @Query('folder') folder?: string,
+    @Query('q') q?: string,
+  ) {
+    return this.cms.listMedia(user, folder, q);
   }
 
   @ApiBearerAuth()
@@ -573,5 +599,133 @@ export class CmsController {
     @Body() dto: UpdateCmsFormSubmissionDto,
   ) {
     return this.cms.updateFormSubmission(user, id, dto);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions('cms.write')
+  @Post('ai-assist')
+  aiAssist(@CurrentUser() user: AuthPayload, @Body() dto: CmsAiAssistDto) {
+    return this.cms.aiAssist(user, dto);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions('cms.read')
+  @Get('versions')
+  versions(
+    @CurrentUser() user: AuthPayload,
+    @Query('entityType') entityType: string,
+    @Query('entityId') entityId: string,
+  ) {
+    return this.cms.listVersions(user, entityType, entityId);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions('cms.write')
+  @Post('versions/:id/restore')
+  restoreVersion(@CurrentUser() user: AuthPayload, @Param('id') id: string) {
+    return this.cms.restoreVersion(user, id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions('cms.write')
+  @Post('approve/:entityType/:id')
+  approve(
+    @CurrentUser() user: AuthPayload,
+    @Param('entityType') entityType: 'page' | 'post' | 'event' | 'announcement',
+    @Param('id') id: string,
+    @Body() body: { decision?: 'approve' | 'reject' },
+  ) {
+    return this.cms.approveContent(user, entityType, id, body.decision || 'approve');
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions('cms.read')
+  @Get('redirects')
+  listRedirects(@CurrentUser() user: AuthPayload) {
+    return this.cms.listRedirects(user);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions('cms.write')
+  @Post('redirects')
+  createRedirect(@CurrentUser() user: AuthPayload, @Body() dto: CreateCmsRedirectDto) {
+    return this.cms.createRedirect(user, dto);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions('cms.write')
+  @Delete('redirects/:id')
+  deleteRedirect(@CurrentUser() user: AuthPayload, @Param('id') id: string) {
+    return this.cms.deleteRedirect(user, id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions('cms.read')
+  @Get('newsletter/subscribers')
+  newsletterSubscribers(@CurrentUser() user: AuthPayload) {
+    return this.cms.listSubscribers(user);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions('cms.write')
+  @Post('newsletter/subscribers')
+  addSubscriber(@CurrentUser() user: AuthPayload, @Body() dto: CreateCmsNewsletterSubscriberDto) {
+    return this.cms.addSubscriber(user, dto);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions('cms.read')
+  @Get('newsletter/campaigns')
+  newsletterCampaigns(@CurrentUser() user: AuthPayload) {
+    return this.cms.listCampaigns(user);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions('cms.write')
+  @Post('newsletter/campaigns')
+  createCampaign(@CurrentUser() user: AuthPayload, @Body() dto: CreateCmsNewsletterCampaignDto) {
+    return this.cms.createCampaign(user, dto);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions('cms.write')
+  @Post('newsletter/campaigns/:id/send')
+  sendCampaign(
+    @CurrentUser() user: AuthPayload,
+    @Param('id') id: string,
+    @Body() body?: { testEmail?: string },
+  ) {
+    return this.cms.sendCampaign(user, id, body?.testEmail);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions('cms.read')
+  @Get('backup')
+  cmsBackup(@CurrentUser() user: AuthPayload) {
+    return this.cms.exportBackup(user);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions('cms.read')
+  @Get('events/:id/ical')
+  async eventIcal(@CurrentUser() user: AuthPayload, @Param('id') id: string) {
+    const events = await this.cms.listEvents(user);
+    const event = events.find((e) => e.id === id);
+    if (!event) return { ics: '' };
+    return { ics: this.cms.icalForEvent(event) };
   }
 }

@@ -85,6 +85,24 @@ export class AiQueryDto {
   @IsOptional() @IsString() organizationId?: string;
 }
 
+export class AiAssistantDto {
+  @IsString() query!: string;
+  @IsOptional() @IsString() organizationId?: string;
+  @IsOptional() @IsString() locale?: string;
+  @IsOptional() @IsObject()
+  context?: {
+    entity?: string;
+    action?: string;
+    parishHint?: string;
+    yearFrom?: number;
+    yearTo?: number;
+    ministerHint?: string;
+    villageHint?: string;
+    nameHint?: string;
+    lastQuery?: string;
+  };
+}
+
 export class CreateOcrJobDto {
   @IsString() imageUrl!: string;
   @IsOptional() @IsString() parishId?: string;

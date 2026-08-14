@@ -75,21 +75,47 @@ export type CmsDashboard = {
   upcomingEvents: Array<{ id: string; title: string; startsAt: string; venue?: string }>;
   latestNews: Array<{ id: string; title: string; status: string; updatedAt: string }>;
   topPages: Array<{ id: string; title: string; slug: string; updatedAt: string }>;
+  publishedPages?: number;
+  publishedNews?: number;
+  announcementCount?: number;
+  albumCount?: number;
+  maintenanceMode?: boolean;
+  activity?: Array<{ id: string; action: string; entityType: string; at: string; actor: string }>;
+  recentSubmissions?: Array<{
+    id: string;
+    submitterName?: string | null;
+    createdAt: string;
+    status: string;
+    form: { title: string };
+  }>;
 };
 
 export const BLOCK_TYPES = [
   { type: 'hero', label: 'Hero' },
   { type: 'text', label: 'Text' },
   { type: 'image', label: 'Image' },
-  { type: 'button', label: 'Button' },
+  { type: 'imageText', label: 'Image + Text' },
   { type: 'gallery', label: 'Gallery' },
+  { type: 'video', label: 'Video' },
+  { type: 'quote', label: 'Quote' },
+  { type: 'scripture', label: 'Scripture' },
+  { type: 'button', label: 'Call to action' },
+  { type: 'massSchedule', label: 'Mass Schedule' },
+  { type: 'eventList', label: 'Upcoming Events' },
+  { type: 'news', label: 'Latest News' },
+  { type: 'announcements', label: 'Announcements' },
+  { type: 'priest', label: 'Parish Priest' },
+  { type: 'ministries', label: 'Ministries' },
+  { type: 'sacraments', label: 'Sacraments' },
+  { type: 'donate', label: 'Donation' },
+  { type: 'contact', label: 'Contact Form' },
+  { type: 'map', label: 'Map' },
+  { type: 'prayer', label: 'Prayer Request' },
+  { type: 'testimonials', label: 'Testimonials' },
+  { type: 'stats', label: 'Statistics' },
+  { type: 'html', label: 'Custom HTML' },
   { type: 'cards', label: 'Cards' },
   { type: 'faq', label: 'FAQ' },
-  { type: 'contact', label: 'Contact' },
-  { type: 'massSchedule', label: 'Mass Schedule' },
-  { type: 'eventList', label: 'Event List' },
-  { type: 'news', label: 'Latest News' },
-  { type: 'map', label: 'Map' },
   { type: 'spacer', label: 'Spacer' },
 ] as const;
 

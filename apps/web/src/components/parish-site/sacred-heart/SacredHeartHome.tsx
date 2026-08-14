@@ -260,10 +260,15 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
         };
 
   const tagline = site?.tagline || s.heroTagline;
-  const email = parish?.email || SHP.email;
-  const phone = parish?.phone || SHP.phone;
-  const address = parish?.address || SHP.address;
+  const email = site?.contactJson?.email || site?.footerJson?.email || parish?.email || SHP.email;
+  const phone = site?.contactJson?.phone || site?.footerJson?.phone || parish?.phone || SHP.phone;
+  const address = site?.contactJson?.address || site?.footerJson?.address || parish?.address || SHP.address;
   const parishName = site?.siteTitle || parish?.name || SHP.name;
+  const mapsUrl =
+    site?.contactJson?.mapsUrl ||
+    site?.footerJson?.mapsUrl ||
+    'https://www.google.com/maps?q=Sacred+Heart+Church+Tura+Meghalaya&output=embed';
+  const social = site?.socialJson || {};
   const primaryColor = site?.primaryColor || (site?.themeJson?.primaryColor as string) || undefined;
   const priestJson =
     parish?.priestsJson && typeof parish.priestsJson === 'object'
@@ -384,9 +389,33 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
   const sectionEnabled = (type: string) => {
     const sections = site?.homepageSectionsJson;
     if (!sections?.length) return true;
-    const found = sections.find((sec) => sec.type === type || sec.id === type);
+    const aliases: Record<string, string[]> = {
+      hero: ['hero', 'hero_banner'],
+      gospel: ['gospel'],
+      today_mass: ['today_mass'],
+      welcome: ['welcome', 'welcome_message'],
+      priest: ['priest', 'parish_priest'],
+      announcements: ['announcements', 'latest_news', 'news'],
+      events: ['events'],
+      mass: ['mass', 'mass_timings'],
+      sacraments: ['sacraments'],
+      ministries: ['ministries'],
+      gallery: ['gallery', 'media'],
+      livestream: ['livestream'],
+      prayer: ['prayer'],
+      contact: ['contact'],
+      footer: ['footer'],
+    };
+    const keys = aliases[type] || [type];
+    const found = sections.find((sec) => keys.includes(sec.type) || keys.includes(sec.id));
     return found ? found.enabled : true;
   };
+
+  function livestreamEmbed(url: string) {
+    const yt = url.match(/(?:youtu\.be\/|v=|live\/|embed\/)([A-Za-z0-9_-]{6,})/);
+    if (yt) return `https://www.youtube.com/embed/${yt[1]}`;
+    return url;
+  }
 
   function downloadIcs() {
     const next = mass.nextMass;
@@ -429,6 +458,12 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
   return (
     <div className={`shp-site transition-opacity duration-300 ${contentRefreshing ? 'opacity-70' : ''}`}>
       <ParishJsonLd name={parishName} address={address} phone={phone} email={email} />
+
+      {site?.maintenanceMode ? (
+        <div className="bg-amber-900 px-4 py-2 text-center text-sm text-white">
+          The parish website is in maintenance mode. Mass times and essential information remain available.
+        </div>
+      ) : null}
 
       {bannerNotice ? (
         <div className="bg-[var(--shp-navy)] px-4 py-2 text-center text-sm text-white">
@@ -531,6 +566,7 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
       </section>
 
       {/* Today's Mass bar */}
+      {sectionEnabled('today_mass') ? (
       <section className="shp-mass-bar" aria-label="Today's Masses">
         <div className="shp-container-wide shp-mass-bar-inner">
           <p className="shp-mass-bar-label">{s.sections.todayMasses}</p>
@@ -556,6 +592,7 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
           </a>
         </div>
       </section>
+      ) : null}
 
       {/* Quick access */}
       <section className="shp-section--compact" aria-label={s.sections.quickAccess}>
@@ -750,6 +787,7 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
       ) : null}
 
       {/* Sacraments */}
+      {sectionEnabled('sacraments') ? (
       <section id="sacraments" className="shp-section">
         <div className="shp-container-wide">
           <SectionHeading eyebrow={s.sections.graceEyebrow} title={s.sections.sacramentsTitle} center />
@@ -775,8 +813,10 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
           </div>
         </div>
       </section>
+      ) : null}
 
       {/* Parish Priest */}
+      {sectionEnabled('priest') ? (
       <section id="priest" className="shp-section shp-priest">
         <div className="shp-container-wide shp-priest-grid">
           <div className="shp-priest-photo">
@@ -806,8 +846,10 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
           </div>
         </div>
       </section>
+      ) : null}
 
       {/* Ministries */}
+      {sectionEnabled('ministries') ? (
       <section id="ministries" className="shp-section">
         <div className="shp-container-wide">
           <SectionHeading eyebrow={s.sections.serveEyebrow} title={s.sections.ministriesTitle} center />
@@ -832,6 +874,7 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
           </div>
         </div>
       </section>
+      ) : null}
 
       {/* Stats */}
       <section className="shp-stats shp-section--compact" aria-label="Parish statistics">
@@ -843,9 +886,21 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
       </section>
 
       {/* Media strip */}
+      {sectionEnabled('gallery') || site?.livestreamUrl ? (
       <section id="media" className="shp-section shp-section--compact bg-[var(--shp-mist)]">
         <div className="shp-container-wide">
           <SectionHeading eyebrow={s.sections.watchEyebrow} title={s.sections.videoTitle} center />
+          {site?.livestreamUrl ? (
+            <div className="mt-8 overflow-hidden rounded-[var(--shp-radius-lg)] border border-[var(--shp-border)] aspect-video">
+              <iframe
+                title="Parish live stream"
+                src={livestreamEmbed(site.livestreamUrl)}
+                className="h-full w-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          ) : null}
           <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
             {[0, 1, 2].map((i) => (
               <a key={i} href="#media" className="shp-card group overflow-hidden">
@@ -869,6 +924,7 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
           </div>
         </div>
       </section>
+      ) : null}
 
       {/* Prayer / Donate / Testimonial */}
       <section className="shp-section">
@@ -970,7 +1026,7 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
           <div className="overflow-hidden rounded-[var(--shp-radius-lg)] border border-[var(--shp-border)] shadow-[var(--shp-shadow)] h-72">
             <iframe
               title={content.contact.mapTitle}
-              src="https://www.google.com/maps?q=Sacred+Heart+Church+Tura+Meghalaya&output=embed"
+              src={mapsUrl.includes('output=embed') ? mapsUrl : `${mapsUrl}${mapsUrl.includes('?') ? '&' : '?'}output=embed`}
               className="h-full w-full border-0"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
@@ -992,17 +1048,29 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
                 <p className="text-xs text-white/55">{SHP.place}</p>
               </div>
             </div>
-            <p className="mt-4 text-sm text-white/65 leading-relaxed max-w-xs">{content.footer.tagline}</p>
+            <p className="mt-4 text-sm text-white/65 leading-relaxed max-w-xs">
+              {site?.footerJson?.description || content.footer.tagline}
+            </p>
             <div className="mt-5 flex gap-2">
-              <a href="#" aria-label="Facebook" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20">
-                <Facebook className="h-4 w-4" />
-              </a>
-              <a href="#" aria-label="Instagram" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20">
-                <Instagram className="h-4 w-4" />
-              </a>
-              <a href="#" aria-label="YouTube" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20">
-                <Youtube className="h-4 w-4" />
-              </a>
+              {social.facebook ? (
+                <a href={social.facebook} aria-label="Facebook" target="_blank" rel="noreferrer" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20">
+                  <Facebook className="h-4 w-4" />
+                </a>
+              ) : null}
+              {social.instagram ? (
+                <a href={social.instagram} aria-label="Instagram" target="_blank" rel="noreferrer" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20">
+                  <Instagram className="h-4 w-4" />
+                </a>
+              ) : null}
+              {social.youtube ? (
+                <a href={social.youtube} aria-label="YouTube" target="_blank" rel="noreferrer" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20">
+                  <Youtube className="h-4 w-4" />
+                </a>
+              ) : (
+                <a href="#" aria-label="YouTube" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20">
+                  <Youtube className="h-4 w-4" />
+                </a>
+              )}
             </div>
           </div>
 
@@ -1031,12 +1099,27 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
           <div>
             <p className="shp-footer-title">{s.sections.footerNewsletter}</p>
             <p className="text-sm text-white/65 leading-relaxed">{s.sections.footerNewsletterHint}</p>
-            <form className="mt-4 flex gap-2" onSubmit={(e) => e.preventDefault()}>
+            <form
+              className="mt-4 flex gap-2"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const input = e.currentTarget.elements.namedItem('shp-newsletter') as HTMLInputElement | null;
+                const value = input?.value?.trim();
+                if (!value || !siteSlug) return;
+                await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1'}/cms/public/${siteSlug}/newsletter`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email: value }),
+                });
+                if (input) input.value = '';
+              }}
+            >
               <label className="sr-only shp-sr-only" htmlFor="shp-newsletter">
                 Email
               </label>
               <input
                 id="shp-newsletter"
+                name="shp-newsletter"
                 type="email"
                 placeholder={s.sections.footerEmailPlaceholder}
                 className="shp-field flex-1"
@@ -1060,9 +1143,9 @@ export function SacredHeartHome({ site, contentRefreshing }: Props) {
 
         <div className="shp-footer-bottom">
           <div className="shp-container-wide flex flex-col sm:flex-row items-center justify-between gap-2 py-4 text-xs text-white/50">
-            <p>
-              © {new Date().getFullYear()} {content.footer.copyright}
-            </p>
+              <p>
+                © {new Date().getFullYear()} {site?.footerJson?.copyright || content.footer.copyright}
+              </p>
             <p>
               {content.footer.developedBy}{' '}
               <a

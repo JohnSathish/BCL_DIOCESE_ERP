@@ -307,10 +307,25 @@ export function MarriageWizard({ editId }: { editId?: string }) {
   });
 
   const save = useMutation({
-    mutationFn: () =>
-      isEditing && editId
-        ? api.patch(`/sacraments/${editId}`, buildMarriagePayload(form))
-        : api.post('/sacraments', buildMarriagePayload(form)),
+    mutationFn: async () => {
+      const payload = buildMarriagePayload(form);
+      if (isEditing && editId) {
+        const {
+          type: _type,
+          parishId: _parishId,
+          memberId: _memberId,
+          spouseMemberId: _spouseMemberId,
+          issueCertificate,
+          ...body
+        } = payload;
+        const saved = await api.patch(`/sacraments/${editId}`, body);
+        if (issueCertificate) {
+          await api.post(`/sacraments/${editId}/certificate`, {});
+        }
+        return saved;
+      }
+      return api.post('/sacraments', payload);
+    },
     onSuccess: () => {
       if (!isEditing) localStorage.removeItem(DRAFT_KEY);
       router.push('/diocese/sacraments/marriages');

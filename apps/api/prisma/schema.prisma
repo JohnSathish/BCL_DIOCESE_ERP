@@ -140,6 +140,10 @@ model Organization {
   cmsSites         CmsSite[]
   parishDomains    ParishDomain[]
   cmsFormSubmissions CmsFormSubmission[]
+  cmsRedirects     CmsRedirect[]
+  cmsContentVersions CmsContentVersion[]
+  cmsNewsletterSubscribers CmsNewsletterSubscriber[]
+  cmsNewsletterCampaigns CmsNewsletterCampaign[]
   aiQueryLogs      AiQueryLog[]
   ocrJobs          OcrJob[]
   importJobs       ImportJob[]
@@ -492,6 +496,10 @@ model Parish {
   cmsVisitorSessions CmsSiteVisitorSession[]
   cmsVisitorDaily  CmsSiteVisitorDaily[]
   cmsMenus         CmsMenu[]
+  cmsRedirects     CmsRedirect[]
+  cmsContentVersions CmsContentVersion[]
+  cmsNewsletterSubscribers CmsNewsletterSubscriber[]
+  cmsNewsletterCampaigns CmsNewsletterCampaign[]
   importJobs       ImportJob[]
   reportSchedules  ReportSchedule[]
   mobileAppConfig  MobileAppConfig?
@@ -1588,6 +1596,7 @@ enum TransferStatus {
 enum CmsPageStatus {
   DRAFT
   PENDING_APPROVAL
+  SCHEDULED
   PUBLISHED
   ARCHIVED
 }
@@ -1611,11 +1620,19 @@ enum CmsFormType {
   VOLUNTEER
   MARRIAGE
   CATECHISM
+  BAPTISM
+  CONFIRMATION
+  COMMUNION
+  EVENT
+  HALL
+  CUSTOM
 }
 
 enum CmsFormSubmissionStatus {
   NEW
   READ
+  PRAYED
+  RESPONDED
   ARCHIVED
 }
 
@@ -1914,10 +1931,18 @@ model CmsSite {
   faviconUrl           String?
   customDomain         String?
   isPublished          Boolean   @default(true)
+  maintenanceMode      Boolean   @default(false)
   themeJson            Json?
   seoJson              Json?
   massTimingsJson      Json?
   homepageSectionsJson Json?
+  footerJson           Json?
+  socialJson           Json?
+  contactJson          Json?
+  livestreamUrl        String?
+  livestreamProvider   String?
+  secondaryColor       String?
+  accentColor          String?
   publishedAt          DateTime?
   lastPublishedAt      DateTime?
   createdAt            DateTime  @default(now())
@@ -1939,6 +1964,10 @@ model CmsSite {
   visitorSessions CmsSiteVisitorSession[]
   visitorDaily CmsSiteVisitorDaily[]
   translations CmsSiteTranslation[]
+  redirects    CmsRedirect[]
+  versions     CmsContentVersion[]
+  newsletterSubscribers CmsNewsletterSubscriber[]
+  newsletterCampaigns CmsNewsletterCampaign[]
 
   @@unique([organizationId, slug])
   @@unique([organizationId, subdomain])
@@ -1993,11 +2022,16 @@ model CmsPage {
   slug        String
   title       String
   content     String
+  excerpt     String?
+  featuredImageUrl String?
+  authorName  String?
   blocksJson  Json?
   seoJson     Json?
   status      CmsPageStatus @default(DRAFT)
   sortOrder   Int           @default(0)
   scheduledAt DateTime?
+  publishedAt DateTime?
+  expiresAt   DateTime?
   updatedById String?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -2026,9 +2060,11 @@ model CmsPost {
   seoJson       Json?
   authorName    String?
   attachmentUrl String?
+  galleryJson   Json?
   status        CmsPageStatus @default(DRAFT)
   publishedAt   DateTime?
   scheduledAt   DateTime?
+  expiresAt     DateTime?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   deletedAt     DateTime?
@@ -2047,6 +2083,12 @@ model CmsGalleryItem {
   title     String?
   imageUrl  String
   album     String?
+  description String?
+  location  String?
+  videoUrl  String?
+  takenAt   DateTime?
+  isCover   Boolean  @default(false)
+  status    CmsPageStatus @default(PUBLISHED)
   sortOrder Int      @default(0)
   createdAt DateTime @default(now())
 
@@ -2079,6 +2121,8 @@ model CmsMenuItem {
   label     String
   href      String
   sortOrder Int      @default(0)
+  isVisible Boolean  @default(true)
+  openInNewTab Boolean @default(false)
   createdAt DateTime @default(now())
 
   menu     CmsMenu       @relation(fields: [menuId], references: [id], onDelete: Cascade)
@@ -2101,6 +2145,12 @@ model CmsEvent {
   endsAt      DateTime?
   venue       String?
   organizer   String?
+  category    String?
+  registrationRequired Boolean  @default(false)
+  registrationUrl String?
+  contact     String?
+  priestId    String?
+  recurringRule String?
   status      CmsPageStatus  @default(DRAFT)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -2124,6 +2174,11 @@ model CmsAnnouncement {
   type      CmsAnnouncementType  @default(BANNER)
   priority  Int                 @default(0)
   expiresAt DateTime?
+  scheduledAt DateTime?
+  pushEnabled Boolean           @default(false)
+  websiteEnabled Boolean        @default(true)
+  mobileEnabled Boolean         @default(false)
+  appNotificationId String?
   status    CmsPageStatus       @default(DRAFT)
   createdAt DateTime            @default(now())
   updatedAt DateTime            @updatedAt
@@ -2148,6 +2203,11 @@ model CmsMedia {
   mimeType  String?
   sizeBytes Int?
   alt       String?
+  caption   String?
+  copyright String?
+  tags      String[]  @default([])
+  width     Int?
+  height    Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
@@ -2272,6 +2332,88 @@ model CmsSiteVisitorDaily {
   @@unique([siteId, visitDate])
   @@index([siteId, visitDate])
   @@index([parishId, visitDate])
+}
+
+/// Path-level URL redirects for parish websites (old slug → new slug).
+model CmsRedirect {
+  id          String   @id @default(cuid())
+  siteId      String
+  parishId    String
+  organizationId String
+  fromPath    String
+  toPath      String
+  statusCode  Int      @default(301)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  site         CmsSite      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  parish       Parish       @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([siteId, fromPath])
+  @@index([parishId])
+}
+
+/// Immutable snapshots of CMS content for restore / compare.
+model CmsContentVersion {
+  id            String   @id @default(cuid())
+  siteId        String
+  parishId      String
+  organizationId String
+  entityType    String
+  entityId      String
+  version       Int
+  snapshotJson  Json
+  createdById   String?
+  createdByName String?
+  createdAt     DateTime @default(now())
+
+  site         CmsSite      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  parish       Parish       @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([entityType, entityId])
+  @@index([siteId, createdAt])
+}
+
+model CmsNewsletterSubscriber {
+  id        String   @id @default(cuid())
+  siteId    String
+  parishId  String
+  organizationId String
+  email     String
+  name      String?
+  status    String   @default("ACTIVE")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  site         CmsSite      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  parish       Parish       @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([siteId, email])
+  @@index([parishId, status])
+}
+
+model CmsNewsletterCampaign {
+  id          String    @id @default(cuid())
+  siteId      String
+  parishId    String
+  organizationId String
+  subject     String
+  body        String
+  status      String    @default("DRAFT")
+  scheduledAt DateTime?
+  sentAt      DateTime?
+  sentCount   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  site         CmsSite      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  parish       Parish       @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([siteId, status])
 }
 
 model AiQueryLog {

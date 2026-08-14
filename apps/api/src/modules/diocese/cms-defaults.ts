@@ -74,16 +74,18 @@ export function defaultSeoJson(
 export function defaultHomepageSections() {
   return [
     { id: 'hero', type: 'hero', enabled: true, settings: {} },
+    { id: 'gospel', type: 'gospel', enabled: true, settings: {} },
+    { id: 'today_mass', type: 'today_mass', enabled: true, settings: {} },
     { id: 'welcome', type: 'welcome', enabled: true, settings: {} },
     { id: 'priest', type: 'priest', enabled: true, settings: {} },
-    { id: 'mass', type: 'mass', enabled: true, settings: {} },
-    { id: 'news', type: 'news', enabled: true, settings: {} },
+    { id: 'announcements', type: 'announcements', enabled: true, settings: {} },
     { id: 'events', type: 'events', enabled: true, settings: {} },
-    { id: 'stats', type: 'stats', enabled: true, settings: {} },
-    { id: 'gallery', type: 'gallery', enabled: true, settings: {} },
+    { id: 'mass', type: 'mass', enabled: true, settings: {} },
+    { id: 'sacraments', type: 'sacraments', enabled: true, settings: {} },
     { id: 'ministries', type: 'ministries', enabled: true, settings: {} },
+    { id: 'gallery', type: 'gallery', enabled: true, settings: {} },
+    { id: 'livestream', type: 'livestream', enabled: false, settings: {} },
     { id: 'prayer', type: 'prayer', enabled: true, settings: {} },
-    { id: 'donate', type: 'donate', enabled: false, settings: {} },
     { id: 'contact', type: 'contact', enabled: true, settings: {} },
     { id: 'footer', type: 'footer', enabled: true, settings: {} },
   ];
@@ -155,7 +157,7 @@ export type DefaultCmsForm = {
   slug: string;
   title: string;
   description: string;
-  type: 'PRAYER' | 'CONTACT' | 'DONATION' | 'VOLUNTEER' | 'MARRIAGE' | 'CATECHISM';
+  type: 'PRAYER' | 'CONTACT' | 'DONATION' | 'VOLUNTEER' | 'MARRIAGE' | 'CATECHISM' | 'BAPTISM' | 'CONFIRMATION' | 'COMMUNION' | 'EVENT' | 'HALL' | 'CUSTOM';
   sortOrder: number;
   fieldsJson: { fields: DefaultCmsFormField[] };
 };
@@ -174,6 +176,7 @@ export function defaultCmsForms(): DefaultCmsForm[] {
           { key: 'phone', label: 'Phone', type: 'tel', required: true },
           { key: 'email', label: 'Email', type: 'email', required: false },
           { key: 'intention', label: 'Prayer Intention', type: 'textarea', required: true },
+          { key: 'visibility', label: 'Visibility', type: 'select', required: true, options: ['Private', 'Public'] },
         ],
       },
     },
@@ -345,6 +348,78 @@ export function buildDefaultCmsPages(
       blocksJson: [{ id: 'contact-form', type: 'contact', props: {} }],
       status: 'PUBLISHED',
       sortOrder: 4,
+    },
+    {
+      parishId: parish.id,
+      slug: 'parish-priest',
+      title: 'Parish Priest',
+      content: `A message from the parish priest of ${parish.name}.`,
+      blocksJson: [{ id: 'priest', type: 'priest', props: { heading: 'Parish Priest' } }],
+      status: 'PUBLISHED',
+      sortOrder: 5,
+    },
+    {
+      parishId: parish.id,
+      slug: 'parish-council',
+      title: 'Parish Council',
+      content: 'Parish pastoral council members will be listed here.',
+      blocksJson: [{ id: 'council', type: 'text', props: { body: 'Parish pastoral council members will be listed here.' } }],
+      status: 'PUBLISHED',
+      sortOrder: 6,
+    },
+    {
+      parishId: parish.id,
+      slug: 'ministries',
+      title: 'Ministries',
+      content: 'Choir, catechism, youth, and pastoral ministries.',
+      blocksJson: [{ id: 'min', type: 'ministries', props: {} }],
+      status: 'PUBLISHED',
+      sortOrder: 7,
+    },
+    {
+      parishId: parish.id,
+      slug: 'news',
+      title: 'News',
+      content: 'Parish news and updates.',
+      blocksJson: [{ id: 'news', type: 'news', props: {} }],
+      status: 'PUBLISHED',
+      sortOrder: 8,
+    },
+    {
+      parishId: parish.id,
+      slug: 'events',
+      title: 'Events',
+      content: 'Upcoming parish events.',
+      blocksJson: [{ id: 'events', type: 'eventList', props: {} }],
+      status: 'PUBLISHED',
+      sortOrder: 9,
+    },
+    {
+      parishId: parish.id,
+      slug: 'gallery',
+      title: 'Gallery',
+      content: 'Parish photo gallery.',
+      blocksJson: [{ id: 'gal', type: 'gallery', props: {} }],
+      status: 'PUBLISHED',
+      sortOrder: 10,
+    },
+    {
+      parishId: parish.id,
+      slug: 'prayer-requests',
+      title: 'Prayer Requests',
+      content: 'Submit a prayer intention. Private requests are never shown on the public website.',
+      blocksJson: [{ id: 'prayer', type: 'prayer', props: {} }],
+      status: 'PUBLISHED',
+      sortOrder: 11,
+    },
+    {
+      parishId: parish.id,
+      slug: 'donations',
+      title: 'Donations',
+      content: 'Support the mission of the parish.',
+      blocksJson: [{ id: 'donate', type: 'donate', props: {} }],
+      status: 'PUBLISHED',
+      sortOrder: 12,
     },
   ];
 }

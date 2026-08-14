@@ -4,9 +4,16 @@ import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Input, Label, PageHeader, Select } from '@bcl/ui';
 import { api } from '@/lib/api';
-import { Plus, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react';
 
-type MenuItem = { id?: string; label: string; href: string; sortOrder: number };
+type MenuItem = {
+  id?: string;
+  label: string;
+  href: string;
+  sortOrder: number;
+  isVisible?: boolean;
+  openInNewTab?: boolean;
+};
 type Menu = { id: string; location: string; items: MenuItem[] };
 
 export default function CmsMenusPage() {
@@ -25,6 +32,8 @@ export default function CmsMenusPage() {
         label: i.label,
         href: i.href,
         sortOrder: i.sortOrder ?? idx,
+        isVisible: i.isVisible !== false,
+        openInNewTab: Boolean(i.openInNewTab),
       })),
     );
   }, [menus.data, location]);
@@ -38,11 +47,25 @@ export default function CmsMenusPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['cms-menus'] }),
   });
 
+  function move(i: number, dir: -1 | 1) {
+    const j = i + dir;
+    if (j < 0 || j >= items.length) return;
+    const next = [...items];
+    [next[i], next[j]] = [next[j], next[i]];
+    setItems(next);
+  }
+
+  function patch(i: number, part: Partial<MenuItem>) {
+    const next = [...items];
+    next[i] = { ...next[i], ...part };
+    setItems(next);
+  }
+
   return (
     <div>
       <PageHeader
-        title="Menus"
-        description="Header, footer, and mobile navigation"
+        title="Menu builder"
+        description="Add, rename, reorder, hide, or open links in a new tab"
         actions={
           <Button onClick={() => save.mutate()} disabled={save.isPending}>
             {save.isPending ? 'Saving…' : 'Save menu'}
@@ -59,30 +82,38 @@ export default function CmsMenusPage() {
       </div>
       <div className="space-y-2">
         {items.map((item, i) => (
-          <div key={i} className="cms-panel grid gap-2 p-3 sm:grid-cols-[1fr_1fr_auto]">
+          <div key={i} className="cms-panel grid gap-2 p-3 sm:grid-cols-[1fr_1fr_auto_auto_auto]">
             <div>
               <Label>Label</Label>
-              <Input
-                value={item.label}
-                onChange={(e) => {
-                  const next = [...items];
-                  next[i] = { ...next[i], label: e.target.value };
-                  setItems(next);
-                }}
-              />
+              <Input value={item.label} onChange={(e) => patch(i, { label: e.target.value })} />
             </div>
             <div>
-              <Label>Link</Label>
-              <Input
-                value={item.href}
-                onChange={(e) => {
-                  const next = [...items];
-                  next[i] = { ...next[i], href: e.target.value };
-                  setItems(next);
-                }}
-              />
+              <Label>Link / external URL</Label>
+              <Input value={item.href} onChange={(e) => patch(i, { href: e.target.value })} />
             </div>
-            <div className="flex items-end">
+            <label className="flex items-end gap-1 pb-2 text-xs">
+              <input
+                type="checkbox"
+                checked={item.isVisible !== false}
+                onChange={(e) => patch(i, { isVisible: e.target.checked })}
+              />
+              Show
+            </label>
+            <label className="flex items-end gap-1 pb-2 text-xs">
+              <input
+                type="checkbox"
+                checked={Boolean(item.openInNewTab)}
+                onChange={(e) => patch(i, { openInNewTab: e.target.checked })}
+              />
+              New tab
+            </label>
+            <div className="flex items-end gap-1">
+              <button type="button" className="rounded-lg border p-2" onClick={() => move(i, -1)}>
+                <ArrowUp className="h-4 w-4" />
+              </button>
+              <button type="button" className="rounded-lg border p-2" onClick={() => move(i, 1)}>
+                <ArrowDown className="h-4 w-4" />
+              </button>
               <button
                 type="button"
                 className="rounded-lg border p-2 text-red-600"
@@ -97,7 +128,9 @@ export default function CmsMenusPage() {
       <button
         type="button"
         className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-[var(--bcl-burgundy)]"
-        onClick={() => setItems([...items, { label: 'New link', href: '#', sortOrder: items.length }])}
+        onClick={() =>
+          setItems([...items, { label: 'New link', href: '#', sortOrder: items.length, isVisible: true, openInNewTab: false }])
+        }
       >
         <Plus className="h-4 w-4" /> Add item
       </button>

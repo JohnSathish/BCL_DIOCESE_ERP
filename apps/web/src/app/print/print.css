@@ -70,13 +70,13 @@
     overflow: visible !important;
   }
 
-  /* Hide absolutely everything except the certificate tree */
-  body * {
+  /* Certificate isolation — only on dedicated certificate print routes */
+  .bcl-print-root * {
     visibility: hidden !important;
   }
 
-  #certificate-print,
-  #certificate-print * {
+  .bcl-print-root #certificate-print,
+  .bcl-print-root #certificate-print * {
     visibility: visible !important;
   }
 
@@ -109,20 +109,16 @@
     background: transparent !important;
   }
 
-  /* Portrait certificates (marriage / default) */
   #certificate-print[data-orientation='portrait'] {
     width: 210mm !important;
     height: 297mm !important;
+    page: portrait-cert;
   }
 
-  /* Landscape certificates (baptism premium) */
   #certificate-print[data-orientation='landscape'] {
     width: 297mm !important;
     height: 210mm !important;
-  }
-
-  @page {
-    margin: 0;
+    page: landscape-cert;
   }
 
   @page portrait-cert {
@@ -135,11 +131,6 @@
     margin: 0;
   }
 
-  #certificate-print[data-orientation='portrait'] {
-    page: portrait-cert;
-  }
-
-  /* Hard hide dashboard chrome only (never certificate internals) */
   .bcl-sidebar,
   .bcl-enterprise-topbar,
   .bcl-print-screen-toolbar {

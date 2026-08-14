@@ -35,3 +35,12 @@ allprojects {
 
 apply plugin: "expo-root-project"
 apply plugin: "com.facebook.react.rootproject"
+
+subprojects { sub ->
+  sub.configurations.configureEach {
+    resolutionStrategy {
+      force 'androidx.core:core:1.15.0'
+      force 'androidx.core:core-ktx:1.15.0'
+    }
+  }
+}

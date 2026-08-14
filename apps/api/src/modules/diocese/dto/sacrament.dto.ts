@@ -137,6 +137,13 @@ export class CreateSacramentDto {
 }
 
 export class UpdateSacramentDto {
+  /** Allowed so create/update share the same client payload; type is not changed. */
+  @IsOptional() @IsEnum(SacramentType) type?: SacramentType;
+  @IsOptional() @IsString() parishId?: string;
+  @IsOptional() @IsString() memberId?: string;
+  @IsOptional() @IsString() spouseMemberId?: string;
+  @IsOptional() @IsBoolean() issueCertificate?: boolean;
+  @IsOptional() @IsString() digitalSignBy?: string;
   @IsOptional() @IsDateString() celebratedAt?: string;
   @IsOptional() @IsString() registerNumber?: string;
   @IsOptional() @IsInt() @Min(1900) registerYear?: number;

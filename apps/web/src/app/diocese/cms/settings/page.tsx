@@ -21,6 +21,15 @@ export default function CmsSettingsPage() {
         subdomain?: string | null;
         customDomain?: string | null;
         isPublished: boolean;
+        maintenanceMode?: boolean;
+        contactJson?: {
+          address?: string;
+          phone?: string;
+          email?: string;
+          officeHours?: string;
+          emergencyContact?: string;
+          mapsUrl?: string;
+        } | null;
       }>('/cms/me/site'),
   });
   const storage = useQuery({
@@ -41,10 +50,18 @@ export default function CmsSettingsPage() {
     subdomain: '',
     customDomain: '',
     isPublished: true,
+    maintenanceMode: false,
+    address: '',
+    phone: '',
+    email: '',
+    officeHours: '',
+    emergencyContact: '',
+    mapsUrl: '',
   });
 
   useEffect(() => {
     if (!site.data) return;
+    const c = site.data.contactJson || {};
     setForm({
       siteTitle: site.data.siteTitle,
       tagline: site.data.tagline || '',
@@ -52,15 +69,34 @@ export default function CmsSettingsPage() {
       subdomain: site.data.subdomain || '',
       customDomain: site.data.customDomain || '',
       isPublished: site.data.isPublished,
+      maintenanceMode: Boolean(site.data.maintenanceMode),
+      address: c.address || '',
+      phone: c.phone || '',
+      email: c.email || '',
+      officeHours: c.officeHours || '',
+      emergencyContact: c.emergencyContact || '',
+      mapsUrl: c.mapsUrl || '',
     });
   }, [site.data]);
 
   const save = useMutation({
     mutationFn: () =>
       api.patch('/cms/me/site', {
-        ...form,
+        siteTitle: form.siteTitle,
+        tagline: form.tagline,
+        slug: form.slug,
         subdomain: form.subdomain.trim() || '',
         customDomain: form.customDomain.trim() || '',
+        isPublished: form.isPublished,
+        maintenanceMode: form.maintenanceMode,
+        contactJson: {
+          address: form.address,
+          phone: form.phone,
+          email: form.email,
+          officeHours: form.officeHours,
+          emergencyContact: form.emergencyContact,
+          mapsUrl: form.mapsUrl,
+        },
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['cms-me-site'] });
@@ -134,8 +170,31 @@ export default function CmsSettingsPage() {
             checked={form.isPublished}
             onChange={(e) => setForm({ ...form, isPublished: e.target.checked })}
           />
-          Website is published
+          Website is published (Online)
         </label>
+        <label className="flex items-end gap-2 pb-2 text-sm sm:col-span-2">
+          <input
+            type="checkbox"
+            checked={form.maintenanceMode}
+            onChange={(e) => setForm({ ...form, maintenanceMode: e.target.checked })}
+          />
+          Maintenance mode
+        </label>
+        {(
+          [
+            ['address', 'Address'],
+            ['phone', 'Phone'],
+            ['email', 'Email'],
+            ['officeHours', 'Office hours'],
+            ['emergencyContact', 'Emergency contact'],
+            ['mapsUrl', 'Google Maps URL'],
+          ] as const
+        ).map(([key, label]) => (
+          <div key={key} className={key === 'address' || key === 'mapsUrl' ? 'sm:col-span-2' : ''}>
+            <Label>{label}</Label>
+            <Input value={form[key]} onChange={(e) => setForm({ ...form, [key]: e.target.value })} />
+          </div>
+        ))}
         {form.slug ? (
           <p className="sm:col-span-2 text-sm">
             Internal path:{' '}

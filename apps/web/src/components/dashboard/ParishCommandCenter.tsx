@@ -1467,7 +1467,7 @@ export function ParishCommandCenter() {
               <div className="mb-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-[var(--bcl-burgundy)]" />
-                  <strong className="text-sm">Parish AI Assistant</strong>
+                  <strong className="text-sm">Diocese AI Assistant</strong>
                 </div>
                 <button type="button" className="border-0 bg-transparent p-1" onClick={() => setAiOpen(false)} aria-label="Close">
                   <X className="h-4 w-4" />

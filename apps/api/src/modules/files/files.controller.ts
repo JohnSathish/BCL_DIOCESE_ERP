@@ -42,6 +42,26 @@ export class FilesController {
     @UploadedFile() file?: Express.Multer.File,
   ) {
     if (!file) throw new BadRequestException('file required');
+    const name = file.originalname || '';
+    if (/\.(exe|bat|cmd|com|msi|scr|js|jar|php|sh|ps1|dll)$/i.test(name)) {
+      throw new BadRequestException('Executable files are not allowed');
+    }
+    const mime = (file.mimetype || '').toLowerCase();
+    const allowed =
+      mime.startsWith('image/') ||
+      mime.startsWith('video/') ||
+      mime.startsWith('audio/') ||
+      mime === 'application/pdf' ||
+      mime.startsWith('application/vnd.') ||
+      mime === 'application/msword' ||
+      mime === 'text/plain' ||
+      mime === 'text/csv';
+    if (mime && !allowed) {
+      throw new BadRequestException('This file type is not allowed on the parish website');
+    }
+    if (file.size > 25 * 1024 * 1024) {
+      throw new BadRequestException('Files must be 25 MB or smaller');
+    }
     if (!user.organizationId && !user.isSuperAdmin) {
       throw new BadRequestException('organization required');
     }

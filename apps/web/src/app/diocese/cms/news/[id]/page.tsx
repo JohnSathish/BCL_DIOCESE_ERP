@@ -1,13 +1,18 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ImagePlus } from 'lucide-react';
-import { Button, Input, Label, PageHeader, Select, TextArea } from '@bcl/ui';
+import { Button, Input, Label, PageHeader, Select } from '@bcl/ui';
 import { getAccessToken } from '@bcl/auth-client';
 import { API_BASE, api } from '@/lib/api';
 import { LanguageTabs } from '@/components/cms/LanguageTabs';
+import { CmsRichText } from '@/components/cms/CmsRichText';
+import { AiAssistBar } from '@/components/cms/AiAssistBar';
+import { PAGE_STATUSES, NEWS_CATEGORIES } from '@/components/cms/cms-constants';
+import { compressImage } from '@/components/cms/compressImage';
 
 type Post = {
   id: string;
@@ -21,6 +26,8 @@ type Post = {
   isFeatured?: boolean;
   authorName?: string | null;
   status: string;
+  scheduledAt?: string | null;
+  publishedAt?: string | null;
 };
 
 export default function CmsNewsEditorPage() {
@@ -31,6 +38,10 @@ export default function CmsNewsEditorPage() {
     queryKey: ['cms-post', id],
     queryFn: () => api.get<Post>(`/cms/posts/${id}`),
   });
+  const site = useQuery({
+    queryKey: ['cms-me-site'],
+    queryFn: () => api.get<{ slug?: string }>('/cms/me/site'),
+  });
 
   const [form, setForm] = useState({
     title: '',
@@ -38,11 +49,12 @@ export default function CmsNewsEditorPage() {
     excerpt: '',
     content: '',
     coverUrl: '',
-    category: '',
+    category: 'Parish News',
     tags: '',
     authorName: '',
     status: 'DRAFT',
     isFeatured: false,
+    scheduledAt: '',
   });
   const [activeLang, setActiveLang] = useState('en');
   const [uploading, setUploading] = useState(false);
@@ -64,11 +76,12 @@ export default function CmsNewsEditorPage() {
         excerpt: post.data.excerpt || '',
         content: post.data.content || '',
         coverUrl: post.data.coverUrl || '',
-        category: post.data.category || '',
+        category: post.data.category || 'Parish News',
         tags: (post.data.tags || []).join(', '),
         authorName: post.data.authorName || '',
         status: post.data.status,
         isFeatured: Boolean(post.data.isFeatured),
+        scheduledAt: post.data.scheduledAt ? post.data.scheduledAt.slice(0, 16) : '',
       });
       return;
     }
@@ -83,13 +96,15 @@ export default function CmsNewsEditorPage() {
   }, [post.data, translation.data, activeLang]);
 
   const save = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (nextStatus?: string) => {
       const payload = {
         ...form,
+        status: nextStatus || form.status,
         tags: form.tags
           .split(',')
           .map((t) => t.trim())
           .filter(Boolean),
+        scheduledAt: form.scheduledAt ? new Date(form.scheduledAt).toISOString() : undefined,
       };
       if (activeLang === 'en') {
         return api.patch(`/cms/posts/${id}`, payload);
@@ -105,7 +120,6 @@ export default function CmsNewsEditorPage() {
       qc.invalidateQueries({ queryKey: ['cms-post-tr', id] });
       qc.invalidateQueries({ queryKey: ['cms-posts'] });
       qc.invalidateQueries({ queryKey: ['cms-dashboard'] });
-      router.push('/diocese/cms/news');
     },
   });
 
@@ -117,8 +131,9 @@ export default function CmsNewsEditorPage() {
     setUploading(true);
     setUploadError(null);
     try {
+      const compressed = await compressImage(file);
       const fd = new FormData();
-      fd.append('file', file);
+      fd.append('file', compressed);
       const token = getAccessToken();
       const res = await fetch(`${API_BASE}/files/upload`, {
         method: 'POST',
@@ -131,11 +146,11 @@ export default function CmsNewsEditorPage() {
       await api.post('/cms/media', {
         url: uploaded.url,
         key: uploaded.key || uploaded.url,
-        fileName: file.name,
-        mimeType: file.type,
-        sizeBytes: file.size,
+        fileName: compressed.name,
+        mimeType: compressed.type,
+        sizeBytes: compressed.size,
         folder: 'news',
-        alt: form.title || file.name,
+        alt: form.title || compressed.name,
       });
       setForm((f) => ({ ...f, coverUrl: uploaded.url as string }));
     } catch {
@@ -150,26 +165,65 @@ export default function CmsNewsEditorPage() {
     onSuccess: () => router.push('/diocese/cms/news'),
   });
 
+  const duplicate = useMutation({
+    mutationFn: () =>
+      api.post<{ id: string }>('/cms/posts', {
+        title: `${form.title} (Copy)`,
+        slug: `${form.slug}-copy-${Date.now().toString(36)}`,
+        content: form.content,
+        excerpt: form.excerpt,
+        coverUrl: form.coverUrl,
+        category: form.category,
+        status: 'DRAFT',
+      }),
+    onSuccess: (p: { id: string }) => router.push(`/diocese/cms/news/${p.id}`),
+  });
+
   if (post.isLoading) return <p className="text-sm text-[var(--bcl-muted)]">Loading…</p>;
+
+  const siteUrl = site.data?.slug ? `/site/${site.data.slug}` : null;
 
   return (
     <div>
       <PageHeader
         title="Edit news post"
-        description="Rich parish news with cover image and publish status"
+        description="AI suggestions never publish automatically. Save draft, schedule, or send for priest approval."
         actions={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            {siteUrl ? (
+              <Link href={siteUrl} target="_blank" className="inline-flex items-center rounded-lg border px-3 py-2 text-sm">
+                Preview website
+              </Link>
+            ) : null}
+            <Button variant="secondary" onClick={() => duplicate.mutate()}>
+              Duplicate
+            </Button>
             <Button variant="secondary" onClick={() => remove.mutate()}>
               Delete
             </Button>
-            <Button onClick={() => save.mutate()} disabled={save.isPending}>
-              {save.isPending ? 'Saving…' : 'Save post'}
+            <Button variant="secondary" onClick={() => save.mutate('DRAFT')} disabled={save.isPending}>
+              Save draft
+            </Button>
+            <Button variant="secondary" onClick={() => save.mutate('SCHEDULED')} disabled={save.isPending || !form.scheduledAt}>
+              Schedule
+            </Button>
+            <Button variant="secondary" onClick={() => save.mutate('PENDING_APPROVAL')} disabled={save.isPending}>
+              Submit for review
+            </Button>
+            <Button onClick={() => save.mutate('PUBLISHED')} disabled={save.isPending}>
+              Publish
             </Button>
           </div>
         }
       />
       <LanguageTabs active={activeLang} onChange={setActiveLang} />
       <div className="cms-panel grid gap-3 p-4 sm:grid-cols-2">
+        <AiAssistBar
+          title={form.title}
+          text={form.content || form.excerpt}
+          locale={activeLang}
+          onApply={(field, value) => setForm((f) => ({ ...f, [field]: value }))}
+        />
         <div className="sm:col-span-2">
           <Label>Title</Label>
           <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
@@ -181,19 +235,34 @@ export default function CmsNewsEditorPage() {
         <div>
           <Label>Status</Label>
           <Select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-            <option value="DRAFT">Draft</option>
-            <option value="PENDING_APPROVAL">Pending approval</option>
-            <option value="PUBLISHED">Published</option>
-            <option value="ARCHIVED">Archived</option>
+            {PAGE_STATUSES.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
           </Select>
         </div>
         <div>
           <Label>Category</Label>
-          <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
+          <Select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
+            {NEWS_CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </Select>
         </div>
         <div>
           <Label>Author</Label>
           <Input value={form.authorName} onChange={(e) => setForm({ ...form, authorName: e.target.value })} />
+        </div>
+        <div>
+          <Label>Schedule publish</Label>
+          <Input
+            type="datetime-local"
+            value={form.scheduledAt}
+            onChange={(e) => setForm({ ...form, scheduledAt: e.target.value })}
+          />
         </div>
         <div className="sm:col-span-2">
           <Label>Cover image</Label>
@@ -223,20 +292,12 @@ export default function CmsNewsEditorPage() {
             )}
             <div className="min-w-[220px] flex-1 space-y-2">
               <div className="flex flex-wrap gap-2">
-                <Button
-                  type="button"
-                  onClick={() => fileRef.current?.click()}
-                  disabled={uploading}
-                >
+                <Button type="button" onClick={() => fileRef.current?.click()} disabled={uploading}>
                   <ImagePlus className="h-4 w-4" />
                   {uploading ? 'Uploading…' : 'Upload image'}
                 </Button>
                 {form.coverUrl ? (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => setForm({ ...form, coverUrl: '' })}
-                  >
+                  <Button type="button" variant="secondary" onClick={() => setForm({ ...form, coverUrl: '' })}>
                     Remove
                   </Button>
                 ) : null}
@@ -256,11 +317,11 @@ export default function CmsNewsEditorPage() {
         </div>
         <div className="sm:col-span-2">
           <Label>Excerpt</Label>
-          <TextArea rows={2} value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })} />
+          <Input value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })} />
         </div>
         <div className="sm:col-span-2">
           <Label>Content</Label>
-          <TextArea rows={10} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} />
+          <CmsRichText value={form.content} onChange={(html) => setForm({ ...form, content: html })} />
         </div>
         <label className="flex items-center gap-2 text-sm sm:col-span-2">
           <input

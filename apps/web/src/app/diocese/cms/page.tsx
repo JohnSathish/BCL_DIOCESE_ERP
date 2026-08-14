@@ -213,9 +213,10 @@ export default function CmsDashboardPage() {
     <div className="wcc">
       <header className="wcc-header">
         <div>
-          <h1>Website Command Center</h1>
+          <h1>Digital Command Center</h1>
           <p>
-            {site?.siteTitle || 'Parish website'} · Parish Digital Experience Platform · manage once, publish everywhere
+            {site?.siteTitle || 'Sacred Heart Shrine Parish'} — manage the website, Mass timings, news,
+            events, galleries and parish communications from one place.
           </p>
         </div>
         <div className="wcc-actions">
@@ -242,6 +243,46 @@ export default function CmsDashboardPage() {
       </header>
 
       {renderStrip(healthStrip, 'wcc-metrics--health')}
+
+      <section className="wcc-metrics wcc-metrics--kpi">
+        {[
+          ['Website', d?.maintenanceMode ? 'Maintenance' : site?.isPublished ? 'Online' : 'Offline'],
+          ['Published pages', String(d?.publishedPages ?? d?.topPages?.length ?? 0)],
+          ['Drafts', String(d?.draftPosts ?? 0)],
+          ['News', String(d?.publishedNews ?? d?.latestNews?.length ?? 0)],
+          ['Events', String(d?.upcomingEvents?.length ?? 0)],
+          ['Announcements', String(d?.announcementCount ?? 0)],
+          ['Gallery', String(d?.albumCount ?? d?.galleryCount ?? 0)],
+          ['Media', String(d?.mediaCount ?? 0)],
+          ['Messages', String(d?.newSubmissions ?? 0)],
+          ['Visitors today', String(visitorsToday)],
+          ['This month', String(visitorsMonth)],
+          ['Online now', String(onlineNow)],
+        ].map(([label, value]) => (
+          <div key={label} className="wcc-metric">
+            <div className="wcc-metric__label">{label}</div>
+            <div className="wcc-metric__value is-ok">{value}</div>
+          </div>
+        ))}
+      </section>
+
+      <div className="mb-3 flex flex-wrap gap-2">
+        {[
+          ['+ New Page', '/diocese/cms/pages'],
+          ['+ New News', '/diocese/cms/news'],
+          ['+ New Event', '/diocese/cms/events'],
+          ['+ Announcement', '/diocese/cms/announcements'],
+          ['+ Upload Media', '/diocese/cms/media'],
+          ['+ Add Gallery', '/diocese/cms/gallery'],
+          ['Update Mass Schedule', '/diocese/cms/mass-timings'],
+          ['View Messages', '/diocese/cms/forms'],
+        ].map(([label, href]) => (
+          <Link key={href} href={href} className="wcc-btn">
+            {label}
+          </Link>
+        ))}
+      </div>
+
       {renderStrip(kpiStrip, 'wcc-metrics--kpi')}
 
       <div className="wcc-workflow">
@@ -310,7 +351,20 @@ export default function CmsDashboardPage() {
             <Activity size={16} color="#722f37" />
           </div>
           <div className="wcc-list">
-            {(d?.latestNews || []).slice(0, 4).map((n) => (
+            {(d?.activity || []).slice(0, 6).map((a) => (
+              <div key={a.id} className="wcc-list-item">
+                <div>
+                  <strong style={{ fontWeight: 600 }}>
+                    {a.actor} · {a.action.toLowerCase()} {a.entityType.replace(/^Cms/, '')}
+                  </strong>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--bcl-muted)' }}>
+                    {new Date(a.at).toLocaleString()}
+                  </div>
+                </div>
+              </div>
+            ))}
+            {!(d?.activity || []).length &&
+              (d?.latestNews || []).slice(0, 4).map((n) => (
               <div key={n.id} className="wcc-list-item">
                 <div>
                   <Link href={`/diocese/cms/news/${n.id}`} style={{ fontWeight: 600 }}>
@@ -573,6 +627,25 @@ export default function CmsDashboardPage() {
               {d?.lastPublishedAt ? new Date(d.lastPublishedAt).toLocaleString() : '—'}
             </div>
             <div className="wcc-list-item">Content sync: Website · App · Notifications</div>
+            <button
+              type="button"
+              className="wcc-btn"
+              onClick={async () => {
+                const data = await api.get<unknown>('/cms/backup');
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `parish-cms-backup-${new Date().toISOString().slice(0, 10)}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+            >
+              Download CMS backup
+            </button>
+            <Link href="/diocese/migration" className="wcc-link">
+              ERP Backup / Migration
+            </Link>
           </div>
         </section>
       </div>

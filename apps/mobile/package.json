@@ -1,8 +1,8 @@
 {
   "name": "@bcl/mobile",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
-  "main": "expo-router/entry",
+  "main": "index.js",
   "scripts": {
     "android": "expo start --port 8090",
     "android:device": "expo start --android --port 8090",
@@ -23,6 +23,7 @@
     "@react-navigation/bottom-tabs": "^7.3.10",
     "@react-navigation/native": "^7.1.6",
     "@tanstack/react-query": "^5.101.2",
+    "await-lock": "^3.0.0",
     "expo": "~53.0.9",
     "expo-calendar": "~14.1.4",
     "expo-camera": "^16.1.11",

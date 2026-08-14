@@ -38,9 +38,34 @@ export type CmsPublicSite = {
   }>;
   menus?: Array<{
     location: string;
-    items: Array<{ label: string; href: string; sortOrder: number }>;
+    items: Array<{ label: string; href: string; sortOrder: number; openInNewTab?: boolean; isVisible?: boolean }>;
   }>;
   slug?: string;
+  livestreamUrl?: string | null;
+  livestreamProvider?: string | null;
+  maintenanceMode?: boolean;
+  footerJson?: {
+    description?: string;
+    address?: string;
+    phone?: string;
+    email?: string;
+    copyright?: string;
+    mapsUrl?: string;
+  } | null;
+  socialJson?: {
+    facebook?: string;
+    instagram?: string;
+    youtube?: string;
+    whatsapp?: string;
+  } | null;
+  contactJson?: {
+    address?: string;
+    phone?: string;
+    email?: string;
+    officeHours?: string;
+    emergencyContact?: string;
+    mapsUrl?: string;
+  } | null;
   forms?: Array<{
     id: string;
     slug: string;

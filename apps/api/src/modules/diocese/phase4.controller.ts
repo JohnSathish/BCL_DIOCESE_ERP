@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Phase4Service } from './phase4.service';
 import {
+  AiAssistantDto,
   AiQueryDto,
   AiSearchDto,
   CreateOcrJobDto,
@@ -9,6 +10,7 @@ import {
 } from './dto/phase4.dto';
 import { JwtAuthGuard, PermissionsGuard, RequirePermissions } from '../../common/guards';
 import { CurrentUser, AuthPayload } from '../../common/current-user.decorator';
+import { AiAssistantService } from '../ai/ai-assistant.service';
 
 @ApiTags('diocese-expansion')
 @ApiBearerAuth()
@@ -32,18 +34,49 @@ export class DioceseExpansionController {
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller('ai')
 export class AiController {
-  constructor(private readonly phase4: Phase4Service) {}
+  constructor(
+    private readonly phase4: Phase4Service,
+    private readonly assistant: AiAssistantService,
+  ) {}
 
   @RequirePermissions('ai.read')
   @Post('search')
   search(@CurrentUser() user: AuthPayload, @Body() dto: AiSearchDto) {
-    return this.phase4.aiSearch(user, dto);
+    return this.assistant.ask(user, dto);
+  }
+
+  @RequirePermissions('ai.read')
+  @Post('assistant')
+  assistantAsk(@CurrentUser() user: AuthPayload, @Body() dto: AiAssistantDto) {
+    return this.assistant.ask(user, {
+      query: dto.query,
+      locale: dto.locale,
+      context: dto.context,
+    });
+  }
+
+  @RequirePermissions('ai.read')
+  @Get('context')
+  context(@CurrentUser() user: AuthPayload) {
+    return this.assistant.context(user);
+  }
+
+  @RequirePermissions('ai.read')
+  @Get('briefing')
+  briefing(@CurrentUser() user: AuthPayload) {
+    return this.assistant.briefing(user);
+  }
+
+  @RequirePermissions('ai.read')
+  @Get('insights')
+  insights(@CurrentUser() user: AuthPayload) {
+    return this.assistant.insights(user);
   }
 
   @RequirePermissions('ai.read')
   @Post('query')
   query(@CurrentUser() user: AuthPayload, @Body() dto: AiQueryDto) {
-    return this.phase4.aiQuery(user, dto);
+    return this.assistant.ask(user, dto);
   }
 
   @RequirePermissions('ai.read')

@@ -7,7 +7,7 @@ import { API_BASE } from '@/lib/api';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { trackCmsPageView } from '@/lib/trackCmsView';
 import { SacredHeartHome } from '@/components/parish-site/sacred-heart/SacredHeartHome';
-import { CmsPublicForm } from '@/components/cms/CmsPublicForm';
+import { CmsPublicForm, type CmsPublicFormDef } from '@/components/cms/CmsPublicForm';
 import { HolyMassSchedule } from '@/components/mass-schedule/HolyMassSchedule';
 import { useLocaleContext } from '@/i18n/LocaleProvider';
 
@@ -88,7 +88,7 @@ function renderBlocks(blocks: Block[], siteSlug: string, forms: PublicForm[] = [
             <p className="mt-2 text-sm text-[var(--bcl-muted)]">{contactForm.description}</p>
           ) : null}
           <div className="mt-4">
-            <CmsPublicForm siteSlug={siteSlug} form={contactForm} />
+            <CmsPublicForm siteSlug={siteSlug} form={contactForm as CmsPublicFormDef} />
           </div>
         </article>
       );
@@ -178,6 +178,11 @@ export default function PublicParishSitePage() {
       className="min-h-screen bg-[radial-gradient(900px_500px_at_10%_-10%,rgba(114,47,55,0.12),transparent),#f7f7f8]"
       style={{ ['--bcl-burgundy' as string]: primary }}
     >
+      {data.maintenanceMode ? (
+        <div className="bg-amber-800 px-4 py-2 text-center text-sm text-white">
+          This parish website is in maintenance mode.
+        </div>
+      ) : null}
       <header className="border-b border-[var(--bcl-border)] bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-5xl flex-wrap items-end justify-between gap-4 px-4 py-8">
           <div className="flex items-center gap-3">
@@ -193,8 +198,14 @@ export default function PublicParishSitePage() {
           </div>
           <nav className="flex flex-wrap items-center gap-3 text-sm font-semibold text-[var(--bcl-burgundy)]">
             <LanguageSwitcher compact />
-            {navItems.map((item: { label: string; href: string }) => (
-              <a key={item.href + item.label} href={item.href} className="hover:underline">
+            {navItems.map((item: { label: string; href: string; openInNewTab?: boolean }) => (
+              <a
+                key={item.href + item.label}
+                href={item.href}
+                className="hover:underline"
+                target={item.openInNewTab ? '_blank' : undefined}
+                rel={item.openInNewTab ? 'noreferrer' : undefined}
+              >
                 {item.label}
               </a>
             ))}
@@ -257,9 +268,24 @@ export default function PublicParishSitePage() {
               <div className="mt-4">
                 <CmsPublicForm
                   siteSlug={data.slug || slug}
-                  form={forms.find((f) => f.slug === 'contact')!}
+                  form={forms.find((f) => f.slug === 'contact')! as CmsPublicFormDef}
                 />
               </div>
+            </div>
+          ) : null}
+
+          {data.livestreamUrl ? (
+            <div className="overflow-hidden rounded-[18px] border border-[var(--bcl-border)] bg-white p-2">
+              <iframe
+                title="Live stream"
+                src={
+                  data.livestreamUrl.match(/(?:youtu\.be\/|v=|embed\/|live\/)([A-Za-z0-9_-]{6,})/)
+                    ? `https://www.youtube.com/embed/${data.livestreamUrl.match(/(?:youtu\.be\/|v=|embed\/|live\/)([A-Za-z0-9_-]{6,})/)![1]}`
+                    : data.livestreamUrl
+                }
+                className="h-48 w-full"
+                allowFullScreen
+              />
             </div>
           ) : null}
 

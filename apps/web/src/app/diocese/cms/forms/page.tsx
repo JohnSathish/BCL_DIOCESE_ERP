@@ -150,6 +150,8 @@ export default function CmsFormsPage() {
                 <option value="">All</option>
                 <option value="NEW">New</option>
                 <option value="READ">Read</option>
+                <option value="PRAYED">Prayed</option>
+                <option value="RESPONDED">Responded</option>
                 <option value="ARCHIVED">Archived</option>
               </Select>
             </div>

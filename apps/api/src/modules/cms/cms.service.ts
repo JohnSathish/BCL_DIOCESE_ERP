@@ -4,6 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import {
+  AppAudienceScope,
+  AppNotifCategory,
   CmsAnnouncementType,
   CmsFormSubmissionStatus,
   CmsMenuLocation,
@@ -19,6 +21,9 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { AuthPayload } from '../../common/current-user.decorator';
 import { TenancyService } from '../tenancy/tenancy.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { AuditService } from '../audit/audit.service';
+import { AppNotificationService } from '../app-control/app-notification.service';
+import { LlmService } from '../llm/llm.service';
 import { ContentLocalizationService } from '../i18n/content-localization.service';
 import { normalizeLocale } from '@bcl/i18n';
 import {
@@ -36,8 +41,12 @@ import {
   CreateCmsEventDto,
   CreateCmsGalleryDto,
   CreateCmsMediaDto,
+  CreateCmsNewsletterCampaignDto,
+  CreateCmsNewsletterSubscriberDto,
   CreateCmsPageDto,
   CreateCmsPostDto,
+  CreateCmsRedirectDto,
+  CmsAiAssistDto,
   MenuItemDto,
   PatchCmsSiteDto,
   PatchParishDomainDto,
@@ -75,6 +84,9 @@ export class CmsService {
     private readonly notifications: NotificationsService,
     private readonly localization: ContentLocalizationService,
     private readonly config: ConfigService,
+    private readonly audit: AuditService,
+    private readonly appNotifications: AppNotificationService,
+    private readonly llm: LlmService,
   ) {}
 
   private dayStart(d = new Date()) {
@@ -372,6 +384,34 @@ export class CmsService {
         take: 5,
         select: { id: true, title: true, slug: true, updatedAt: true },
       }),
+      publishedPages: await this.prisma.cmsPage.count({
+        where: { siteId: site.id, deletedAt: null, status: CmsPageStatus.PUBLISHED },
+      }),
+      publishedNews: await this.prisma.cmsPost.count({
+        where: { siteId: site.id, deletedAt: null, status: CmsPageStatus.PUBLISHED },
+      }),
+      announcementCount: await this.prisma.cmsAnnouncement.count({
+        where: { siteId: site.id, deletedAt: null, status: CmsPageStatus.PUBLISHED },
+      }),
+      albumCount: await this.prisma.cmsGalleryItem
+        .groupBy({ by: ['album'], where: { siteId: site.id } })
+        .then((rows) => rows.filter((r) => r.album).length),
+      maintenanceMode: Boolean(refreshed?.maintenanceMode),
+      activity: (
+        await this.prisma.auditLog.findMany({
+          where: { organizationId: site.organizationId, entityType: { startsWith: 'Cms' } },
+          orderBy: { createdAt: 'desc' },
+          take: 8,
+          include: { user: { select: { firstName: true, lastName: true } } },
+        })
+      ).map((a) => ({
+        id: a.id,
+        action: a.action,
+        entityType: a.entityType,
+        entityId: a.entityId,
+        at: a.createdAt,
+        actor: a.user ? `${a.user.firstName} ${a.user.lastName}`.trim() : 'Staff',
+      })),
     };
   }
 
@@ -472,6 +512,14 @@ export class CmsService {
             ? null
             : undefined,
         isPublished: dto.isPublished,
+        maintenanceMode: dto.maintenanceMode,
+        secondaryColor: dto.secondaryColor,
+        accentColor: dto.accentColor,
+        livestreamUrl: dto.livestreamUrl,
+        livestreamProvider: dto.livestreamProvider,
+        footerJson: dto.footerJson as Prisma.InputJsonValue | undefined,
+        socialJson: dto.socialJson as Prisma.InputJsonValue | undefined,
+        contactJson: dto.contactJson as Prisma.InputJsonValue | undefined,
         themeJson: dto.themeJson as Prisma.InputJsonValue | undefined,
         seoJson: seoJson as Prisma.InputJsonValue | undefined,
         massTimingsJson: dto.massTimingsJson as Prisma.InputJsonValue | undefined,
@@ -558,7 +606,11 @@ export class CmsService {
       where: { id: site.id },
       include: {
         pages: {
-          where: { deletedAt: null, status: CmsPageStatus.PUBLISHED },
+          where: {
+            deletedAt: null,
+            status: CmsPageStatus.PUBLISHED,
+            OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+          },
           orderBy: { sortOrder: 'asc' },
         },
         posts: {
@@ -566,7 +618,11 @@ export class CmsService {
           orderBy: { publishedAt: 'desc' },
           take: 20,
         },
-        gallery: { orderBy: { sortOrder: 'asc' }, take: 48 },
+        gallery: {
+          where: { status: CmsPageStatus.PUBLISHED },
+          orderBy: { sortOrder: 'asc' },
+          take: 48,
+        },
         events: {
           where: { deletedAt: null, status: CmsPageStatus.PUBLISHED },
           orderBy: { startsAt: 'asc' },
@@ -576,7 +632,11 @@ export class CmsService {
           where: {
             deletedAt: null,
             status: CmsPageStatus.PUBLISHED,
-            OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+            websiteEnabled: true,
+            AND: [
+              { OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] },
+              { OR: [{ scheduledAt: null }, { scheduledAt: { lte: new Date() } }] },
+            ],
           },
           orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
           take: 10,
@@ -594,7 +654,9 @@ export class CmsService {
           },
         },
         menus: {
-          include: { items: { orderBy: { sortOrder: 'asc' } } },
+          include: {
+            items: { where: { isVisible: true }, orderBy: { sortOrder: 'asc' } },
+          },
         },
         parish: {
           select: {
@@ -1116,14 +1178,21 @@ export class CmsService {
         status: dto.status || CmsPageStatus.DRAFT,
         sortOrder: dto.sortOrder ?? 0,
         scheduledAt: dto.scheduledAt ? new Date(dto.scheduledAt) : undefined,
+        excerpt: dto.excerpt,
+        featuredImageUrl: dto.featuredImageUrl,
+        authorName: dto.authorName,
+        publishedAt:
+          dto.status === CmsPageStatus.PUBLISHED ? (dto.publishedAt ? new Date(dto.publishedAt) : new Date()) : undefined,
+        expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : undefined,
         updatedById: user.id,
       },
     });
   }
 
   async updatePage(user: AuthPayload, id: string, dto: UpdateCmsPageDto) {
-    await this.getPage(user, id);
-    return this.prisma.cmsPage.update({
+    const existing = await this.getPage(user, id);
+    await this.snapshot(user, 'page', id, existing);
+    const updated = await this.prisma.cmsPage.update({
       where: { id },
       data: {
         slug: dto.slug?.toLowerCase(),
@@ -1134,9 +1203,28 @@ export class CmsService {
         status: dto.status,
         sortOrder: dto.sortOrder,
         scheduledAt: dto.scheduledAt ? new Date(dto.scheduledAt) : undefined,
+        excerpt: dto.excerpt,
+        featuredImageUrl: dto.featuredImageUrl,
+        authorName: dto.authorName,
+        publishedAt:
+          dto.status === CmsPageStatus.PUBLISHED && !existing.publishedAt
+            ? new Date()
+            : dto.publishedAt
+              ? new Date(dto.publishedAt)
+              : undefined,
+        expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : undefined,
         updatedById: user.id,
       },
     });
+    await this.audit.log({
+      organizationId: user.organizationId,
+      userId: user.id,
+      action: 'UPDATE',
+      entityType: 'CmsPage',
+      entityId: id,
+      metadata: { title: updated.title, status: updated.status },
+    });
+    return updated;
   }
 
   async duplicatePage(user: AuthPayload, id: string) {
@@ -1224,12 +1312,15 @@ export class CmsService {
               ? new Date(dto.publishedAt)
               : undefined,
         scheduledAt: dto.scheduledAt ? new Date(dto.scheduledAt) : undefined,
+        expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : undefined,
+        galleryJson: dto.galleryJson as Prisma.InputJsonValue | undefined,
       },
     });
   }
 
   async updatePost(user: AuthPayload, id: string, dto: UpdateCmsPostDto) {
     const existing = await this.getPost(user, id);
+    await this.snapshot(user, 'post', id, existing);
     const status = dto.status ?? existing.status;
     return this.prisma.cmsPost.update({
       where: { id },
@@ -1253,6 +1344,8 @@ export class CmsService {
               ? new Date(dto.publishedAt)
               : undefined,
         scheduledAt: dto.scheduledAt ? new Date(dto.scheduledAt) : undefined,
+        expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : undefined,
+        galleryJson: dto.galleryJson as Prisma.InputJsonValue | undefined,
       },
     });
   }
@@ -1276,7 +1369,7 @@ export class CmsService {
 
   async createEvent(user: AuthPayload, dto: CreateCmsEventDto) {
     const site = await this.resolveSite(user);
-    return this.prisma.cmsEvent.create({
+    const created = await this.prisma.cmsEvent.create({
       data: {
         siteId: site.id,
         parishId: site.parishId,
@@ -1288,9 +1381,20 @@ export class CmsService {
         endsAt: dto.endsAt ? new Date(dto.endsAt) : undefined,
         venue: dto.venue,
         organizer: dto.organizer,
+        category: dto.category,
+        registrationRequired: dto.registrationRequired ?? false,
+        registrationUrl: dto.registrationUrl,
+        contact: dto.contact,
+        priestId: dto.priestId,
+        recurringRule: dto.recurringRule,
         status: dto.status || CmsPageStatus.DRAFT,
       },
     });
+    if (created.status === CmsPageStatus.PUBLISHED) {
+      await this.syncEventToCalendar(user, created);
+      if (created.priestId) await this.notifyPriestAssignment(user, created);
+    }
+    return created;
   }
 
   async updateEvent(user: AuthPayload, id: string, dto: UpdateCmsEventDto) {
@@ -1299,7 +1403,7 @@ export class CmsService {
       where: { id, siteId: site.id, deletedAt: null },
     });
     if (!existing) throw new NotFoundException('Event not found');
-    return this.prisma.cmsEvent.update({
+    const updated = await this.prisma.cmsEvent.update({
       where: { id },
       data: {
         title: dto.title,
@@ -1310,9 +1414,22 @@ export class CmsService {
         endsAt: dto.endsAt ? new Date(dto.endsAt) : undefined,
         venue: dto.venue,
         organizer: dto.organizer,
+        category: dto.category,
+        registrationRequired: dto.registrationRequired,
+        registrationUrl: dto.registrationUrl,
+        contact: dto.contact,
+        priestId: dto.priestId,
+        recurringRule: dto.recurringRule,
         status: dto.status,
       },
     });
+    if (updated.status === CmsPageStatus.PUBLISHED) {
+      await this.syncEventToCalendar(user, updated);
+      if (updated.priestId && updated.priestId !== existing.priestId) {
+        await this.notifyPriestAssignment(user, updated);
+      }
+    }
+    return updated;
   }
 
   async deleteEvent(user: AuthPayload, id: string) {
@@ -1335,7 +1452,7 @@ export class CmsService {
 
   async createAnnouncement(user: AuthPayload, dto: CreateCmsAnnouncementDto) {
     const site = await this.resolveSite(user);
-    return this.prisma.cmsAnnouncement.create({
+    const created = await this.prisma.cmsAnnouncement.create({
       data: {
         siteId: site.id,
         parishId: site.parishId,
@@ -1344,9 +1461,25 @@ export class CmsService {
         type: dto.type || CmsAnnouncementType.BANNER,
         priority: dto.priority ?? 0,
         expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : undefined,
+        scheduledAt: dto.scheduledAt ? new Date(dto.scheduledAt) : undefined,
         status: dto.status || CmsPageStatus.DRAFT,
+        pushEnabled: dto.pushEnabled ?? false,
+        websiteEnabled: dto.websiteEnabled ?? true,
+        mobileEnabled: dto.mobileEnabled ?? false,
       },
     });
+    if (created.status === CmsPageStatus.PUBLISHED && (created.pushEnabled || created.mobileEnabled)) {
+      await this.fanoutAnnouncement(user, created);
+    }
+    await this.audit.log({
+      organizationId: site.organizationId,
+      userId: user.id,
+      action: 'CREATE',
+      entityType: 'CmsAnnouncement',
+      entityId: created.id,
+      metadata: { title: created.title },
+    });
+    return created;
   }
 
   async updateAnnouncement(user: AuthPayload, id: string, dto: UpdateCmsAnnouncementDto) {
@@ -1363,7 +1496,11 @@ export class CmsService {
         type: dto.type,
         priority: dto.priority,
         expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : undefined,
+        scheduledAt: dto.scheduledAt ? new Date(dto.scheduledAt) : undefined,
         status: dto.status,
+        pushEnabled: dto.pushEnabled,
+        websiteEnabled: dto.websiteEnabled,
+        mobileEnabled: dto.mobileEnabled,
       },
     });
   }
@@ -1395,6 +1532,10 @@ export class CmsService {
         title: dto.title,
         album: dto.album,
         sortOrder: dto.sortOrder ?? 0,
+        description: dto.description,
+        location: dto.location,
+        videoUrl: dto.videoUrl,
+        isCover: dto.isCover ?? false,
       },
     });
   }
@@ -1436,13 +1577,23 @@ export class CmsService {
   }
 
   // ——— Media ———
-  async listMedia(user: AuthPayload, folder?: string) {
+  async listMedia(user: AuthPayload, folder?: string, q?: string) {
     const site = await this.resolveSite(user);
+    const query = q?.trim();
     return this.prisma.cmsMedia.findMany({
       where: {
         siteId: site.id,
         deletedAt: null,
         ...(folder ? { folder } : {}),
+        ...(query
+          ? {
+              OR: [
+                { fileName: { contains: query, mode: 'insensitive' } },
+                { alt: { contains: query, mode: 'insensitive' } },
+                { caption: { contains: query, mode: 'insensitive' } },
+              ],
+            }
+          : {}),
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -1461,6 +1612,9 @@ export class CmsService {
         mimeType: dto.mimeType,
         sizeBytes: dto.sizeBytes,
         alt: dto.alt,
+        caption: dto.caption,
+        copyright: dto.copyright,
+        tags: dto.tags || [],
       },
     });
   }
@@ -1473,7 +1627,7 @@ export class CmsService {
     if (!media) throw new NotFoundException('Media not found');
     return this.prisma.cmsMedia.update({
       where: { id },
-      data: { folder: dto.folder, fileName: dto.fileName, alt: dto.alt },
+      data: { folder: dto.folder, fileName: dto.fileName, alt: dto.alt, caption: dto.caption, copyright: dto.copyright, tags: dto.tags },
     });
   }
 
@@ -1522,6 +1676,8 @@ export class CmsService {
           href: item.href,
           sortOrder: item.sortOrder ?? i,
           parentId: item.parentId || undefined,
+          isVisible: item.isVisible ?? true,
+          openInNewTab: item.openInNewTab ?? false,
         },
       });
     }
@@ -1695,5 +1851,429 @@ export class CmsService {
       submissionId: submission.id,
       message: 'Thank you. Your submission has been received.',
     };
+  }
+
+  async snapshot(user: AuthPayload, entityType: string, entityId: string, snapshot: unknown) {
+    const site = await this.resolveSite(user);
+    const last = await this.prisma.cmsContentVersion.findFirst({
+      where: { entityType, entityId },
+      orderBy: { version: 'desc' },
+    });
+    return this.prisma.cmsContentVersion.create({
+      data: {
+        siteId: site.id,
+        parishId: site.parishId,
+        organizationId: site.organizationId,
+        entityType,
+        entityId,
+        version: (last?.version || 0) + 1,
+        snapshotJson: snapshot as Prisma.InputJsonValue,
+        createdById: user.id,
+        createdByName: `${user.firstName} ${user.lastName}`.trim(),
+      },
+    });
+  }
+
+  listVersions(user: AuthPayload, entityType: string, entityId: string) {
+    return this.resolveSite(user).then((site) =>
+      this.prisma.cmsContentVersion.findMany({
+        where: { siteId: site.id, entityType, entityId },
+        orderBy: { version: 'desc' },
+        take: 40,
+      }),
+    );
+  }
+
+  async restoreVersion(user: AuthPayload, id: string) {
+    const site = await this.resolveSite(user);
+    const ver = await this.prisma.cmsContentVersion.findFirst({
+      where: { id, siteId: site.id },
+    });
+    if (!ver) throw new NotFoundException('Version not found');
+    const snap = (ver.snapshotJson || {}) as Record<string, unknown>;
+    if (ver.entityType === 'page') {
+      await this.prisma.cmsPage.update({
+        where: { id: ver.entityId },
+        data: {
+          title: String(snap.title || ''),
+          content: String(snap.content || ''),
+          blocksJson: (snap.blocksJson as Prisma.InputJsonValue) ?? undefined,
+          status: (snap.status as CmsPageStatus) || undefined,
+        },
+      });
+    }
+    if (ver.entityType === 'post') {
+      await this.prisma.cmsPost.update({
+        where: { id: ver.entityId },
+        data: {
+          title: String(snap.title || ''),
+          content: String(snap.content || ''),
+          excerpt: snap.excerpt ? String(snap.excerpt) : undefined,
+          status: (snap.status as CmsPageStatus) || undefined,
+        },
+      });
+    }
+    return { restored: true, version: ver.version };
+  }
+
+  async approveContent(user: AuthPayload, entityType: 'page' | 'post' | 'event' | 'announcement', id: string, decision: 'approve' | 'reject') {
+    const status = decision === 'approve' ? CmsPageStatus.PUBLISHED : CmsPageStatus.DRAFT;
+    if (entityType === 'page') return this.updatePage(user, id, { status, publishedAt: new Date().toISOString() });
+    if (entityType === 'post') return this.updatePost(user, id, { status });
+    if (entityType === 'event') return this.updateEvent(user, id, { status });
+    return this.updateAnnouncement(user, id, { status });
+  }
+
+  async listRedirects(user: AuthPayload) {
+    const site = await this.resolveSite(user);
+    return this.prisma.cmsRedirect.findMany({ where: { siteId: site.id }, orderBy: { createdAt: 'desc' } });
+  }
+
+  async createRedirect(user: AuthPayload, dto: CreateCmsRedirectDto) {
+    const site = await this.resolveSite(user);
+    return this.prisma.cmsRedirect.create({
+      data: {
+        siteId: site.id,
+        parishId: site.parishId,
+        organizationId: site.organizationId,
+        fromPath: dto.fromPath.startsWith('/') ? dto.fromPath : `/${dto.fromPath}`,
+        toPath: dto.toPath,
+        statusCode: dto.statusCode === 302 ? 302 : 301,
+      },
+    });
+  }
+
+  async deleteRedirect(user: AuthPayload, id: string) {
+    const site = await this.resolveSite(user);
+    await this.prisma.cmsRedirect.deleteMany({ where: { id, siteId: site.id } });
+    return { success: true };
+  }
+
+  async listSubscribers(user: AuthPayload) {
+    const site = await this.resolveSite(user);
+    return this.prisma.cmsNewsletterSubscriber.findMany({
+      where: { siteId: site.id },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async addSubscriber(user: AuthPayload, dto: CreateCmsNewsletterSubscriberDto) {
+    const site = await this.resolveSite(user);
+    return this.prisma.cmsNewsletterSubscriber.upsert({
+      where: { siteId_email: { siteId: site.id, email: dto.email.toLowerCase() } },
+      create: {
+        siteId: site.id,
+        parishId: site.parishId,
+        organizationId: site.organizationId,
+        email: dto.email.toLowerCase(),
+        name: dto.name,
+      },
+      update: { name: dto.name, status: 'ACTIVE' },
+    });
+  }
+
+  async publicSubscribe(slug: string, dto: CreateCmsNewsletterSubscriberDto) {
+    const site = await this.resolvePublicSite(slug);
+    return this.prisma.cmsNewsletterSubscriber.upsert({
+      where: { siteId_email: { siteId: site.id, email: dto.email.toLowerCase() } },
+      create: {
+        siteId: site.id,
+        parishId: site.parishId,
+        organizationId: site.organizationId,
+        email: dto.email.toLowerCase(),
+        name: dto.name,
+      },
+      update: { status: 'ACTIVE' },
+    });
+  }
+
+  async listCampaigns(user: AuthPayload) {
+    const site = await this.resolveSite(user);
+    return this.prisma.cmsNewsletterCampaign.findMany({
+      where: { siteId: site.id },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async createCampaign(user: AuthPayload, dto: CreateCmsNewsletterCampaignDto) {
+    const site = await this.resolveSite(user);
+    return this.prisma.cmsNewsletterCampaign.create({
+      data: {
+        siteId: site.id,
+        parishId: site.parishId,
+        organizationId: site.organizationId,
+        subject: dto.subject,
+        body: dto.body,
+        scheduledAt: dto.scheduledAt ? new Date(dto.scheduledAt) : undefined,
+        status: dto.scheduledAt ? 'SCHEDULED' : 'DRAFT',
+      },
+    });
+  }
+
+  async sendCampaign(user: AuthPayload, id: string, testEmail?: string) {
+    const site = await this.resolveSite(user);
+    const campaign = await this.prisma.cmsNewsletterCampaign.findFirst({
+      where: { id, siteId: site.id },
+    });
+    if (!campaign) throw new NotFoundException('Campaign not found');
+    const recipients = testEmail
+      ? [{ email: testEmail }]
+      : await this.prisma.cmsNewsletterSubscriber.findMany({
+          where: { siteId: site.id, status: 'ACTIVE' },
+          select: { email: true },
+        });
+    let sent = 0;
+    for (const r of recipients) {
+      await this.notifications.sendEmail(r.email, campaign.subject, campaign.body);
+      sent += 1;
+    }
+    if (!testEmail) {
+      await this.prisma.cmsNewsletterCampaign.update({
+        where: { id },
+        data: { status: 'SENT', sentAt: new Date(), sentCount: sent },
+      });
+    }
+    return { sent, test: Boolean(testEmail) };
+  }
+
+  async sitemap(slug: string) {
+    const site = await this.resolvePublicSite(slug);
+    const pages = await this.prisma.cmsPage.findMany({
+      where: { siteId: site.id, deletedAt: null, status: CmsPageStatus.PUBLISHED },
+      select: { slug: true, updatedAt: true },
+    });
+    const posts = await this.prisma.cmsPost.findMany({
+      where: { siteId: site.id, deletedAt: null, status: CmsPageStatus.PUBLISHED },
+      select: { slug: true, updatedAt: true },
+    });
+    const urls = [
+      ...pages.map((p) => ({ loc: `/site/${site.slug}/${p.slug}`, lastmod: p.updatedAt })),
+      ...posts.map((p) => ({ loc: `/site/${site.slug}/news/${p.slug}`, lastmod: p.updatedAt })),
+    ];
+    return { slug: site.slug, urls };
+  }
+
+  async robots(slug: string) {
+    const site = await this.resolvePublicSite(slug);
+    const seo = (site.seoJson || {}) as Record<string, string>;
+    return {
+      robots: seo.robots || 'index,follow',
+      sitemap: `/site/${site.slug}/sitemap.xml`,
+      maintenance: site.maintenanceMode,
+    };
+  }
+
+  async exportBackup(user: AuthPayload) {
+    const site = await this.resolveSite(user);
+    const [pages, posts, events, announcements, media, menus, forms, redirects, seo] = await Promise.all([
+      this.prisma.cmsPage.findMany({ where: { siteId: site.id, deletedAt: null } }),
+      this.prisma.cmsPost.findMany({ where: { siteId: site.id, deletedAt: null } }),
+      this.prisma.cmsEvent.findMany({ where: { siteId: site.id, deletedAt: null } }),
+      this.prisma.cmsAnnouncement.findMany({ where: { siteId: site.id, deletedAt: null } }),
+      this.prisma.cmsMedia.findMany({ where: { siteId: site.id, deletedAt: null } }),
+      this.prisma.cmsMenu.findMany({ where: { siteId: site.id }, include: { items: true } }),
+      this.prisma.cmsForm.findMany({ where: { siteId: site.id } }),
+      this.prisma.cmsRedirect.findMany({ where: { siteId: site.id } }),
+      Promise.resolve(site.seoJson),
+    ]);
+    return {
+      exportedAt: new Date().toISOString(),
+      site: {
+        slug: site.slug,
+        siteTitle: site.siteTitle,
+        themeJson: site.themeJson,
+        seoJson: seo,
+        homepageSectionsJson: site.homepageSectionsJson,
+        footerJson: site.footerJson,
+        socialJson: site.socialJson,
+      },
+      pages,
+      posts,
+      events,
+      announcements,
+      media,
+      menus,
+      forms,
+      redirects,
+    };
+  }
+
+  async aiAssist(user: AuthPayload, dto: CmsAiAssistDto) {
+    const action = dto.action;
+    const system =
+      action === 'headline'
+        ? 'Write a short parish news headline. Do not invent facts.'
+        : action === 'excerpt'
+          ? 'Write a 1-2 sentence excerpt. Do not invent facts.'
+          : action === 'summarise' || action === 'summarize'
+            ? 'Summarise this parish content in 3 sentences. Do not invent facts.'
+            : action === 'translate'
+              ? `Translate into locale "${dto.locale || 'gar'}". Preserve names. Do not add facts.`
+              : action === 'announcement'
+                ? 'Turn this into a concise parish announcement. Do not invent facts.'
+                : action === 'grammar'
+                  ? 'Correct grammar only. Do not change meaning or add facts.'
+                  : 'Improve clarity of this parish website copy. Do not invent facts or publish.';
+    if (!this.llm.isLive()) {
+      return { suggestion: dto.text || dto.title || '', provider: 'heuristic', note: 'LLM is not configured. Suggestion is the original text — nothing was published.' };
+    }
+    const res = await this.llm.complete({
+      task: 'compose',
+      system,
+      user: dto.text || dto.title || '',
+      maxTokens: 400,
+    });
+    return { suggestion: res.text, provider: res.providerMode, note: 'This is a draft suggestion. It will not publish until you save.' };
+  }
+
+  async processScheduledContent() {
+    const now = new Date();
+    const [pages, posts, announcements] = await Promise.all([
+      this.prisma.cmsPage.updateMany({
+        where: {
+          deletedAt: null,
+          status: { in: [CmsPageStatus.SCHEDULED, CmsPageStatus.DRAFT] },
+          scheduledAt: { lte: now },
+        },
+        data: { status: CmsPageStatus.PUBLISHED, publishedAt: now },
+      }),
+      this.prisma.cmsPost.updateMany({
+        where: {
+          deletedAt: null,
+          status: { in: [CmsPageStatus.SCHEDULED, CmsPageStatus.DRAFT] },
+          scheduledAt: { lte: now },
+        },
+        data: { status: CmsPageStatus.PUBLISHED, publishedAt: now },
+      }),
+      this.prisma.cmsAnnouncement.updateMany({
+        where: {
+          deletedAt: null,
+          status: { in: [CmsPageStatus.SCHEDULED, CmsPageStatus.DRAFT] },
+          scheduledAt: { lte: now },
+        },
+        data: { status: CmsPageStatus.PUBLISHED },
+      }),
+    ]);
+    await this.prisma.cmsAnnouncement.updateMany({
+      where: { deletedAt: null, status: CmsPageStatus.PUBLISHED, expiresAt: { lte: now } },
+      data: { status: CmsPageStatus.ARCHIVED },
+    });
+    const dueCampaigns = await this.prisma.cmsNewsletterCampaign.findMany({
+      where: { status: 'SCHEDULED', scheduledAt: { lte: now } },
+      take: 10,
+    });
+    for (const c of dueCampaigns) {
+      const subs = await this.prisma.cmsNewsletterSubscriber.findMany({
+        where: { siteId: c.siteId, status: 'ACTIVE' },
+      });
+      for (const s of subs) {
+        await this.notifications.sendEmail(s.email, c.subject, c.body);
+      }
+      await this.prisma.cmsNewsletterCampaign.update({
+        where: { id: c.id },
+        data: { status: 'SENT', sentAt: now, sentCount: subs.length },
+      });
+    }
+    return { pages: pages.count, posts: posts.count, announcements: announcements.count, campaigns: dueCampaigns.length };
+  }
+
+  private async fanoutAnnouncement(
+    user: AuthPayload,
+    row: { id: string; title: string; body: string; parishId: string; expiresAt: Date | null },
+  ) {
+    try {
+      const notif = await this.appNotifications.create(user, {
+        title: row.title,
+        body: row.body,
+        category: AppNotifCategory.ANNOUNCEMENT,
+        sendNow: true,
+        audience: {
+          scope: AppAudienceScope.PARISHES,
+          parishIds: [row.parishId],
+        },
+        expiresAt: row.expiresAt?.toISOString(),
+        deepLink: '/announcements',
+      });
+      await this.prisma.cmsAnnouncement.update({
+        where: { id: row.id },
+        data: { appNotificationId: notif?.id },
+      });
+    } catch {
+      /* parish staff may lack app_control.write; website publish still succeeds */
+    }
+  }
+
+  private async syncEventToCalendar(
+    user: AuthPayload,
+    event: { id: string; title: string; description: string | null; startsAt: Date; endsAt: Date | null; venue: string | null; parishId: string },
+  ) {
+    const orgId = await this.tenancy.resolveOrganizationId(user);
+    const recent = await this.prisma.parishCalendarEvent.findMany({
+      where: { parishId: event.parishId, deletedAt: null },
+      orderBy: { createdAt: 'desc' },
+      take: 80,
+    });
+    const match = recent.find((row) => {
+      const meta = (row.metaJson || {}) as Record<string, unknown>;
+      return meta.cmsEventId === event.id;
+    });
+    const data = {
+      title: event.title,
+      description: event.description,
+      startsAt: event.startsAt,
+      endsAt: event.endsAt,
+      location: event.venue,
+      publishWeb: true,
+      metaJson: { cmsEventId: event.id, source: 'cms' } as Prisma.InputJsonValue,
+    };
+    if (match) {
+      await this.prisma.parishCalendarEvent.update({ where: { id: match.id }, data });
+      return;
+    }
+    await this.prisma.parishCalendarEvent.create({
+      data: {
+        organizationId: orgId,
+        parishId: event.parishId,
+        ...data,
+      },
+    });
+  }
+
+  private async notifyPriestAssignment(
+    user: AuthPayload,
+    event: { title: string; startsAt: Date; venue: string | null; priestId: string | null },
+  ) {
+    if (!event.priestId) return;
+    const priest = await this.prisma.priest.findFirst({
+      where: { id: event.priestId, deletedAt: null },
+      select: { email: true, firstName: true, lastName: true, title: true, userId: true },
+    });
+    if (!priest?.email) return;
+    const when = event.startsAt.toLocaleString('en-IN');
+    await this.notifications.sendEmail(
+      priest.email,
+      `New assignment: ${event.title}`,
+      `${priest.title || 'Fr.'} ${priest.firstName} ${priest.lastName}\n\n${event.title}\n${when}\n${event.venue || ''}\n\nReply to the parish office to accept or decline.`,
+    );
+  }
+
+  icalForEvent(event: { title: string; description?: string | null; startsAt: Date; endsAt?: Date | null; venue?: string | null }) {
+    const fmt = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+    const end = event.endsAt || new Date(event.startsAt.getTime() + 60 * 60 * 1000);
+    return [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//BCL Diocese ERP//Parish CMS//EN',
+      'BEGIN:VEVENT',
+      `DTSTART:${fmt(event.startsAt)}`,
+      `DTEND:${fmt(end)}`,
+      `SUMMARY:${event.title}`,
+      event.venue ? `LOCATION:${event.venue}` : '',
+      event.description ? `DESCRIPTION:${event.description.replace(/\n/g, '\\n')}` : '',
+      'END:VEVENT',
+      'END:VCALENDAR',
+    ]
+      .filter(Boolean)
+      .join('\r\n');
   }
 }

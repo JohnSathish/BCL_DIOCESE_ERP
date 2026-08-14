@@ -422,9 +422,20 @@ export class SacramentService {
 
   async update(user: AuthPayload, id: string, dto: UpdateSacramentDto) {
     const existing = await this.get(user, id);
-    const updated = await this.prisma.sacramentRecord.update({
+    let parishId = existing.parishId;
+    if (dto.parishId) {
+      parishId = this.tenancy.resolveParishId(user, dto.parishId, { required: true })!;
+      this.tenancy.assertParishAccess(user, parishId);
+    }
+    const memberId = dto.memberId !== undefined ? dto.memberId || null : existing.memberId;
+    const spouseMemberId =
+      dto.spouseMemberId !== undefined ? dto.spouseMemberId || null : existing.spouseMemberId;
+    await this.prisma.sacramentRecord.update({
       where: { id },
       data: {
+        parishId,
+        memberId,
+        spouseMemberId,
         registerNumber: dto.registerNumber,
         registerYear: dto.registerYear,
         celebratedAt: dto.celebratedAt ? new Date(dto.celebratedAt) : undefined,
@@ -490,6 +501,29 @@ export class SacramentService {
         detailsJson: dto.detailsJson as Prisma.InputJsonValue | undefined,
       },
     });
+
+    if (existing.type === SacramentType.MARRIAGE && memberId && spouseMemberId) {
+      await this.prisma.relationship.upsert({
+        where: {
+          fromMemberId_toMemberId_type: {
+            fromMemberId: memberId,
+            toMemberId: spouseMemberId,
+            type: RelationshipType.SPOUSE,
+          },
+        },
+        create: {
+          fromMemberId: memberId,
+          toMemberId: spouseMemberId,
+          type: RelationshipType.SPOUSE,
+        },
+        update: {},
+      });
+    }
+
+    if (dto.issueCertificate) {
+      await this.issueCertificateForRecord(user, id, dto.digitalSignBy);
+    }
+
     await this.audit.log({
       organizationId: existing.organizationId,
       userId: user.id,
@@ -497,7 +531,7 @@ export class SacramentService {
       entityType: 'SacramentRecord',
       entityId: id,
     });
-    return updated;
+    return this.get(user, id);
   }
 
   async softDelete(user: AuthPayload, id: string) {

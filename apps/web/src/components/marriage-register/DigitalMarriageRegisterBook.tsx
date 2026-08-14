@@ -349,6 +349,19 @@ export function DigitalMarriageRegisterBook() {
   ]);
 
   const lastRegister = marriages[0]?.registerNumber || '—';
+  const printRows = useMemo(
+    () =>
+      [...filtered].sort((a, b) => {
+        if (a.registerYear !== b.registerYear) return a.registerYear - b.registerYear;
+        return String(a.registerNumber).localeCompare(String(b.registerNumber), undefined, {
+          numeric: true,
+        });
+      }),
+    [filtered],
+  );
+  const parishName =
+    marriages.find((m) => m.parish?.name)?.parish?.name || 'Parish';
+  const printYearLabel = year === 'all' ? 'All years' : `Year ${year}`;
   const recentlyUpdated = marriages.filter((m) => {
     if (!m.updatedAt) return false;
     return Date.now() - new Date(m.updatedAt).getTime() < 7 * 24 * 60 * 60 * 1000;
@@ -372,7 +385,8 @@ export function DigitalMarriageRegisterBook() {
   const openIndex = filtered.findIndex((m) => m.id === openId);
 
   return (
-    <div className="dmrb">
+    <>
+    <div className="dmrb dmrb-screen">
       <nav className="dmrb-crumb" aria-label="Breadcrumb">
         <Link href="/diocese/sacraments">Sacraments</Link>
         <ChevronRight className="h-3 w-3 opacity-50" />
@@ -1127,5 +1141,62 @@ export function DigitalMarriageRegisterBook() {
         </article>
       </section>
     </div>
+
+    <div className="dmrb-print-sheet">
+      <header className="dmrb-print-letterhead">
+        <p className="dmrb-print-diocese">Roman Catholic Diocese of Tura</p>
+        <h1>Marriage Register</h1>
+        <p className="dmrb-print-parish">{parishName}</p>
+        <p className="dmrb-print-meta">
+          {printYearLabel}
+          {' · '}
+          {printRows.length.toLocaleString('en-IN')} {printRows.length === 1 ? 'entry' : 'entries'}
+          {' · '}
+          Printed {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+        </p>
+      </header>
+      <table>
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>Date</th>
+            <th>Bridegroom</th>
+            <th>Bride</th>
+            <th>Village</th>
+            <th>Minister</th>
+            <th>Witnesses</th>
+            <th>Certificate</th>
+          </tr>
+        </thead>
+        <tbody>
+          {printRows.map((m) => {
+            const { groom, bride } = couple(m);
+            const witnesses = [m.witness1Name, m.witness2Name].filter(Boolean).join(' / ');
+            return (
+              <tr key={m.id}>
+                <td>{m.registerNumber}</td>
+                <td>{fmtDate(m.celebratedAt)}</td>
+                <td>
+                  <strong>{groom}</strong>
+                  {m.bridegroomFatherName ? <small>s/o {m.bridegroomFatherName}</small> : null}
+                </td>
+                <td>
+                  <strong>{bride}</strong>
+                  {m.brideFatherName ? <small>d/o {m.brideFatherName}</small> : null}
+                </td>
+                <td>{m.bridegroomDomicile || m.placeOfMarriage || '—'}</td>
+                <td>{m.ministerName || '—'}</td>
+                <td>{witnesses || '—'}</td>
+                <td>
+                  {m.certificate?.serialNumber ||
+                    marriageCertificateSerial(m.registerYear, m.registerNumber)}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+    </>
   );
 }
