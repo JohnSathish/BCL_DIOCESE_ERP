@@ -146,9 +146,11 @@ Use the **same certbot / SSL method** already used for College or Dosa domains o
 
 1. https://sacredheartshrinetura.in → Sacred Heart site  
 2. https://erp.turadiocese.in/login → ERP  
-3. Set `SEED_ON_START=false` in `.env.production`  
+3. Set **`SEED_ON_START=false`** and **`SEED_MODE=production`** in `.env.production` (required — otherwise demo St. Mary sacraments can reappear)  
 4. `docker compose -f docker/docker-compose.hostinger.yml --env-file .env.production up -d --force-recreate api`  
 5. Rotate seed passwords  
+
+Production API startup automatically runs `strip-demo-sacraments.mjs` after schema sync to remove the John Marak / 0001/2000 demo marriage if it ever returns.
 
 ## What this will NOT do
 
