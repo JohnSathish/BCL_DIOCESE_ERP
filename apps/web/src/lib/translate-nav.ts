@@ -82,6 +82,8 @@ const NAV_KEY_MAP: Record<string, string> = {
   Users: 'nav.users',
   Permissions: 'nav.permissions',
   Backup: 'nav.backup',
+  'Data Import Studio': 'nav.dataImportStudio',
+  'Backup / Migration': 'nav.backupMigration',
   Integrations: 'nav.integrations',
   Intentions: 'nav.intentions',
   'Prayer Requests': 'nav.prayerRequests',

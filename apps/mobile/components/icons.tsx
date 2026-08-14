@@ -10,9 +10,15 @@ import {
   FileText as FileTextRaw,
   Heart as HeartRaw,
   Home as HomeRaw,
+  Image as ImageIcon,
   LayoutDashboard as LayoutDashboardRaw,
+  LogIn as LogInRaw,
   LogOut as LogOutRaw,
+  Mail as MailRaw,
+  MapPin as MapPinRaw,
   Menu as MenuRaw,
+  Phone as PhoneRaw,
+  Play as PlayRaw,
   Search as SearchRaw,
   Settings as SettingsRaw,
   Sparkles as SparklesRaw,
@@ -49,3 +55,9 @@ export const Settings = wrap(SettingsRaw);
 export const Sparkles = wrap(SparklesRaw);
 export const User = wrap(UserRaw);
 export const Users = wrap(UsersRaw);
+export const Mail = wrap(MailRaw);
+export const Phone = wrap(PhoneRaw);
+export const MapPin = wrap(MapPinRaw);
+export const Play = wrap(PlayRaw);
+export const Images = wrap(ImageIcon);
+export const LogIn = wrap(LogInRaw);

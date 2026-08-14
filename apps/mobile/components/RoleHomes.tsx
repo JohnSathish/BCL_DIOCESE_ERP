@@ -1,9 +1,9 @@
 import { PremiumBishopDashboard } from './PremiumBishopDashboard';
-import { PremiumParishionerHome } from './PremiumParishionerHome';
 import { PremiumPriestDashboard } from './PremiumPriestDashboard';
+import { ParishHomeScreen } from './parish/ParishHomeScreen';
 
 export function ParishionerHome() {
-  return <PremiumParishionerHome />;
+  return <ParishHomeScreen />;
 }
 
 export function PriestHome() {

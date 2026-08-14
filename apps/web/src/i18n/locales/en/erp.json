@@ -89,7 +89,9 @@
     "languages": "Languages",
     "rbac": "Users & Roles",
     "audit": "Audit Log",
-    "migration": "Backup / Migration"
+    "migration": "Backup / Migration",
+    "dataImportStudio": "Data Import Studio",
+    "backupMigration": "Backup / Migration"
   },
   "dashboard": {
     "title": "Parish Command Center",

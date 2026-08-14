@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BCL Diocese ERP — Annual Subscription Proposal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --burgundy: #722f37;
+      --burgundy-dark: #5a2329;
+      --gold: #c4a35a;
+      --gold-light: #f5ecd8;
+      --navy: #0d2038;
+      --mist: #f7f4f1;
+      --text: #2a2326;
+      --muted: #6b5f63;
+      --border: #ddd5cf;
+      --white: #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
+    body {
+      font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
+      font-size: 10pt;
+      line-height: 1.55;
+      color: var(--text);
+      background: #888;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto 12px;
+      background: var(--white);
+      position: relative;
+      overflow: hidden;
+      page-break-after: always;
+    }
+
+    .page:last-child { page-break-after: auto; }
+
+    @media print {
+      body { background: white; }
+      .page { margin: 0; box-shadow: none; }
+    }
+
+    /* ——— Cover ——— */
+    .cover {
+      background: linear-gradient(145deg, var(--navy) 0%, #162d4a 42%, var(--burgundy-dark) 100%);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+    }
+
+    .cover-topbar {
+      height: 8mm;
+      background: linear-gradient(90deg, var(--gold), #e8d5a8, var(--gold));
+    }
+
+    .cover-body {
+      flex: 1;
+      padding: 22mm 18mm 16mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .cover-badge {
+      display: inline-block;
+      font-size: 7.5pt;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid rgba(196,163,90,0.45);
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      margin-bottom: 1.2rem;
+    }
+
+    .cover-logo {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 13pt;
+      font-weight: 600;
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 2.5rem;
+    }
+
+    .cover-logo strong { color: var(--gold); }
+
+    .cover h1 {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 34pt;
+      font-weight: 700;
+      line-height: 1.08;
+      max-width: 16ch;
+      margin-bottom: 0.5rem;
+    }
+
+    .cover-sub {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 16pt;
+      color: var(--gold);
+      font-weight: 500;
+      margin-bottom: 2rem;
+    }
+
+    .cover-tagline {
+      font-size: 11pt;
+      color: rgba(255,255,255,0.78);
+      font-style: italic;
+      margin-bottom: 2.5rem;
+    }
+
+    .cover-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: auto;
+    }
+
+    .cover-box {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+    }
+
+    .cover-box label {
+      display: block;
+      font-size: 7pt;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.45rem;
+    }
+
+    .cover-box p { font-size: 9.5pt; color: rgba(255,255,255,0.92); line-height: 1.5; }
+
+    .cover-footer {
+      padding: 0.85rem 18mm;
+      background: rgba(0,0,0,0.22);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 8pt;
+      color: rgba(255,255,255,0.65);
+    }
+
+    .cover-icons {
+      display: flex;
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .cover-icon-item {
+      text-align: center;
+      flex: 1;
+    }
+
+    .cover-icon-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(196,163,90,0.15);
+      border: 1px solid rgba(196,163,90,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 0.4rem;
+      font-size: 16pt;
+    }
+
+    .cover-icon-item span {
+      font-size: 8pt;
+      color: rgba(255,255,255,0.8);
+      font-weight: 600;
+    }
+
+    /* ——— Content pages ——— */
+    .content { padding: 14mm 16mm 18mm; }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 0.65rem;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid var(--burgundy);
+    }
+
+    .page-header .brand {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 11pt;
+      font-weight: 700;
+      color: var(--burgundy);
+    }
+
+    .page-header .ref {
+      font-size: 7.5pt;
+      color: var(--muted);
+    }
+
+    h2.section {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 18pt;
+      font-weight: 700;
+      color: var(--burgundy);
+      margin: 0 0 0.65rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--gold-light);
+    }
+
+    h3.sub {
+      font-size: 10.5pt;
+      font-weight: 700;
+      color: var(--navy);
+      margin: 1rem 0 0.45rem;
+    }
+
+    p { margin-bottom: 0.55rem; }
+
+    .lead {
+      font-size: 10.5pt;
+      color: var(--navy);
+      margin-bottom: 0.85rem;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin: 0.75rem 0 1rem;
+    }
+
+    .pill {
+      font-size: 7.5pt;
+      font-weight: 600;
+      padding: 0.25rem 0.55rem;
+      border-radius: 999px;
+      background: var(--gold-light);
+      color: var(--burgundy-dark);
+      border: 1px solid rgba(196,163,90,0.35);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.5rem 0 0.85rem;
+      font-size: 8.5pt;
+    }
+
+    th {
+      background: var(--burgundy);
+      color: white;
+      font-weight: 600;
+      text-align: left;
+      padding: 0.4rem 0.55rem;
+    }
+
+    td {
+      padding: 0.38rem 0.55rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tr:nth-child(even) td { background: var(--mist); }
+
+    .check { color: var(--burgundy); font-weight: 700; }
+
+    /* Pricing cards */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.65rem;
+      margin: 0.75rem 0 1rem;
+    }
+
+    .price-card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .price-card.featured {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(196,163,90,0.25);
+    }
+
+    .price-card-head {
+      padding: 0.65rem 0.75rem;
+      background: var(--mist);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .price-card.featured .price-card-head {
+      background: var(--burgundy);
+      color: white;
+      border-bottom: none;
+    }
+
+    .price-card.featured .price-card-head .plan-name { color: white; }
+    .price-card.featured .price-card-head .plan-price { color: var(--gold); }
+
+    .plan-name {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 12pt;
+      font-weight: 700;
+      color: var(--burgundy);
+    }
+
+    .plan-price {
+      font-size: 14pt;
+      font-weight: 700;
+      color: var(--navy);
+      margin-top: 0.15rem;
+    }
+
+    .plan-price small {
+      font-size: 7.5pt;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .price-card.featured .plan-price small { color: rgba(255,255,255,0.7); }
+
+    .price-card-body {
+      padding: 0.65rem 0.75rem;
+      flex: 1;
+      font-size: 7.8pt;
+    }
+
+    .price-card-body li {
+      list-style: none;
+      padding: 0.18rem 0;
+      padding-left: 0.9rem;
+      position: relative;
+    }
+
+    .price-card-body li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--burgundy);
+      font-weight: 700;
+      font-size: 7pt;
+    }
+
+    .price-card-body li.no::before { content: '✗'; color: #999; }
+
+    .rec-banner {
+      background: linear-gradient(90deg, var(--gold-light), #fff);
+      border: 1px solid var(--gold);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      margin: 0.75rem 0;
+      font-size: 9pt;
+    }
+
+    .rec-banner strong { color: var(--burgundy); }
+
+    /* Suite diagram */
+    .suite-box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 0.75rem 0;
+    }
+
+    .suite-title {
+      background: var(--navy);
+      color: white;
+      text-align: center;
+      font-weight: 700;
+      font-size: 9pt;
+      letter-spacing: 0.06em;
+      padding: 0.45rem;
+    }
+
+    .suite-cols {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .suite-col {
+      padding: 0.65rem;
+      text-align: center;
+      border-right: 1px solid var(--border);
+      font-size: 8pt;
+    }
+
+    .suite-col:last-child { border-right: none; }
+
+    .suite-col strong {
+      display: block;
+      color: var(--burgundy);
+      font-size: 8.5pt;
+      margin-bottom: 0.2rem;
+    }
+
+    .suite-foot {
+      background: var(--mist);
+      text-align: center;
+      font-size: 7.5pt;
+      color: var(--muted);
+      padding: 0.4rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Mobile features grid */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.55rem;
+      margin: 0.5rem 0 0.85rem;
+    }
+
+    .feature-item {
+      background: var(--mist);
+      border-radius: 8px;
+      padding: 0.5rem 0.6rem;
+      font-size: 8pt;
+      border-left: 3px solid var(--burgundy);
+    }
+
+    .feature-item strong {
+      display: block;
+      color: var(--navy);
+      font-size: 8.5pt;
+      margin-bottom: 0.15rem;
+    }
+
+    /* Timeline */
+    .timeline { margin: 0.5rem 0 0.85rem; }
+
+    .timeline-row {
+      display: grid;
+      grid-template-columns: 22mm 1fr;
+      gap: 0.5rem;
+      padding: 0.4rem 0;
+      border-bottom: 1px dashed var(--border);
+      font-size: 8.5pt;
+    }
+
+    .timeline-row:last-child { border-bottom: none; }
+
+    .timeline-phase {
+      font-weight: 700;
+      color: var(--burgundy);
+      font-size: 8pt;
+    }
+
+    /* Why list */
+    ol.why {
+      padding-left: 1.1rem;
+      font-size: 8.5pt;
+    }
+
+    ol.why li { margin-bottom: 0.35rem; }
+
+    /* Signature */
+    .sig-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .sig-block h4 {
+      font-size: 9pt;
+      color: var(--burgundy);
+      margin-bottom: 0.5rem;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+    }
+
+    .sig-line {
+      border-bottom: 1px solid var(--text);
+      height: 8mm;
+      margin-bottom: 0.65rem;
+    }
+
+    .sig-label {
+      font-size: 7.5pt;
+      color: var(--muted);
+      margin-bottom: 0.15rem;
+    }
+
+    .checkbox-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      font-size: 8.5pt;
+      margin: 0.65rem 0;
+    }
+
+    .checkbox-row span::before {
+      content: '☐ ';
+      font-size: 10pt;
+    }
+
+    .page-footer {
+      position: absolute;
+      bottom: 10mm;
+      left: 16mm;
+      right: 16mm;
+      display: flex;
+      justify-content: space-between;
+      font-size: 7pt;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding-top: 0.35rem;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+
+    .highlight-box {
+      background: var(--gold-light);
+      border-left: 4px solid var(--gold);
+      padding: 0.6rem 0.75rem;
+      border-radius: 0 8px 8px 0;
+      margin: 0.65rem 0;
+      font-size: 8.5pt;
+    }
+
+    .gst-note {
+      font-size: 7.5pt;
+      color: var(--muted);
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="page cover">
+  <div class="cover-topbar"></div>
+  <div class="cover-body">
+    <div>
+      <div class="cover-badge">Confidential · Annual Subscription Proposal</div>
+      <div class="cover-logo"><strong>BCL</strong> Enterprise Suite · BaseCode Labs Pvt. Ltd.</div>
+      <h1>BCL Diocese ERP &amp; Parish Mobile App</h1>
+      <p class="cover-sub">Annual Subscription Proposal</p>
+      <p class="cover-tagline">Faith. Community. Service.</p>
+
+      <div class="cover-icons">
+        <div class="cover-icon-item">
+          <div class="cover-icon-circle">⛪</div>
+          <span>Web ERP</span>
+        </div>
+        <div class="cover-icon-item">
+          <div class="cover-icon-circle">🌐</div>
+          <span>Parish Website</span>
+        </div>
+        <div class="cover-icon-item">
+          <div class="cover-icon-circle">📱</div>
+          <span>Mobile App</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cover-meta">
+      <div class="cover-box">
+        <label>Prepared For</label>
+        <p>
+          <strong>Rev. Fr. _________________________</strong><br />
+          Parish Priest<br />
+          Sacred Heart Shrine Parish, Tura<br />
+          Roman Catholic Diocese of Tura, Meghalaya
+        </p>
+      </div>
+      <div class="cover-box">
+        <label>Prepared By</label>
+        <p>
+          <strong>BaseCode Labs Pvt. Ltd.</strong><br />
+          BCL Enterprise Suite — Diocese ERP<br />
+          contact@basecodelabs.com<br />
+          basecodelabs.com
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="cover-footer">
+    <span>Proposal Ref: BCL-DERP-2026-SHPTURA</span>
+    <span>August 2026 · Valid until 31 October 2026</span>
+  </div>
+</div>
+
+<!-- PAGE 2: Executive Summary -->
+<div class="page">
+  <div class="content">
+    <div class="page-header">
+      <span class="brand">BCL Diocese ERP</span>
+      <span class="ref">BCL-DERP-2026-SHPTURA · Page 2</span>
+    </div>
+
+    <h2 class="section">1. Executive Summary</h2>
+    <p class="lead">BaseCode Labs presents <strong>BCL Diocese ERP</strong> — a complete digital platform for Catholic parish administration — together with the <strong>BCL Parish Mobile App</strong> for parishioners, families, and clergy.</p>
+    <p>This proposal covers yearly subscription pricing, full feature scope, mobile app deliverables, onboarding, support, and terms suitable for parish council and priest approval.</p>
+    <p>The platform is already architected and deployed for the <strong>Roman Catholic Diocese of Tura</strong>, with <strong>Sacred Heart Shrine Parish</strong> as the reference implementation (<em>sacredheartshrinetura.in</em>).</p>
+
+    <div class="pill-row">
+      <span class="pill">Sacramental Registers</span>
+      <span class="pill">Parish Website CMS</span>
+      <span class="pill">Android &amp; iOS App</span>
+      <span class="pill">QR Certificates</span>
+      <span class="pill">English &amp; Garo</span>
+      <span class="pill">Cloud Hosted</span>
+    </div>
+
+    <table>
+      <thead><tr><th>Channel</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Web ERP</strong></td><td>Sacramental registers, families, finance, mass scheduling, cemetery, catechism, reports</td></tr>
+        <tr><td><strong>Parish Website (CMS)</strong></td><td>Public website with news, events, gallery, mass timings, forms, hero slider</td></tr>
+        <tr><td><strong>Mobile App</strong></td><td>Parishioner engagement + priest/staff pastoral tools on phone &amp; tablet</td></tr>
+        <tr><td><strong>Cloud Hosting</strong></td><td>Secure hosting, backups, SSL, domain support, software updates</td></tr>
+      </tbody>
+    </table>
+
+    <h2 class="section">2. About BaseCode Labs</h2>
+    <p><strong>BaseCode Labs Pvt. Ltd.</strong> builds enterprise software for institutions. The BCL Enterprise Suite includes Diocese ERP as its Catholic pastoral vertical — designed specifically for sacramental record-keeping, multi-parish diocese governance, parish websites, mobile engagement, and Indian diocese needs (English, Garo, Tamil — extensible).</p>
+
+    <h2 class="section">3. Solution Overview</h2>
+    <div class="suite-box">
+      <div class="suite-title">BCL PARISH DIGITAL SUITE</div>
+      <div class="suite-cols">
+        <div class="suite-col"><strong>Web ERP</strong>Admin portal for priest &amp; staff</div>
+        <div class="suite-col"><strong>Parish Website</strong>CMS for parishioners &amp; visitors</div>
+        <div class="suite-col"><strong>Mobile App</strong>Android + iOS for everyone</div>
+      </div>
+      <div class="suite-foot">Single secure cloud API · api.turadiocese.in model</div>
+    </div>
+
+    <table>
+      <thead><tr><th>User</th><th>Web ERP</th><th>Website</th><th>Mobile App</th></tr></thead>
+      <tbody>
+        <tr><td>Parish Priest</td><td class="check">✓ Full admin</td><td class="check">✓ CMS editor</td><td class="check">✓ Dashboard &amp; registers</td></tr>
+        <tr><td>Secretary / Staff</td><td class="check">✓ Registers &amp; finance</td><td class="check">✓ Content</td><td class="check">✓ Staff modules</td></tr>
+        <tr><td>Family / Member</td><td class="check">✓ Portal</td><td class="check">✓ Public pages</td><td class="check">✓ Certificates &amp; prayer</td></tr>
+        <tr><td>Parishioner / Guest</td><td>—</td><td class="check">✓ Mass &amp; news</td><td class="check">✓ Gospel &amp; events</td></tr>
+        <tr><td>Diocese Admin</td><td class="check">✓ All parishes</td><td class="check">✓ Diocese site</td><td class="check">✓ Overview</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="page-footer"><span>© 2026 BaseCode Labs Pvt. Ltd.</span><span>Confidential</span></div>
+</div>
+
+<!-- PAGE 3: Features -->
+<div class="page">
+  <div class="content">
+    <div class="page-header">
+      <span class="brand">BCL Diocese ERP</span>
+      <span class="ref">BCL-DERP-2026-SHPTURA · Page 3</span>
+    </div>
+
+    <h2 class="section">4. Detailed Feature Scope</h2>
+
+    <h3 class="sub">4.1 Sacramental &amp; Parish Registry</h3>
+    <table>
+      <thead><tr><th>Module</th><th>Features</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Family Register</strong></td><td>Family cards, profiles, family tree, QR verification, print book</td></tr>
+        <tr><td><strong>Baptism</strong></td><td>Digital register, certificates, QR authenticity verification</td></tr>
+        <tr><td><strong>Confirmation</strong></td><td>Wizard, auto serial numbering, Excel import, analytics</td></tr>
+        <tr><td><strong>Marriage</strong></td><td>Marriage wizard, register pages, certificate issue &amp; verify</td></tr>
+        <tr><td><strong>Holy Communion</strong></td><td>Register, certificates, parish-scoped records</td></tr>
+        <tr><td><strong>Death Register</strong></td><td>Burial records linked to cemetery module</td></tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub">4.2 Parish Operations</h3>
+    <div class="two-col">
+      <ul style="font-size:8.5pt; padding-left:1rem;">
+        <li>Mass scheduling &amp; intentions</li>
+        <li>Donations &amp; receipts</li>
+        <li>Parish finance &amp; budgets</li>
+        <li>Cemetery management</li>
+        <li>Catechism &amp; attendance</li>
+      </ul>
+      <ul style="font-size:8.5pt; padding-left:1rem;">
+        <li>Hall booking</li>
+        <li>Calendar &amp; events</li>
+        <li>Accommodation <em>(Premium)</em></li>
+        <li>SMS / WhatsApp / email</li>
+        <li>Audit log &amp; RBAC security</li>
+      </ul>
+    </div>
+
+    <h3 class="sub">4.3 Parish Website (CMS)</h3>
+    <div class="feature-grid">
+      <div class="feature-item"><strong>Homepage Builder</strong>Drag-and-drop sections, multi-image hero slider</div>
+      <div class="feature-item"><strong>Pages &amp; News</strong>About, history, feast announcements</div>
+      <div class="feature-item"><strong>Events &amp; Gallery</strong>Photo albums, event listings</div>
+      <div class="feature-item"><strong>Mass Timings</strong>Editable schedule on website</div>
+      <div class="feature-item"><strong>Forms</strong>Prayer requests, contact, custom forms</div>
+      <div class="feature-item"><strong>Custom Domain</strong>e.g. sacredheartshrinetura.in</div>
+    </div>
+
+    <h3 class="sub">4.4 Security &amp; Migration</h3>
+    <p style="font-size:8.5pt;">Role-based access (19+ roles) · Parish data isolation · JWT auth &amp; 2FA · HTTPS/SSL · Daily backups · Excel import for legacy registers · Onboarding training for priest &amp; secretary.</p>
+  </div>
+  <div class="page-footer"><span>© 2026 BaseCode Labs Pvt. Ltd.</span><span>Confidential</span></div>
+</div>
+
+<!-- PAGE 4: Mobile App -->
+<div class="page">
+  <div class="content">
+    <div class="page-header">
+      <span class="brand">BCL Parish Mobile App</span>
+      <span class="ref">BCL-DERP-2026-SHPTURA · Page 4</span>
+    </div>
+
+    <h2 class="section">5. BCL Parish Mobile App</h2>
+    <p class="lead"><strong>App Name:</strong> BCL Parish App &nbsp;·&nbsp; <strong>Platforms:</strong> Android · iOS · Tablet &nbsp;·&nbsp; <strong>Tagline:</strong> <em>Faith. Community. Service.</em></p>
+
+    <h3 class="sub">5.1 Parishioner &amp; Family Features</h3>
+    <div class="feature-grid">
+      <div class="feature-item"><strong>Daily Gospel &amp; Feast</strong>Today's readings, gospel quote, feast of the day</div>
+      <div class="feature-item"><strong>Mass Timings</strong>Full weekly schedule with language labels</div>
+      <div class="feature-item"><strong>Events &amp; News</strong>Parish announcements and feast news</div>
+      <div class="feature-item"><strong>Photo Gallery</strong>Parish life photos from CMS</div>
+      <div class="feature-item"><strong>Prayer Requests</strong>Submit intentions via mobile form</div>
+      <div class="feature-item"><strong>Certificate Wallet</strong>View family sacramental certificates</div>
+      <div class="feature-item"><strong>QR Verify</strong>Scan certificate QR to verify authenticity</div>
+      <div class="feature-item"><strong>Push Notifications</strong>Feast alerts, announcements, mass reminders</div>
+      <div class="feature-item"><strong>Offline Cache</strong>Gospel, mass times available without internet</div>
+      <div class="feature-item"><strong>Biometric Login</strong>Fingerprint / Face ID for returning users</div>
+    </div>
+
+    <h3 class="sub">5.2 Parish Priest &amp; Staff Features</h3>
+    <div class="feature-grid">
+      <div class="feature-item"><strong>Priest Dashboard</strong>KPI cards — families, baptisms, confirmations</div>
+      <div class="feature-item"><strong>Sacrament Registers</strong>All 5 registers — view &amp; manage on mobile</div>
+      <div class="feature-item"><strong>Families &amp; Members</strong>Search parish family directory</div>
+      <div class="feature-item"><strong>Approvals Queue</strong>Pending items requiring priest action</div>
+      <div class="feature-item"><strong>Finance &amp; Donations</strong>Summary and recording (role-permitted)</div>
+      <div class="feature-item"><strong>Catechism</strong>Class lists and attendance</div>
+      <div class="feature-item"><strong>Reports</strong>Parish summary reports</div>
+      <div class="feature-item"><strong>AI Assistant</strong><em>(Premium)</em> Search across parish records</div>
+    </div>
+
+    <h3 class="sub">5.3 Technical Deliverables (Included in Plan B &amp; C)</h3>
+    <table>
+      <thead><tr><th>Deliverable</th><th>Details</th></tr></thead>
+      <tbody>
+        <tr><td>Branded APK / iOS</td><td>Parish-branded Android app + iOS (TestFlight / App Store)</td></tr>
+        <tr><td>Push Notifications</td><td>Expo push with parish announcement pipeline</td></tr>
+        <tr><td>App Updates</td><td>Security patches &amp; features during subscription</td></tr>
+        <tr><td>API Integration</td><td>Live connection to parish ERP — same data as web</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="page-footer"><span>© 2026 BaseCode Labs Pvt. Ltd.</span><span>Confidential</span></div>
+</div>
+
+<!-- PAGE 5: Pricing -->
+<div class="page">
+  <div class="content">
+    <div class="page-header">
+      <span class="brand">Yearly Subscription Plans</span>
+      <span class="ref">BCL-DERP-2026-SHPTURA · Page 5</span>
+    </div>
+
+    <h2 class="section">6. Yearly Subscription Plans</h2>
+    <p class="gst-note">All prices in Indian Rupees (₹). Exclusive of GST @ 18%.</p>
+
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-card-head">
+          <div class="plan-name">Plan A — Essentials</div>
+          <div class="plan-price">₹59,000 <small>/ year</small></div>
+        </div>
+        <div class="price-card-body">
+          <ul>
+            <li>All 5 sacramental registers</li>
+            <li>Family register &amp; certificates</li>
+            <li>Mass scheduling</li>
+            <li>Basic finance &amp; donations</li>
+            <li>Parish website (standard)</li>
+            <li>3 staff seats · 5 GB storage</li>
+            <li>Email support (48h)</li>
+            <li class="no">Mobile app not included</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-card-head">
+          <div class="plan-name">Plan B — Complete ⭐</div>
+          <div class="plan-price">₹1,29,000 <small>/ year</small></div>
+        </div>
+        <div class="price-card-body">
+          <ul>
+            <li>Everything in Plan A</li>
+            <li><strong>BCL Parish Mobile App</strong></li>
+            <li>Android + iOS · push notifications</li>
+            <li>Premium website theme</li>
+            <li>Hero slider, forms, SEO</li>
+            <li>10 staff seats · 20 GB storage</li>
+            <li>Excel data import</li>
+            <li>Priority support (24h)</li>
+            <li>2 training sessions</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="price-card">
+        <div class="price-card-head">
+          <div class="plan-name">Plan C — Premium</div>
+          <div class="plan-price">₹1,89,000 <small>/ year</small></div>
+        </div>
+        <div class="price-card-body">
+          <ul>
+            <li>Everything in Plan B</li>
+            <li>Accommodation module</li>
+            <li>AI Assistant</li>
+            <li>OCR register digitization</li>
+            <li>App Control Centre</li>
+            <li>Custom domain setup</li>
+            <li>25 staff seats · 50 GB</li>
+            <li>Phone support (12h)</li>
+            <li>4 sessions + on-site visit</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="rec-banner">
+      <strong>Recommended for Sacred Heart Shrine Parish:</strong> Plan B — Parish Complete at <strong>₹1,29,000 + GST/year</strong> (₹1,52,220 incl. GST) including the BCL Parish Mobile App.
+    </div>
+
+    <h3 class="sub">Diocese Platform — Starter · ₹4,99,000 / year</h3>
+    <p style="font-size:8.5pt;">Diocese admin ERP · Up to 15 parishes (Plan B each) · Central API &amp; hosting · Diocese website · Diocese-wide mobile app · Additional parish: ₹29,000/parish/year · Dedicated account manager.</p>
+
+    <h3 class="sub">One-Time Onboarding · ₹25,000</h3>
+    <p style="font-size:8.5pt;">Server provisioning, parish creation, CMS setup, domain connection, staff accounts, initial data import (up to 500 records). <em>Waived for Plan C and Diocese plans.</em></p>
+
+    <table>
+      <thead><tr><th>Add-on</th><th>Price</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Extra staff seats (5 users)</td><td>₹6,000/yr</td><td>Beyond plan limit</td></tr>
+        <tr><td>Extra storage (10 GB)</td><td>₹3,000/yr</td><td>Photos, documents</td></tr>
+        <tr><td>Google Play listing</td><td>₹15,000</td><td>One-time setup</td></tr>
+        <tr><td>Apple App Store listing</td><td>₹25,000</td><td>One-time setup</td></tr>
+        <tr><td>On-site training</td><td>₹12,000/day</td><td>Travel extra outside Meghalaya</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="page-footer"><span>© 2026 BaseCode Labs Pvt. Ltd.</span><span>Confidential</span></div>
+</div>
+
+<!-- PAGE 6: Terms & Acceptance -->
+<div class="page">
+  <div class="content">
+    <div class="page-header">
+      <span class="brand">Terms &amp; Acceptance</span>
+      <span class="ref">BCL-DERP-2026-SHPTURA · Page 6</span>
+    </div>
+
+    <h2 class="section">7. Payment Terms</h2>
+    <table>
+      <thead><tr><th>Term</th><th>Details</th></tr></thead>
+      <tbody>
+        <tr><td>Billing cycle</td><td>Annual (preferred) · Quarterly at +8%</td></tr>
+        <tr><td>Payment method</td><td>NEFT / RTGS / IMPS · UPI · Cheque</td></tr>
+        <tr><td>Invoice</td><td>GST invoice from BaseCode Labs Pvt. Ltd.</td></tr>
+        <tr><td>Due date</td><td>Within 15 days of invoice</td></tr>
+        <tr><td>Renewal</td><td>Reminder 30 days before expiry · 15-day grace period</td></tr>
+      </tbody>
+    </table>
+
+    <h2 class="section">8. Implementation Timeline</h2>
+    <div class="timeline">
+      <div class="timeline-row"><div class="timeline-phase">Week 1–2</div><div><strong>Setup</strong> — Server, parish provisioning, domain &amp; SSL, admin accounts</div></div>
+      <div class="timeline-row"><div class="timeline-phase">Week 2–4</div><div><strong>Data</strong> — Register import, family data, mass timetable, priest profile</div></div>
+      <div class="timeline-row"><div class="timeline-phase">Week 3–4</div><div><strong>Website</strong> — CMS content, hero images, news, gallery, forms</div></div>
+      <div class="timeline-row"><div class="timeline-phase">Week 4–6</div><div><strong>Mobile App</strong> — Branded build, push setup, Play Store / TestFlight rollout</div></div>
+      <div class="timeline-row"><div class="timeline-phase">Week 6</div><div><strong>Go Live</strong> — Training, handover, support channel activation</div></div>
+    </div>
+    <p style="font-size:8.5pt;"><strong>Total estimated go-live: 6 weeks</strong> from signed agreement and first payment.</p>
+
+    <h2 class="section">9. Support &amp; Why Choose BCL</h2>
+    <table>
+      <thead><tr><th>Plan</th><th>Support</th><th>Response</th><th>Uptime</th></tr></thead>
+      <tbody>
+        <tr><td>A — Essentials</td><td>Email</td><td>48 hours</td><td>99.0%</td></tr>
+        <tr><td>B — Complete</td><td>Email + WhatsApp</td><td>24 hours</td><td>99.5%</td></tr>
+        <tr><td>C — Premium</td><td>Phone + WhatsApp</td><td>12 hours</td><td>99.9%</td></tr>
+      </tbody>
+    </table>
+
+    <div class="highlight-box">
+      Built for Catholic parishes · QR certificate verification · Already deployed for Diocese of Tura · English &amp; Garo · One platform (ERP + website + mobile) · Indian company with GST billing
+    </div>
+
+    <h2 class="section">10. Acceptance &amp; Signatures</h2>
+    <div class="checkbox-row">
+      <span>Plan A</span><span>Plan B ⭐</span><span>Plan C</span><span>Diocese</span>
+      <span>Annual billing</span><span>Quarterly billing</span>
+      <span>Android + iOS</span>
+    </div>
+
+    <div class="sig-grid">
+      <div class="sig-block">
+        <h4>For Parish Approval</h4>
+        <div class="sig-label">Parish Priest</div><div class="sig-line"></div>
+        <div class="sig-label">Name &amp; Date</div><div class="sig-line"></div>
+        <div class="sig-label">Parish Council / Finance Representative</div><div class="sig-line"></div>
+        <div class="sig-label">Name &amp; Date</div><div class="sig-line"></div>
+      </div>
+      <div class="sig-block">
+        <h4>For BaseCode Labs Pvt. Ltd.</h4>
+        <div class="sig-label">Authorised Signatory</div><div class="sig-line"></div>
+        <div class="sig-label">Name &amp; Date</div><div class="sig-line"></div>
+        <div class="sig-label">Project Manager</div><div class="sig-line"></div>
+        <div class="sig-label">Name &amp; Date</div><div class="sig-line"></div>
+      </div>
+    </div>
+
+    <p style="margin-top:1.25rem; font-size:8.5pt; text-align:center; color:var(--muted);">
+      <strong>BaseCode Labs Pvt. Ltd.</strong> · basecodelabs.com · contact@basecodelabs.com<br />
+      BCL Enterprise Suite — Diocese ERP · Document v1.0 · August 2026<br />
+      <em>This proposal is confidential and prepared exclusively for the addressee parish.</em>
+    </p>
+  </div>
+  <div class="page-footer"><span>© 2026 BaseCode Labs Pvt. Ltd.</span><span>Confidential</span></div>
+</div>
+
+</body>
+</html>

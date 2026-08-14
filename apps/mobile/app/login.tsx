@@ -154,7 +154,7 @@ export default function LoginScreen() {
         style={{ borderRadius: 18, padding: 18 }}
       >
         <Text style={{ color: brand.gold, fontSize: 11, fontWeight: '800', letterSpacing: 1 }}>
-          BCL PARISH APP
+          {parish?.parishName?.toUpperCase() || 'PARISH LOGIN'}
         </Text>
         <Text style={{ color: '#fff', fontSize: 26, fontWeight: '800', marginTop: 4 }}>
           {meta.title}

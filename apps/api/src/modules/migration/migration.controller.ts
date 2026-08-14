@@ -4,6 +4,7 @@
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   UploadedFile,
@@ -20,6 +21,7 @@ import { MigrationService } from './migration.service';
 import { JwtAuthGuard, PermissionsGuard, RequirePermissions } from '../../common/guards';
 import { CurrentUser, AuthPayload } from '../../common/current-user.decorator';
 import type { ImportModuleCode } from './migration-templates';
+import type { ColumnMappingEntry } from './migration-header-mapper';
 
 const ALLOWED_MODULES: ImportModuleCode[] = [
   'MARRIAGE',
@@ -51,6 +53,44 @@ function clientIp(req: Request) {
 @Controller('migration')
 export class MigrationController {
   constructor(private readonly migration: MigrationService) {}
+
+  @RequirePermissions('parish.read')
+  @Get('dashboard')
+  dashboard(@CurrentUser() user: AuthPayload, @Query('parishId') parishId?: string) {
+    this.migration.assertImportAccess(user);
+    return this.migration.getDashboard(user, parishId);
+  }
+
+  @RequirePermissions('parish.read')
+  @Post('jobs/:id/mapping')
+  saveMapping(
+    @CurrentUser() user: AuthPayload,
+    @Param('id') id: string,
+    @Body() body: { mappings: Array<{ sourceHeader: string; targetKey: string | null; status?: string }> },
+  ) {
+    return this.migration.saveColumnMapping(user, id, body.mappings as ColumnMappingEntry[]);
+  }
+
+  @RequirePermissions('parish.read')
+  @Patch('jobs/:id/rows/:rowIndex')
+  updateRow(
+    @CurrentUser() user: AuthPayload,
+    @Param('id') id: string,
+    @Param('rowIndex') rowIndex: string,
+    @Body() body: Record<string, string>,
+  ) {
+    return this.migration.updateRow(user, id, Number(rowIndex), body);
+  }
+
+  @RequirePermissions('parish.read')
+  @Post('purge-sacraments')
+  purgeSacraments(
+    @CurrentUser() user: AuthPayload,
+    @Body() body: { parishCode?: string; confirm: string },
+  ) {
+    const code = body.parishCode || 'SHPTURA';
+    return this.migration.purgeParishSacraments(user, code, body.confirm);
+  }
 
   @RequirePermissions('parish.read')
   @Get('modules')

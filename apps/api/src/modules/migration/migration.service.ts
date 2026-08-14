@@ -22,6 +22,13 @@ import {
   normalizeHeader,
   type ImportModuleCode,
 } from './migration-templates';
+import {
+  applyColumnMapping,
+  generateBatchCode,
+  normalizeRows,
+  suggestColumnMappings,
+  type ColumnMappingEntry,
+} from './migration-header-mapper';
 
 type ImportModule = ImportModuleCode;
 
@@ -39,6 +46,7 @@ type ImportJobStatusValue = (typeof ImportJobStatus)[keyof typeof ImportJobStatu
 
 type JobRecord = {
   id: string;
+  batchCode?: string | null;
   organizationId: string;
   parishId: string;
   module: ImportModule;
@@ -46,6 +54,7 @@ type JobRecord = {
   fileName: string;
   fileSize: number;
   mimeType?: string | null;
+  sheetCount?: number;
   rowCount: number;
   validCount: number;
   invalidCount: number;
@@ -53,9 +62,14 @@ type JobRecord = {
   skippedCount: number;
   importedCount: number;
   failedCount: number;
+  duplicateCount?: number;
   progressPct: number;
   estimatedSeconds: number | null;
+  periodLabel?: string | null;
   rowsJson?: unknown;
+  rawRowsJson?: unknown;
+  sourceHeadersJson?: unknown;
+  columnMappingJson?: unknown;
   errorsJson?: unknown;
   createdEntityIds?: unknown;
   uploadedByName: string | null;
@@ -187,6 +201,98 @@ export class MigrationService {
     return MODULE_META;
   }
 
+  /** Hard-delete test sacramental records so register numbers can be re-imported. */
+  async purgeParishSacraments(user: AuthPayload, parishCode: string, confirm: string) {
+    if (confirm !== `PURGE-${parishCode}-SACRAMENTS`) {
+      throw new BadRequestException(`Confirmation must be exactly: PURGE-${parishCode}-SACRAMENTS`);
+    }
+    if (
+      !user.isSuperAdmin &&
+      !user.roles?.some((r) =>
+        ['DIOCESE_ADMINISTRATOR', 'PARISH_PRIEST', 'PLATFORM_ADMIN', 'SUPER_ADMIN'].includes(r),
+      )
+    ) {
+      throw new ForbiddenException('Only parish priest or diocese admin can purge sacramental test data');
+    }
+
+    const parish = await this.prisma.parish.findFirst({
+      where: { code: parishCode, deletedAt: null },
+    });
+    if (!parish) throw new NotFoundException(`Parish ${parishCode} not found`);
+    this.tenancy.assertParishAccess(user, parish.id);
+
+    const types = [
+      SacramentType.MARRIAGE,
+      SacramentType.CONFIRMATION,
+      SacramentType.HOLY_COMMUNION,
+      SacramentType.BAPTISM,
+      SacramentType.DEATH,
+    ];
+
+    const sacraments = await this.prisma.sacramentRecord.findMany({
+      where: { parishId: parish.id, type: { in: types } },
+      select: { id: true, type: true, certificateId: true },
+    });
+
+    const sacramentIds = sacraments.map((s) => s.id);
+    const certificateIds = sacraments.map((s) => s.certificateId).filter(Boolean) as string[];
+
+    const result = await this.prisma.$transaction(async (tx) => {
+      const registerEntries = sacramentIds.length
+        ? await tx.registerEntry.deleteMany({ where: { sacramentId: { in: sacramentIds } } })
+        : { count: 0 };
+
+      if (sacramentIds.length) {
+        await tx.sacramentRecord.updateMany({
+          where: { id: { in: sacramentIds } },
+          data: { certificateId: null },
+        });
+      }
+
+      const linkedCerts = certificateIds.length
+        ? await tx.certificate.deleteMany({ where: { id: { in: certificateIds } } })
+        : { count: 0 };
+
+      const orphanCerts = await tx.certificate.deleteMany({
+        where: {
+          parishId: parish.id,
+          type: { in: ['MARRIAGE', 'CONFIRMATION', 'COMMUNION', 'BAPTISM', 'DEATH'] },
+        },
+      });
+
+      const deletedSacraments = sacramentIds.length
+        ? await tx.sacramentRecord.deleteMany({ where: { id: { in: sacramentIds } } })
+        : { count: 0 };
+
+      const deletedJobs = await tx.importJob.deleteMany({ where: { parishId: parish.id } });
+
+      return {
+        registerEntries: registerEntries.count,
+        certificates: linkedCerts.count + orphanCerts.count,
+        sacraments: deletedSacraments.count,
+        importJobs: deletedJobs.count,
+      };
+    });
+
+    await this.audit.log({
+      organizationId: parish.organizationId,
+      userId: user.id,
+      action: 'DELETE',
+      entityType: 'SacramentRecord',
+      entityId: parish.id,
+      metadata: { parishCode, purge: result, reason: 'pre_import_test_data_purge' },
+    });
+
+    return {
+      parish: parish.name,
+      parishCode,
+      purged: result,
+      remaining: await this.prisma.sacramentRecord.count({
+        where: { parishId: parish.id, type: { in: types } },
+      }),
+    };
+  }
+
   buildTemplateBuffer(module: ImportModule | ImportModuleCode): Buffer {
     const cols = TEMPLATES[module as ImportModuleCode];
     if (!cols) throw new BadRequestException('Unknown module');
@@ -196,18 +302,101 @@ export class MigrationService {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Import');
     const guide = XLSX.utils.aoa_to_sheet([
-      ['Column', 'Required', 'Notes'],
-      ...cols.map((c) => [c.header, c.required ? 'Yes' : 'No', c.key]),
+      ['Column', 'Required', 'Format / Notes'],
+      ...cols.map((c) => [
+        c.header,
+        c.required ? 'Yes' : 'No',
+        c.key.includes('Date') || c.key.includes('Dob') || c.key.includes('At')
+          ? 'DD/MM/YYYY (example: 15/06/1998). Also accepts 18-07-1955, 18 July 1955'
+          : c.key.includes('gender')
+            ? 'MALE or FEMALE'
+            : c.sample || '',
+      ]),
     ]);
     XLSX.utils.book_append_sheet(wb, guide, 'Field Guide');
+    const instructions = XLSX.utils.aoa_to_sheet([
+      ['Data Import Studio — Instructions'],
+      [''],
+      ['1. Fill one row per historical register entry. Do not change the header row.'],
+      ['2. Dates: use DD/MM/YYYY. Roman months (18-XI-1956) are also accepted on import.'],
+      ['3. Leave optional fields blank if unknown — do not invent data.'],
+      ['4. Use "Unknown" or "Not Recorded" where the register has no value.'],
+      ['5. Yes/No fields: Yes, No, Y, N'],
+      ['6. Your column headings do NOT need to match exactly — Data Import Studio maps them.'],
+      ['7. Upload via ERP → Administration → Data Import Studio'],
+      [''],
+      ['Supported file types: .xlsx, .xls, .csv (max 25 MB)'],
+    ]);
+    XLSX.utils.book_append_sheet(wb, instructions, 'Instructions');
     return XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' }) as Buffer;
+  }
+
+  async getDashboard(user: AuthPayload, parishId?: string) {
+    this.assertImportAccess(user);
+    const filter = this.tenancy.parishFilter(user);
+    const effective = parishId || filter.parishId;
+    if (effective) this.tenancy.assertParishAccess(user, effective);
+
+    const where: Record<string, unknown> = {
+      ...(user.organizationId && !user.isSuperAdmin ? { organizationId: user.organizationId } : {}),
+      ...(effective ? { parishId: effective } : {}),
+    };
+
+    const jobs = await this.jobs.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      take: 200,
+      select: {
+        id: true,
+        batchCode: true,
+        status: true,
+        rowCount: true,
+        importedCount: true,
+        failedCount: true,
+        warningCount: true,
+        invalidCount: true,
+        duplicateCount: true,
+        createdAt: true,
+        fileName: true,
+        module: true,
+      },
+    });
+
+    const totalImports = jobs.length;
+    const recordsImported = jobs.reduce((s, j) => s + (Number(j.importedCount) || 0), 0);
+    const recordsFailed = jobs.reduce((s, j) => s + (Number(j.failedCount) || 0), 0);
+    const recordsPendingReview = jobs.filter((j) =>
+      ['UPLOADED', 'PREVIEWED', 'VALIDATED'].includes(String(j.status)),
+    ).length;
+    const duplicateRecords = jobs.reduce((s, j) => s + (Number(j.duplicateCount) || 0), 0);
+    const lastImport = jobs[0] || null;
+
+    return {
+      totalImports,
+      recordsImported,
+      recordsPendingReview,
+      recordsSuccessfullyImported: recordsImported,
+      recordsFailed,
+      duplicateRecords,
+      lastImport: lastImport
+        ? {
+            id: lastImport.id,
+            batchCode: lastImport.batchCode,
+            fileName: lastImport.fileName,
+            module: lastImport.module,
+            status: lastImport.status,
+            importedCount: lastImport.importedCount,
+            createdAt: lastImport.createdAt,
+          }
+        : null,
+    };
   }
 
   private resolveParishId(user: AuthPayload, parishId?: string) {
     return this.tenancy.resolveParishId(user, parishId, { required: true })!;
   }
 
-  private parseWorkbook(buffer: Buffer, module: ImportModule | ImportModuleCode): RowDict[] {
+  private parseWorkbookRaw(buffer: Buffer) {
     const wb = XLSX.read(buffer, { type: 'buffer', cellDates: true });
     const sheetName = wb.SheetNames[0];
     if (!sheetName) throw new BadRequestException('Excel file has no sheets');
@@ -216,15 +405,27 @@ export class MigrationService {
       defval: '',
       raw: false,
     });
-    const headerMap = buildHeaderMap(module as ImportModuleCode);
-    return raw.map((row) => {
-      const out: RowDict = {};
-      for (const [k, v] of Object.entries(row)) {
-        const key = headerMap.get(normalizeHeader(k));
-        if (key) out[key] = cell(v);
-      }
-      return out;
-    });
+    const headers =
+      raw.length > 0
+        ? Object.keys(raw[0])
+        : XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1, defval: '' })[0] || [];
+    return {
+      sheetNames: wb.SheetNames,
+      sheetCount: wb.SheetNames.length,
+      headers: headers.map(String),
+      rawRows: raw,
+    };
+  }
+
+  private parseWorkbook(buffer: Buffer, module: ImportModule | ImportModuleCode): RowDict[] {
+    const { headers, rawRows } = this.parseWorkbookRaw(buffer);
+    const mappings = suggestColumnMappings(headers, module as ImportModuleCode);
+    const mapped = applyColumnMapping(rawRows, mappings);
+    return normalizeRows(mapped, module as ImportModuleCode);
+  }
+
+  private rowsFromJob(job: JobRecord): RowDict[] {
+    return ((job.rowsJson as RowDict[]) || []).map((r) => ({ ...r }));
   }
 
   async upload(
@@ -249,15 +450,23 @@ export class MigrationService {
     this.tenancy.assertOrgAccess(user, parish.organizationId);
 
     let rows: RowDict[];
+    let parsed: ReturnType<MigrationService['parseWorkbookRaw']>;
+    let columnMappings: ColumnMappingEntry[];
     try {
-      rows = this.parseWorkbook(file.buffer, module);
+      parsed = this.parseWorkbookRaw(file.buffer);
+      columnMappings = suggestColumnMappings(parsed.headers, module as ImportModuleCode);
+      const mapped = applyColumnMapping(parsed.rawRows, columnMappings);
+      rows = normalizeRows(mapped, module as ImportModuleCode);
     } catch (e) {
       throw new BadRequestException(`Could not read file: ${(e as Error).message}`);
     }
     if (!rows.length) throw new BadRequestException('No data rows found in the file');
 
+    const batchCode = await generateBatchCode(this.prisma);
+
     const job = await this.jobs.create({
       data: {
+        batchCode,
         organizationId: parish.organizationId,
         parishId: parish.id,
         module,
@@ -265,8 +474,12 @@ export class MigrationService {
         fileName: file.originalname,
         fileSize: file.size || file.buffer.length,
         mimeType: file.mimetype,
+        sheetCount: parsed.sheetCount,
         rowCount: rows.length,
         rowsJson: rows as unknown as Prisma.InputJsonValue,
+        rawRowsJson: parsed.rawRows as unknown as Prisma.InputJsonValue,
+        sourceHeadersJson: parsed.headers as unknown as Prisma.InputJsonValue,
+        columnMappingJson: columnMappings as unknown as Prisma.InputJsonValue,
         uploadedById: user.id,
         uploadedByName: `${user.firstName} ${user.lastName}`.trim(),
         ipAddress,
@@ -282,6 +495,7 @@ export class MigrationService {
       entityId: String(job.id),
       ipAddress,
       metadata: {
+        batchCode,
         module,
         fileName: file.originalname,
         rowCount: rows.length,
@@ -289,7 +503,72 @@ export class MigrationService {
       },
     });
 
-    return this.sanitizeJob(job as JobRecord);
+    return {
+      ...this.sanitizeJob(job as JobRecord),
+      columnMappings,
+      sourceHeaders: parsed.headers,
+      sheetCount: parsed.sheetCount,
+    };
+  }
+
+  async saveColumnMapping(user: AuthPayload, id: string, mappings: ColumnMappingEntry[]) {
+    const job = await this.findJob(user, id);
+    const rawRows = (job.rawRowsJson as Record<string, unknown>[]) || [];
+    if (!rawRows.length) throw new BadRequestException('No raw rows stored for re-mapping');
+
+    const mapped = applyColumnMapping(rawRows, mappings);
+    const rows = normalizeRows(mapped, job.module as ImportModuleCode);
+
+    const updated = await this.jobs.update({
+      where: { id: job.id },
+      data: {
+        columnMappingJson: mappings as unknown as Prisma.InputJsonValue,
+        rowsJson: rows as unknown as Prisma.InputJsonValue,
+        rowCount: rows.length,
+        status: ImportJobStatus.UPLOADED,
+      },
+    });
+
+    return {
+      ...this.sanitizeJob(updated as JobRecord),
+      columnMappings: mappings,
+      rowCount: rows.length,
+    };
+  }
+
+  async updateRow(user: AuthPayload, id: string, rowIndex: number, patch: RowDict) {
+    const job = await this.findJob(user, id);
+    const rows = this.rowsFromJob(job);
+    if (rowIndex < 0 || rowIndex >= rows.length) {
+      throw new BadRequestException('Invalid row index');
+    }
+
+    const merged = { ...rows[rowIndex], ...patch };
+    const normalized = normalizeRows([merged], job.module as ImportModuleCode)[0];
+    rows[rowIndex] = normalized;
+
+    await this.jobs.update({
+      where: { id: job.id },
+      data: { rowsJson: rows as unknown as Prisma.InputJsonValue },
+    });
+
+    const { issues, flags } = await this.analyzeRows(job.module, job.parishId, rows);
+    const excelRow = rowIndex + 2;
+    const rowIssues = issues.filter((i) => i.row === excelRow);
+    const rowFlags = flags[rowIndex] || [];
+
+    return {
+      rowIndex,
+      rowNumber: excelRow,
+      data: normalized,
+      flags: rowFlags,
+      issues: rowIssues,
+      status: rowIssues.some((i) => i.level === 'error')
+        ? 'error'
+        : rowIssues.some((i) => i.level === 'warning')
+          ? 'warning'
+          : 'valid',
+    };
   }
 
   async listHistory(user: AuthPayload, parishId?: string) {
@@ -309,6 +588,7 @@ export class MigrationService {
       take: 50,
       select: {
         id: true,
+        batchCode: true,
         module: true,
         status: true,
         fileName: true,
@@ -320,6 +600,7 @@ export class MigrationService {
         warningCount: true,
         validCount: true,
         invalidCount: true,
+        duplicateCount: true,
         progressPct: true,
         uploadedByName: true,
         uploadedById: true,
@@ -340,7 +621,7 @@ export class MigrationService {
 
   async preview(user: AuthPayload, id: string, limit = 100) {
     const job = await this.findJob(user, id);
-    const rows = (job.rowsJson as RowDict[]) || [];
+    const rows = this.rowsFromJob(job);
     const { issues, flags } = await this.analyzeRows(job.module, job.parishId, rows);
 
     await this.jobs.update({
@@ -358,10 +639,17 @@ export class MigrationService {
       jobId: job.id,
       module: job.module,
       totalRows: rows.length,
-      preview: rows.slice(0, Math.min(100, limit)).map((row, idx) => ({
-        rowNumber: idx + 2, // Excel row (header = 1)
+      preview: rows.slice(0, Math.min(limit, rows.length)).map((row, idx) => ({
+        rowNumber: idx + 2,
         data: row,
         flags: flags[idx] || [],
+        status: (flags[idx] || []).some((f) =>
+          f.includes('duplicate') || f.includes('missing_required') || f.includes('invalid'),
+        )
+          ? 'error'
+          : (flags[idx] || []).length
+            ? 'warning'
+            : 'valid',
       })),
       issueSummary: {
         errors: issues.filter((i) => i.level === 'error').length,
@@ -372,8 +660,8 @@ export class MigrationService {
 
   async validate(user: AuthPayload, id: string) {
     const job = await this.findJob(user, id);
-    const rows = (job.rowsJson as RowDict[]) || [];
-    const { issues, flags, validCount, invalidCount, warningCount, skippedCount } =
+    const rows = this.rowsFromJob(job);
+    const { issues, flags, validCount, invalidCount, warningCount, skippedCount, duplicateCount } =
       await this.analyzeRows(job.module, job.parishId, rows);
 
     const updated = await this.jobs.update({
@@ -384,6 +672,7 @@ export class MigrationService {
         invalidCount,
         warningCount,
         skippedCount,
+        duplicateCount,
         previewFlagsJson: flags as unknown as Prisma.InputJsonValue,
         errorsJson: issues as unknown as Prisma.InputJsonValue,
       },
@@ -395,6 +684,7 @@ export class MigrationService {
       invalidRecords: invalidCount,
       warnings: warningCount,
       skippedRows: skippedCount,
+      duplicateCount,
       topIssues: issues.slice(0, 50),
     };
   }
@@ -443,7 +733,7 @@ export class MigrationService {
       }
       const row = rows[i];
       try {
-        await this.importOneRow(job.module, parish, row, created);
+        await this.importOneRow(job.module, parish, row, created, job as JobRecord);
         imported++;
       } catch (e) {
         failed++;
@@ -647,11 +937,13 @@ export class MigrationService {
     const j = job as JobRecord;
     return {
       id: j.id,
+      batchCode: j.batchCode ?? null,
       module: j.module,
       status: j.status as ImportJobStatusValue,
       fileName: j.fileName,
       fileSize: j.fileSize,
       mimeType: j.mimeType,
+      sheetCount: j.sheetCount ?? 1,
       rowCount: j.rowCount,
       validCount: j.validCount,
       invalidCount: j.invalidCount,
@@ -659,8 +951,10 @@ export class MigrationService {
       skippedCount: j.skippedCount,
       importedCount: j.importedCount,
       failedCount: j.failedCount,
+      duplicateCount: j.duplicateCount ?? 0,
       progressPct: j.progressPct,
       estimatedSeconds: j.estimatedSeconds,
+      periodLabel: j.periodLabel ?? null,
       uploadedByName: j.uploadedByName,
       uploadedById: j.uploadedById,
       ipAddress: j.ipAddress,
@@ -669,6 +963,8 @@ export class MigrationService {
       completedAt: j.completedAt,
       rolledBackAt: j.rolledBackAt,
       parishId: j.parishId,
+      columnMappings: (j.columnMappingJson as ColumnMappingEntry[]) ?? null,
+      sourceHeaders: (j.sourceHeadersJson as string[]) ?? null,
     };
   }
 
@@ -703,6 +999,7 @@ export class MigrationService {
     let invalidCount = 0;
     let warningCount = 0;
     let skippedCount = 0;
+    let duplicateCount = 0;
 
     rows.forEach((row, idx) => {
       const excelRow = idx + 2;
@@ -773,6 +1070,7 @@ export class MigrationService {
         const key = `${year}:${row.registerNumber}`.toLowerCase();
         if (seenRegister.has(key) || existingRegKeys.has(key)) {
           hasError = true;
+          duplicateCount++;
           rowFlags.push('duplicate_register');
           issues.push({
             row: excelRow,
@@ -814,6 +1112,7 @@ export class MigrationService {
         );
         if (dup) {
           warningCount++;
+          duplicateCount++;
           rowFlags.push('possible_duplicate_marriage');
           issues.push({
             row: excelRow,
@@ -836,9 +1135,7 @@ export class MigrationService {
       flags[idx] = [...new Set(rowFlags)];
     });
 
-    warningCount += issues.filter((i) => i.level === 'warning').length;
-
-    return { issues, flags, validCount, invalidCount, warningCount, skippedCount };
+    return { issues, flags, validCount, invalidCount, warningCount, skippedCount, duplicateCount };
   }
 
   private toSacramentType(module: ImportModule): SacramentType | null {
@@ -863,10 +1160,11 @@ export class MigrationService {
     parish: { id: string; organizationId: string; name: string; village: string | null },
     row: RowDict,
     created: CreatedIds,
+    job?: JobRecord,
   ) {
     switch (module) {
       case 'MARRIAGE':
-        return this.importMarriage(parish, row, created);
+        return this.importMarriage(parish, row, created, job);
       case 'BAPTISM':
       case 'CONFIRMATION':
       case 'COMMUNION':
@@ -899,6 +1197,7 @@ export class MigrationService {
     parish: { id: string; organizationId: string; name: string; village: string | null },
     row: RowDict,
     created: CreatedIds,
+    job?: JobRecord,
   ) {
     const celebratedAt = parseDate(row.marriageDate)!;
     const registerYear = celebratedAt.getFullYear();
@@ -980,7 +1279,12 @@ export class MigrationService {
         detailsJson: {
           bookNumber: row.bookNumber || null,
           pageNumber: row.pageNumber || null,
-          importSource: 'historical_migration',
+          importSource: 'historical_register',
+          sourceType: 'Historical Register',
+          importJobId: job?.id || null,
+          importBatchCode: job?.batchCode || null,
+          importFileName: job?.fileName || null,
+          periodLabel: job?.periodLabel || null,
         },
         bridegroomName: row.bridegroomName,
         bridegroomSurname: row.bridegroomSurname || undefined,

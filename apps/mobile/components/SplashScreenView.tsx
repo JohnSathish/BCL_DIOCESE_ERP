@@ -1,13 +1,12 @@
 import { useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, Image, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { brand } from '../lib/theme';
+import { useParishBrand } from '../lib/parish-brand';
 
 export function SplashScreenView({ onDone }: { onDone?: () => void }) {
+  const { config } = useParishBrand();
   const opacity = useRef(new Animated.Value(0)).current;
-  const scale = useRef(new Animated.Value(0.92)).current;
-  const pulse = useRef(new Animated.Value(0.4)).current;
-  const cross = useRef(new Animated.Value(0)).current;
+  const scale = useRef(new Animated.Value(0.88)).current;
   const onDoneRef = useRef(onDone);
   onDoneRef.current = onDone;
   const finished = useRef(false);
@@ -16,35 +15,12 @@ export function SplashScreenView({ onDone }: { onDone?: () => void }) {
     Animated.parallel([
       Animated.timing(opacity, {
         toValue: 1,
-        duration: 700,
-        useNativeDriver: true,
-      }),
-      Animated.spring(scale, { toValue: 1, friction: 6, useNativeDriver: true }),
-      Animated.timing(cross, {
-        toValue: 1,
-        duration: 1200,
+        duration: 900,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }),
+      Animated.spring(scale, { toValue: 1, friction: 7, tension: 40, useNativeDriver: true }),
     ]).start();
-
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulse, {
-          toValue: 1,
-          duration: 900,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulse, {
-          toValue: 0.35,
-          duration: 900,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-      ]),
-    );
-    loop.start();
 
     const finish = () => {
       if (finished.current) return;
@@ -52,34 +28,30 @@ export function SplashScreenView({ onDone }: { onDone?: () => void }) {
       onDoneRef.current?.();
     };
 
-    // Always advance — do not depend on unstable parent callbacks
-    const t = setTimeout(finish, 1600);
-    const hard = setTimeout(finish, 3200);
-
+    const t = setTimeout(finish, 2200);
+    const hard = setTimeout(finish, 3800);
     return () => {
       clearTimeout(t);
       clearTimeout(hard);
-      loop.stop();
     };
-    // Intentionally mount-once: parent re-renders must not reset the splash timer
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <LinearGradient colors={['#0B1220', '#1e3a5f', '#7A1F2A']} style={styles.root}>
+    <LinearGradient
+      colors={[config.colors.secondary, '#1a3a5c', config.colors.primary]}
+      style={styles.root}
+    >
       <View style={styles.glow} />
-      <Animated.View style={{ opacity: cross, position: 'absolute', top: '22%' }}>
-        <Text style={{ fontSize: 64, color: 'rgba(200,163,77,0.35)' }}>✝</Text>
-      </Animated.View>
       <Animated.View style={{ opacity, transform: [{ scale }], alignItems: 'center' }}>
-        <View style={styles.logo}>
-          <Text style={styles.logoText}>BCL</Text>
+        <View style={styles.logoWrap}>
+          <Image source={config.logo} style={styles.logo} resizeMode="contain" />
         </View>
-        <Text style={styles.title}>BCL Parish App</Text>
-        <Text style={styles.sub}>Faith. Community. Service.</Text>
-        <Text style={styles.diocese}>Roman Catholic Diocese of Tura</Text>
+        <Text style={styles.title}>{config.parishName}</Text>
+        <Text style={styles.location}>{config.location}</Text>
+        <Text style={styles.tagline}>{config.tagline}</Text>
       </Animated.View>
-      <Animated.View style={[styles.loader, { opacity: pulse }]}>
+      <Animated.View style={[styles.loader, { opacity }]}>
         <View style={styles.bar} />
       </Animated.View>
     </LinearGradient>
@@ -90,35 +62,58 @@ const styles = StyleSheet.create({
   root: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
   glow: {
     position: 'absolute',
-    width: 300,
-    height: 300,
-    borderRadius: 150,
-    backgroundColor: 'rgba(200,163,77,0.16)',
-    top: '26%',
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    backgroundColor: 'rgba(199,154,53,0.14)',
+    top: '24%',
   },
-  logo: {
-    width: 88,
-    height: 88,
-    borderRadius: 24,
-    backgroundColor: 'rgba(255,255,255,0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(200,163,77,0.55)',
+  logoWrap: {
+    width: 132,
+    height: 132,
+    borderRadius: 66,
+    backgroundColor: 'rgba(255,255,255,0.96)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 18,
+    marginBottom: 22,
+    padding: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 6,
   },
-  logoText: { color: brand.goldSoft, fontSize: 28, fontWeight: '900', letterSpacing: 2 },
-  title: { color: '#fff', fontSize: 30, fontWeight: '800', letterSpacing: -0.4 },
-  sub: { color: 'rgba(255,255,255,0.8)', marginTop: 8, fontSize: 15, textAlign: 'center' },
-  diocese: { color: brand.gold, marginTop: 10, fontSize: 12, fontWeight: '700' },
+  logo: { width: 112, height: 112 },
+  title: {
+    color: '#fff',
+    fontSize: 26,
+    fontWeight: '700',
+    textAlign: 'center',
+    letterSpacing: -0.3,
+    maxWidth: 300,
+  },
+  location: {
+    color: '#C79A35',
+    marginTop: 8,
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  tagline: {
+    color: 'rgba(255,255,255,0.82)',
+    marginTop: 12,
+    fontSize: 14,
+    letterSpacing: 1.2,
+    textAlign: 'center',
+  },
   loader: {
     position: 'absolute',
     bottom: 72,
-    width: 120,
-    height: 4,
-    borderRadius: 4,
+    width: 100,
+    height: 3,
+    borderRadius: 3,
     overflow: 'hidden',
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: 'rgba(255,255,255,0.18)',
   },
-  bar: { width: '55%', height: '100%', backgroundColor: brand.gold },
+  bar: { width: '100%', height: '100%', backgroundColor: '#C79A35' },
 });

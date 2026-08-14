@@ -344,7 +344,7 @@ export function MarriageRegistryCenter() {
           <Link href="/diocese/sacraments/marriages/register-print" className="emr-btn">
             <Printer className="h-4 w-4" /> Digital Register Book
           </Link>
-          <Link href="/diocese/migration" className="emr-btn">
+          <Link href="/diocese/data-import" className="emr-btn">
             <Upload className="h-4 w-4" /> Import Register
           </Link>
           <button type="button" className="emr-btn" onClick={exportCsv}>
@@ -462,7 +462,7 @@ export function MarriageRegistryCenter() {
                 <Link href="/diocese/sacraments/marriages/new" className="emr-btn emr-btn--primary">
                   Register Marriage
                 </Link>
-                <Link href="/diocese/migration" className="emr-btn">
+                <Link href="/diocese/data-import" className="emr-btn">
                   Import Register
                 </Link>
               </div>

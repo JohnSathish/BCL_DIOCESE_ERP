@@ -1,5 +1,10 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  getParishAppConfig,
+  isDedicatedParishApp,
+  parishContextFromConfig,
+} from './parish-app-config';
 
 const KEY = 'bcl.parish.app.context';
 
@@ -27,10 +32,22 @@ export const useParishStore = create<ParishState>((set) => ({
 
   hydrate: async () => {
     try {
+      if (isDedicatedParishApp()) {
+        const cfg = getParishAppConfig();
+        const ctx = parishContextFromConfig(cfg);
+        await AsyncStorage.setItem(KEY, JSON.stringify(ctx));
+        set({ ready: true, context: ctx });
+        return;
+      }
       const raw = await AsyncStorage.getItem(KEY);
       set({ ready: true, context: raw ? (JSON.parse(raw) as ParishContext) : null });
     } catch {
-      set({ ready: true, context: null });
+      if (isDedicatedParishApp()) {
+        const ctx = parishContextFromConfig(getParishAppConfig());
+        set({ ready: true, context: ctx });
+      } else {
+        set({ ready: true, context: null });
+      }
     }
   },
 
@@ -40,15 +57,17 @@ export const useParishStore = create<ParishState>((set) => ({
   },
 
   clear: async () => {
+    if (isDedicatedParishApp()) {
+      const ctx = parishContextFromConfig(getParishAppConfig());
+      set({ context: ctx });
+      return;
+    }
     await AsyncStorage.removeItem(KEY);
     set({ context: null });
   },
 }));
 
-/**
- * Offline fallbacks only when public directory APIs are unreachable.
- * Prefer live `/parishes` and mobile CMS — do not treat these as product data.
- */
+/** @deprecated multi-parish picker builds only */
 export const DIRECTORY_DIOCESES = [
   {
     id: 'tura',

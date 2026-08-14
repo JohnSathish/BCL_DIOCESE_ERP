@@ -1,0 +1,238 @@
+{
+  "generatedAt": "2026-08-14T09:17:45.575Z",
+  "parish": "Sacred Heart Shrine Parish, Tura (SHPTURA)",
+  "sourceFile": "E:\\BASECODE LABS PVT LTD\\BCL Diocese ERP\\docs\\Marrigae register\\Matrimonia_1955-1967_English_Headers.xlsx",
+  "outputFile": "E:\\BASECODE LABS PVT LTD\\BCL Diocese ERP\\docs\\Marrigae register\\Matrimonia_1955-1967_Import_Ready.xlsx",
+  "summary": {
+    "sourceRows": 1010,
+    "importReadyRows": 936,
+    "skippedEmptyRows": 67,
+    "invalidRows": 7,
+    "rowsWithWarnings": 58
+  },
+  "columnMapping": {
+    "source": {
+      "S.No": "Register Number (formatted as YYYY-NNNN)",
+      "Date of Marriage": "Marriage Date",
+      "Place": "Marriage Place",
+      "Name of the Bridegroom": "Bridegroom Name",
+      "Surname": "Bridegroom Surname",
+      "Father's Name": "Bridegroom Father",
+      "Mother's Name": "Bridegroom Mother",
+      "Nation": "Bridegroom Nationality (+ community note in Remarks)",
+      "Domicile": "Bridegroom Village",
+      "Occupation": "Bridegroom Occupation",
+      "Whether Bachelor or Widower": "Remarks (Groom status)",
+      "Name of the Bride": "Bride Name",
+      "Surname_1": "Bride Surname",
+      "Father's Name_1": "Bride Father",
+      "Mother's Name_1": "Bride Mother",
+      "Nation_1": "Bride Nationality (+ community note in Remarks)",
+      "Domicile_1": "Bride Village",
+      "Whether Virgin or Widow": "Remarks (Bride status)",
+      "If Widow, Whose Widow": "Remarks",
+      "Day of the First Publication": "Remarks",
+      "Day of the Second Publication": "Remarks",
+      "Day of the Third Publication": "Remarks",
+      "Dispensation": "Remarks",
+      "Name of the First Witness": "Witness 1",
+      "Surname_2": "Witness 1 (surname part)",
+      "Domicile_2": "Witness 1 Village",
+      "Name of the Second Witness": "Witness 2",
+      "Surname_3": "Witness 2 (surname part)",
+      "Domicile_3": "Witness 2 Village",
+      "Parish Priest": "Parish Priest",
+      "Minister of the Sacrament": "Minister",
+      "Remarks": "Remarks"
+    },
+    "erpRequired": [
+      "Register Number",
+      "Marriage Date",
+      "Bridegroom Name",
+      "Bride Name",
+      "Minister"
+    ],
+    "erpOptionalNotInSource": [
+      "Book Number",
+      "Page Number",
+      "Bridegroom DOB",
+      "Bride DOB",
+      "Bride Occupation",
+      "Certificate Number"
+    ],
+    "sourceNotImported": [
+      "Age",
+      "Age_1",
+      "Signature of the Bridegroom",
+      "Signature of the Bride",
+      "Signature of the First Witness",
+      "Signature of the Second Witness"
+    ]
+  },
+  "standardizations": {
+    "dates": "Converted Excel serial numbers and Roman/named month text to DD/MM/YYYY",
+    "registerNumbers": "Formatted as YYYY-NNNN using marriage year and original S.No",
+    "nationality": "Garo/Khasi etc. mapped to Indian with original noted in Remarks",
+    "maritalStatus": "Latin/OCR variants normalized to Bachelor/Widower/Virgin/Widow in Remarks",
+    "ministers": "Common abbreviations standardized (Stadler, Loper, Abuwer, etc.)",
+    "dittoDates": "L/do/same-as-above dates filled from previous row"
+  },
+  "invalidRows": [
+    {
+      "excelRow": 126,
+      "errors": [
+        "missing bridegroom name",
+        "missing bride name"
+      ],
+      "groom": "",
+      "bride": "",
+      "rawDate": "24-XII-1957"
+    },
+    {
+      "excelRow": 130,
+      "errors": [
+        "missing bride name"
+      ],
+      "groom": "Deben",
+      "bride": "",
+      "rawDate": "24-XII-1957"
+    },
+    {
+      "excelRow": 247,
+      "errors": [
+        "missing bride name"
+      ],
+      "groom": "Grshwat Daenat",
+      "bride": "",
+      "rawDate": "29-III-1959"
+    },
+    {
+      "excelRow": 875,
+      "errors": [
+        "missing bride name"
+      ],
+      "groom": "Onesmo",
+      "bride": "",
+      "rawDate": 24261
+    },
+    {
+      "excelRow": 880,
+      "errors": [
+        "missing bride name"
+      ],
+      "groom": "Enesh",
+      "bride": "",
+      "rawDate": 24261
+    },
+    {
+      "excelRow": 891,
+      "errors": [
+        "missing bride name"
+      ],
+      "groom": "Jiovge Joge",
+      "bride": "",
+      "rawDate": 24354
+    },
+    {
+      "excelRow": 944,
+      "errors": [
+        "missing bride name"
+      ],
+      "groom": "Marius Minolin",
+      "bride": "",
+      "rawDate": 24487
+    }
+  ],
+  "warningSamples": [
+    {
+      "excelRow": 3,
+      "warnings": [
+        "Marriage year 1954 is outside expected range 1955-1967"
+      ]
+    },
+    {
+      "excelRow": 16,
+      "warnings": [
+        "Marriage year 1954 is outside expected range 1955-1967"
+      ]
+    },
+    {
+      "excelRow": 22,
+      "warnings": [
+        "Marriage date copied from previous row (register used \"same as above\")"
+      ]
+    },
+    {
+      "excelRow": 24,
+      "warnings": [
+        "Marriage date copied from previous row (register used \"same as above\")"
+      ]
+    },
+    {
+      "excelRow": 25,
+      "warnings": [
+        "Marriage date copied from previous row (register used \"same as above\")"
+      ]
+    },
+    {
+      "excelRow": 26,
+      "warnings": [
+        "Marriage date copied from previous row (register used \"same as above\")"
+      ]
+    },
+    {
+      "excelRow": 27,
+      "warnings": [
+        "Marriage date copied from previous row (register used \"same as above\")"
+      ]
+    },
+    {
+      "excelRow": 28,
+      "warnings": [
+        "Marriage date copied from previous row (register used \"same as above\")"
+      ]
+    },
+    {
+      "excelRow": 32,
+      "warnings": [
+        "Marriage date copied from previous row (register used \"same as above\")"
+      ]
+    },
+    {
+      "excelRow": 33,
+      "warnings": [
+        "Marriage date copied from previous row (register used \"same as above\")"
+      ]
+    },
+    {
+      "excelRow": 49,
+      "warnings": [
+        "Minister not recorded in source register"
+      ]
+    },
+    {
+      "excelRow": 122,
+      "warnings": [
+        "Minister not recorded in source register"
+      ]
+    },
+    {
+      "excelRow": 123,
+      "warnings": [
+        "Minister not recorded in source register"
+      ]
+    },
+    {
+      "excelRow": 124,
+      "warnings": [
+        "Minister not recorded in source register"
+      ]
+    },
+    {
+      "excelRow": 125,
+      "warnings": [
+        "Minister not recorded in source register"
+      ]
+    }
+  ]
+}

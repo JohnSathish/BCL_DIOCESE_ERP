@@ -1,6 +1,8 @@
-# BCL Parish App
+# Sacred Heart Shrine Parish — Mobile App
 
-**Faith. Community. Service.** · Official mobile client for the BCL Diocese ERP
+**Faith · Community · Service** · White-label parish mobile client (Sacred Heart Shrine Parish, Tura).
+
+Set `EXPO_PUBLIC_PARISH_APP_ID=sacred-heart` for the dedicated Sacred Heart build. Configuration lives in `lib/parish-app-config.data.ts`.
 
 Premium Expo / React Native app for parishioners, family heads, parish priests, bishops, and diocese administrators — with live JWT auth against the NestJS API.
 

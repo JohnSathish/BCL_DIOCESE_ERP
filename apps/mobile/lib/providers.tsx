@@ -8,6 +8,7 @@ import { isRunningInExpoGo } from 'expo';
 import { useAuthStore } from '../lib/auth-store';
 import { registerForPushNotifications } from '../lib/notifications';
 import { getDb } from '../lib/sqlite-db';
+import { ParishBrandProvider, useParishBrand } from '../lib/parish-brand';
 import { createUi, darkColors, lightColors, type ThemeColors } from '../lib/theme';
 
 const queryClient = new QueryClient({
@@ -35,12 +36,21 @@ export function useAppTheme() {
 }
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
+  return (
+    <ParishBrandProvider>
+      <AppProvidersInner>{children}</AppProvidersInner>
+    </ParishBrandProvider>
+  );
+}
+
+function AppProvidersInner({ children }: { children: React.ReactNode }) {
+  const { colors: parishColors } = useParishBrand();
   const themeMode = useAuthStore((s) => s.themeMode);
   const session = useAuthStore((s) => s.session);
   const system = useColorScheme();
   const isDark =
     themeMode === 'dark' || (themeMode === 'system' && system === 'dark');
-  const colors = isDark ? darkColors : lightColors;
+  const colors = isDark ? darkColors : parishColors;
   const ui = useMemo(() => createUi(colors), [colors]);
 
   useEffect(() => {

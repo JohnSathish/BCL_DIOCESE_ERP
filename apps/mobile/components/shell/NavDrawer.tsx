@@ -24,6 +24,7 @@ import {
 } from '../../lib/role-nav';
 import { primaryRole, roleLabel } from '../../lib/rbac';
 import { brand } from '../../lib/theme';
+import { useParishBrand } from '../../lib/parish-brand';
 
 const DRAWER_WIDTH = Math.min(320, Dimensions.get('window').width * 0.86);
 
@@ -36,6 +37,7 @@ export function NavDrawer({ persona }: { persona: NavPersona }) {
   const session = useAuthStore((s) => s.session);
   const logout = useAuthStore((s) => s.logout);
   const parish = useParishStore((s) => s.context);
+  const { config } = useParishBrand();
   const slide = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
 
   useEffect(() => {
@@ -79,7 +81,7 @@ export function NavDrawer({ persona }: { persona: NavPersona }) {
             colors={persona === 'bishop' ? ['#0F3D91', '#7B1E2B'] : ['#7B1E2B', '#5A1520']}
             style={styles.header}
           >
-            <Text style={styles.headerEyebrow}>BCL PARISH APP</Text>
+            <Text style={styles.headerEyebrow}>{config.shortName.toUpperCase()}</Text>
             <Text style={styles.headerName} numberOfLines={1}>
               {session
                 ? `${session.user.firstName} ${session.user.lastName}`

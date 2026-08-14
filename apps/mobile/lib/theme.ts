@@ -1,13 +1,13 @@
 import { StyleSheet, useColorScheme } from 'react-native';
 
 export const brand = {
-  burgundy: '#7B1E2B',
-  burgundyDeep: '#5A1520',
-  burgundySoft: 'rgba(123, 30, 43, 0.1)',
-  gold: '#C8A24B',
-  goldSoft: '#E8D4A8',
-  accent: '#0F3D91',
-  royal: '#0F3D91',
+  burgundy: '#7A1725',
+  burgundyDeep: '#5A1018',
+  burgundySoft: 'rgba(122, 23, 37, 0.1)',
+  gold: '#C79A35',
+  goldSoft: '#F5ECD8',
+  accent: '#102A4A',
+  royal: '#102A4A',
   success: '#067647',
   danger: '#b42318',
   warn: '#8a6a2f',

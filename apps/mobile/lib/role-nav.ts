@@ -24,7 +24,16 @@ import { dashboardKindForRoles, type DashboardKind } from './rbac';
 
 export type NavPersona = 'public' | 'priest' | 'bishop';
 
-export type TabSlot = 'index' | 'calendar' | 'directory' | 'notifications' | 'profile';
+export type TabSlot =
+  | 'index'
+  | 'mass'
+  | 'events'
+  | 'prayers'
+  | 'more'
+  | 'calendar'
+  | 'directory'
+  | 'notifications'
+  | 'profile';
 
 export type NavTabDef = {
   slot: TabSlot;
@@ -56,11 +65,11 @@ export function personaFromRoles(roles: string[] = [], authenticated: boolean): 
   const kind: DashboardKind = dashboardKindForRoles(roles);
   if (kind === 'bishop' || kind === 'admin') return 'bishop';
   if (kind === 'priest') return 'priest';
-  // Parishioners / guests / family share public bottom nav; extras live in Profile
   void authenticated;
   return 'public';
 }
 
+/** Parishioner / guest — consumer-style 5-tab navigation */
 export function tabsForPersona(persona: NavPersona): NavTabDef[] {
   if (persona === 'priest') {
     return [
@@ -68,7 +77,7 @@ export function tabsForPersona(persona: NavPersona): NavTabDef[] {
       { slot: 'directory', title: 'Records', Icon: BookOpen },
       { slot: 'calendar', title: 'Calendar', Icon: Calendar },
       { slot: 'notifications', title: 'Reports', Icon: BarChart3, href: '/(app)/reports' },
-      { slot: 'profile', title: 'Profile', Icon: User },
+      { slot: 'profile', title: 'More', Icon: User, href: '/(main)/more' },
     ];
   }
   if (persona === 'bishop') {
@@ -77,15 +86,15 @@ export function tabsForPersona(persona: NavPersona): NavTabDef[] {
       { slot: 'directory', title: 'Parishes', Icon: Church },
       { slot: 'notifications', title: 'Analytics', Icon: BarChart3, href: '/(app)/reports' },
       { slot: 'calendar', title: 'Calendar', Icon: Calendar },
-      { slot: 'profile', title: 'Profile', Icon: User },
+      { slot: 'profile', title: 'More', Icon: User, href: '/(main)/more' },
     ];
   }
   return [
     { slot: 'index', title: 'Home', Icon: Home, headerShown: false },
-    { slot: 'calendar', title: 'Calendar', Icon: Calendar },
-    { slot: 'directory', title: 'Updates', Icon: Bell, badge: true },
-    { slot: 'notifications', title: 'Donate', Icon: Heart, href: '/donations' },
-    { slot: 'profile', title: 'Profile', Icon: User },
+    { slot: 'mass', title: 'Mass', Icon: Church, href: '/(main)/mass', headerShown: false },
+    { slot: 'events', title: 'Events', Icon: Calendar, href: '/(main)/events', headerShown: false },
+    { slot: 'prayers', title: 'Prayers', Icon: BookOpen, href: '/(main)/prayers', headerShown: false },
+    { slot: 'more', title: 'More', Icon: User, href: '/(main)/more', headerShown: false },
   ];
 }
 
@@ -122,11 +131,8 @@ export function drawerSectionsForPersona(persona: NavPersona): DrawerSection[] {
           { id: 'comms', label: 'Communications', href: '/(app)/communications', Icon: Bell, color: brand.burgundy },
           { id: 'calendar', label: 'Calendar', href: '/(main)/calendar', Icon: Calendar, color: brand.indigo },
           { id: 'certs', label: 'Certificates', href: '/certificates', Icon: FileText, color: brand.teal },
-          { id: 'books', label: 'Digital Register Books', href: '/(app)/families', Icon: BookOpen, color: brand.navy },
           { id: 'cms', label: 'Website CMS', href: '/(app)/cms', Icon: Building2, color: brand.teal },
-          { id: 'accommodation', label: 'Accommodation', href: '/(app)/accommodation', Icon: Home, color: brand.teal },
           { id: 'reports', label: 'Reports', href: '/(app)/reports', Icon: BarChart3, color: brand.orange },
-          { id: 'ai', label: 'AI Assistant', href: '/(app)/ai', Icon: Sparkles, color: brand.purple },
           { id: 'search', label: 'Global Search', href: '/(app)/search', Icon: Search, color: brand.royal },
         ],
       },
@@ -151,23 +157,11 @@ export function drawerSectionsForPersona(persona: NavPersona): DrawerSection[] {
         ],
       },
       {
-        id: 'reports',
-        title: 'Reports',
-        items: [
-          { id: 'sacramental', label: 'Sacramental Reports', href: '/(app)/reports', Icon: Cross, color: brand.emerald },
-          { id: 'financial', label: 'Financial Reports', href: '/(app)/finance', Icon: BarChart3, color: brand.gold },
-          { id: 'mass', label: 'Mass Reports', href: '/(app)/schedule', Icon: Church, color: brand.indigo },
-          { id: 'catechism', label: 'Catechism Reports', href: '/(app)/catechism', Icon: BookOpen, color: brand.teal },
-        ],
-      },
-      {
         id: 'ops',
         title: 'Diocese Operations',
         items: [
-          { id: 'website', label: 'Website Management', href: '/(app)/cms', Icon: Building2, color: brand.teal },
           { id: 'notifications', label: 'Notifications', href: '/(main)/notifications', Icon: Bell, color: brand.orange },
           { id: 'users', label: 'Users', href: '/(app)/settings', Icon: Users, color: brand.royal },
-          { id: 'ai', label: 'AI Diocese Assistant', href: '/(app)/ai', Icon: Sparkles, color: brand.purple },
           { id: 'search', label: 'Global Search', href: '/(app)/search', Icon: Search, color: brand.royal },
         ],
       },

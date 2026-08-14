@@ -43,6 +43,7 @@ import {
   GraduationCap,
   Smartphone,
   ChevronDown,
+  FileSpreadsheet,
   Palette,
 } from 'lucide-react';
 import { AppShell, type NavItem } from '@bcl/ui';
@@ -91,6 +92,7 @@ const dioceseNav: NavItem[] = [
       { href: '/diocese/domains', label: 'Domains', icon: <Globe className={icon} />, roles: ['PLATFORM_ADMIN', 'DIOCESE_ADMIN'] },
       { href: '/diocese/rbac', label: 'Users & Roles', icon: <Shield className={icon} />, roles: ['PLATFORM_ADMIN', 'DIOCESE_ADMIN'] },
       { href: '/diocese/audit', label: 'Audit Log', icon: <ClipboardList className={icon} />, roles: ['PLATFORM_ADMIN', 'DIOCESE_ADMIN'] },
+      { href: '/diocese/data-import', label: 'Data Import Studio', icon: <FileSpreadsheet className={icon} />, roles: ['PLATFORM_ADMIN', 'DIOCESE_ADMIN', 'PARISH_PRIEST', 'SECRETARY'] },
       { href: '/diocese/migration', label: 'Backup / Migration', icon: <DatabaseBackup className={icon} />, roles: ['PLATFORM_ADMIN'] },
       { href: '/diocese/ai', label: 'AI Assistant', icon: <Sparkles className={icon} />, roles: ['PLATFORM_ADMIN', 'DIOCESE_ADMIN'] },
     ],
@@ -248,6 +250,7 @@ const parishNav: NavItem[] = [
       { href: '/diocese/rbac', label: 'Users', icon: <Users className={icon} /> },
       { href: '/diocese/rbac', label: 'Permissions', icon: <Shield className={icon} /> },
       { href: '/diocese/audit', label: 'Audit Log', icon: <ClipboardList className={icon} /> },
+      { href: '/diocese/data-import', label: 'Data Import Studio', icon: <FileSpreadsheet className={icon} /> },
       { href: '/diocese/migration', label: 'Backup', icon: <DatabaseBackup className={icon} /> },
       { href: '/diocese/ai', label: 'Integrations', icon: <Cloud className={icon} /> },
       { href: '/diocese/appearance', label: 'Theme & Preferences', icon: <Palette className={icon} /> },

@@ -1,7 +1,13 @@
 'use client';
 
-import { MigrationCenter } from '@/components/migration/MigrationCenter';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
+/** Legacy route — redirects to Data Import Studio */
 export default function MigrationPage() {
-  return <MigrationCenter />;
+  const router = useRouter();
+  useEffect(() => {
+    router.replace('/diocese/data-import');
+  }, [router]);
+  return null;
 }

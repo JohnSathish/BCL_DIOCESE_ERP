@@ -93,7 +93,9 @@ export default function SettingsScreen() {
 
       <View style={ui.card}>
         <Text style={ui.cardTitle}>About</Text>
-        <Text style={ui.body}>BCL Diocese · Catholic Diocese Management Platform · v0.1.0</Text>
+        <Text style={ui.body}>
+          Sacred Heart Shrine Parish mobile app · See About in More for app information.
+        </Text>
       </View>
     </Screen>
   );

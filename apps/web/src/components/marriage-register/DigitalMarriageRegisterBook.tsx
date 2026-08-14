@@ -401,7 +401,7 @@ export function DigitalMarriageRegisterBook() {
           <button type="button" className="dmrb-btn" onClick={exportExcel}>
             <FileSpreadsheet className="h-3.5 w-3.5" /> Export Excel
           </button>
-          <Link href="/diocese/migration" className="dmrb-btn">
+          <Link href="/diocese/data-import" className="dmrb-btn">
             <Upload className="h-3.5 w-3.5" /> Import Excel
           </Link>
           <button type="button" className="dmrb-btn" title="Archive selected later">
@@ -554,7 +554,7 @@ export function DigitalMarriageRegisterBook() {
                 <Link href="/diocese/sacraments/marriages/new" className="dmrb-btn dmrb-btn--primary">
                   Register Marriage
                 </Link>
-                <Link href="/diocese/migration" className="dmrb-btn">
+                <Link href="/diocese/data-import" className="dmrb-btn">
                   Import Historical Records
                 </Link>
               </div>

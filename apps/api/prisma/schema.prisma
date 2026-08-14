@@ -2311,6 +2311,7 @@ model OcrJob {
 
 model ImportJob {
   id                String          @id @default(cuid())
+  batchCode         String?         @unique
   organizationId    String
   parishId          String
   module            ImportModule
@@ -2318,6 +2319,7 @@ model ImportJob {
   fileName          String
   fileSize          Int             @default(0)
   mimeType          String?
+  sheetCount        Int             @default(1)
   rowCount          Int             @default(0)
   validCount        Int             @default(0)
   invalidCount      Int             @default(0)
@@ -2325,9 +2327,14 @@ model ImportJob {
   skippedCount      Int             @default(0)
   importedCount     Int             @default(0)
   failedCount       Int             @default(0)
+  duplicateCount    Int             @default(0)
   progressPct       Int             @default(0)
   estimatedSeconds  Int?
+  periodLabel       String?
   rowsJson          Json?
+  rawRowsJson       Json?
+  sourceHeadersJson Json?
+  columnMappingJson Json?
   previewFlagsJson  Json?
   errorsJson        Json?
   createdEntityIds  Json?
@@ -2349,6 +2356,7 @@ model ImportJob {
   @@index([parishId])
   @@index([status])
   @@index([createdAt])
+  @@index([batchCode])
 }
 
 model ReportSchedule {

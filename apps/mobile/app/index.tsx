@@ -3,6 +3,7 @@ import { Redirect } from 'expo-router';
 import { SplashScreenView } from '../components/SplashScreenView';
 import { useAuthStore } from '../lib/auth-store';
 import { useParishStore } from '../lib/parish-store';
+import { isDedicatedParishApp } from '../lib/parish-app-config';
 import { homeHrefForRoles } from '../lib/rbac';
 
 export default function Index() {
@@ -15,7 +16,6 @@ export default function Index() {
 
   const onSplashDone = useCallback(() => setSplashDone(true), []);
 
-  // Hard escape hatch — never stay on splash forever
   useEffect(() => {
     const t = setTimeout(() => {
       setSplashDone(true);
@@ -30,7 +30,7 @@ export default function Index() {
     return <SplashScreenView onDone={onSplashDone} />;
   }
 
-  if (!parish) {
+  if (!parish && !isDedicatedParishApp()) {
     return <Redirect href={'/onboarding/select-diocese' as never} />;
   }
 
