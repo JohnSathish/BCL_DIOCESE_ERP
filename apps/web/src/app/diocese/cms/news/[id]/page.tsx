@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ImagePlus } from 'lucide-react';
 import { Button, Input, Label, PageHeader, Select, TextArea } from '@bcl/ui';
-import { api } from '@/lib/api';
+import { getAccessToken } from '@bcl/auth-client';
+import { API_BASE, api } from '@/lib/api';
 import { LanguageTabs } from '@/components/cms/LanguageTabs';
 
 type Post = {
@@ -43,6 +45,9 @@ export default function CmsNewsEditorPage() {
     isFeatured: false,
   });
   const [activeLang, setActiveLang] = useState('en');
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const translation = useQuery({
     queryKey: ['cms-post-tr', id, activeLang],
@@ -100,8 +105,45 @@ export default function CmsNewsEditorPage() {
       qc.invalidateQueries({ queryKey: ['cms-post-tr', id] });
       qc.invalidateQueries({ queryKey: ['cms-posts'] });
       qc.invalidateQueries({ queryKey: ['cms-dashboard'] });
+      router.push('/diocese/cms/news');
     },
   });
+
+  async function uploadCover(file: File) {
+    if (!file.type.startsWith('image/')) {
+      setUploadError('Please choose a JPG, PNG, or WebP image.');
+      return;
+    }
+    setUploading(true);
+    setUploadError(null);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const token = getAccessToken();
+      const res = await fetch(`${API_BASE}/files/upload`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: fd,
+      });
+      if (!res.ok) throw new Error('Upload failed');
+      const uploaded = (await res.json()) as { url?: string; key?: string };
+      if (!uploaded.url) throw new Error('Upload failed');
+      await api.post('/cms/media', {
+        url: uploaded.url,
+        key: uploaded.key || uploaded.url,
+        fileName: file.name,
+        mimeType: file.type,
+        sizeBytes: file.size,
+        folder: 'news',
+        alt: form.title || file.name,
+      });
+      setForm((f) => ({ ...f, coverUrl: uploaded.url as string }));
+    } catch {
+      setUploadError('Could not upload image. Try again or paste a URL.');
+    } finally {
+      setUploading(false);
+    }
+  }
 
   const remove = useMutation({
     mutationFn: () => api.delete(`/cms/posts/${id}`),
@@ -154,8 +196,59 @@ export default function CmsNewsEditorPage() {
           <Input value={form.authorName} onChange={(e) => setForm({ ...form, authorName: e.target.value })} />
         </div>
         <div className="sm:col-span-2">
-          <Label>Cover image URL</Label>
-          <Input value={form.coverUrl} onChange={(e) => setForm({ ...form, coverUrl: e.target.value })} />
+          <Label>Cover image</Label>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) void uploadCover(file);
+              e.target.value = '';
+            }}
+          />
+          <div className="mt-1 flex flex-wrap items-start gap-4">
+            {form.coverUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={form.coverUrl}
+                alt=""
+                className="h-28 w-44 rounded-lg border border-[var(--bcl-border)] object-cover"
+              />
+            ) : (
+              <div className="flex h-28 w-44 items-center justify-center rounded-lg border border-dashed border-[var(--bcl-border)] bg-[var(--bcl-bg)] text-xs text-[var(--bcl-muted)]">
+                No image
+              </div>
+            )}
+            <div className="min-w-[220px] flex-1 space-y-2">
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  onClick={() => fileRef.current?.click()}
+                  disabled={uploading}
+                >
+                  <ImagePlus className="h-4 w-4" />
+                  {uploading ? 'Uploading…' : 'Upload image'}
+                </Button>
+                {form.coverUrl ? (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => setForm({ ...form, coverUrl: '' })}
+                  >
+                    Remove
+                  </Button>
+                ) : null}
+              </div>
+              <Input
+                placeholder="Or paste an image URL"
+                value={form.coverUrl}
+                onChange={(e) => setForm({ ...form, coverUrl: e.target.value })}
+              />
+              {uploadError ? <p className="text-sm text-red-600">{uploadError}</p> : null}
+            </div>
+          </div>
         </div>
         <div className="sm:col-span-2">
           <Label>Tags (comma separated)</Label>
