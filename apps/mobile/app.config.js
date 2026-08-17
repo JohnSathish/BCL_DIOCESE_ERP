@@ -16,16 +16,16 @@ const parish = REGISTRY[appId] || REGISTRY['sacred-heart'];
 module.exports = {
   name: parish.parishName,
   slug: 'bcl-parish-app',
-  version: '1.0.1',
+  version: '1.0.4',
   orientation: 'portrait',
   scheme: appId.replace(/-/g, ''),
   userInterfaceStyle: 'light',
-  newArchEnabled: true,
+  newArchEnabled: false,
   icon: './assets/parishes/sacred-heart/logo.png',
   splash: {
-    image: './assets/parishes/sacred-heart/logo.png',
-    resizeMode: 'contain',
-    backgroundColor: parish.colors.secondary,
+    image: './assets/parishes/sacred-heart/splash-welcome.png',
+    resizeMode: 'cover',
+    backgroundColor: '#5C0A16',
   },
   plugins: [
     'expo-router',
@@ -54,10 +54,10 @@ module.exports = {
   experiments: { typedRoutes: true },
   android: {
     package: parish.androidPackage,
-    versionCode: 2,
+    versionCode: 7,
     adaptiveIcon: {
-      foregroundImage: './assets/parishes/sacred-heart/logo.png',
-      backgroundColor: parish.colors.primary,
+      foregroundImage: './assets/parishes/sacred-heart/adaptive-foreground.png',
+      backgroundColor: '#7A1725',
     },
     permissions: ['CAMERA', 'POST_NOTIFICATIONS', 'READ_CALENDAR', 'WRITE_CALENDAR'],
   },
