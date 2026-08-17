@@ -1,0 +1,2 @@
+ALTER TABLE "TrustedDevice" ADD COLUMN IF NOT EXISTS "platform" TEXT;
+ALTER TABLE "CmsAnnouncement" ADD COLUMN IF NOT EXISTS "scheduledAt" TIMESTAMP(3);

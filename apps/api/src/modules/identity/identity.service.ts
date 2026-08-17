@@ -31,9 +31,16 @@ import {
   setTrustedDeviceCookie,
   trustedDeviceDurationMs,
 } from './auth-security.util';
-import { buildLoginOtpEmail, buildNewDeviceLoginEmail } from './auth-email-templates';
+import { buildLoginOtpEmail, buildNewDeviceLoginEmail, buildPasswordResetOtpEmail } from './auth-email-templates';
 
-type AuthMeta = { ip?: string; userAgent?: string };
+export type AuthMeta = {
+  ip?: string;
+  userAgent?: string;
+  trustedDeviceToken?: string;
+  deviceName?: string;
+  platform?: string;
+  client?: 'mobile' | 'web';
+};
 
 @Injectable()
 export class IdentityService {
@@ -191,14 +198,27 @@ export class IdentityService {
   private async findActiveTrustedDevice(userId: string, rawToken?: string) {
     if (!rawToken) return null;
     const tokenHash = hashSecret(rawToken);
-    return this.prisma.trustedDevice.findFirst({
-      where: {
-        userId,
-        tokenHash,
-        isActive: true,
-        revokedAt: null,
-        expiresAt: { gt: new Date() },
-      },
+    try {
+      return await this.prisma.trustedDevice.findFirst({
+        where: {
+          userId,
+          tokenHash,
+          isActive: true,
+          revokedAt: null,
+          expiresAt: { gt: new Date() },
+        },
+      });
+    } catch (err) {
+      // Schema drift (e.g. missing TrustedDevice.platform) must not break password login.
+      // Treat as untrusted and continue to OTP / token issue path.
+      return null;
+    }
+  }
+
+  private deviceFromMeta(meta?: AuthMeta) {
+    return parseDeviceInfo(meta?.userAgent, {
+      deviceName: meta?.deviceName,
+      platform: meta?.platform,
     });
   }
 
@@ -245,7 +265,7 @@ export class IdentityService {
 
     const otp = generateOtpCode();
     const challengeToken = generateOpaqueToken(32);
-    const device = parseDeviceInfo(meta?.userAgent);
+    const device = this.deviceFromMeta(meta);
     const expiresAt = new Date(Date.now() + otpTtlMs());
 
     await this.prisma.loginOtpChallenge.create({
@@ -324,9 +344,12 @@ export class IdentityService {
     if (!valid) await fail();
 
     this.rateLimit.clearLoginFailures(email, meta?.ip);
-    const device = parseDeviceInfo(meta?.userAgent);
+    const device = this.deviceFromMeta(meta);
 
-    const trusted = await this.findActiveTrustedDevice(user!.id, meta?.trustedDeviceToken);
+    const trusted = await this.findActiveTrustedDevice(
+      user!.id,
+      meta?.trustedDeviceToken || dto.trustedDeviceToken,
+    );
     if (trusted) {
       await this.prisma.trustedDevice.update({
         where: { id: trusted.id },
@@ -438,7 +461,14 @@ export class IdentityService {
   }
 
   async verifyOtp(
-    input: { challengeToken: string; otp: string; trustDevice?: boolean },
+    input: {
+      challengeToken: string;
+      otp: string;
+      trustDevice?: boolean;
+      deviceName?: string;
+      platform?: string;
+      client?: 'mobile' | 'web';
+    },
     meta?: AuthMeta,
     res?: Response,
   ) {
@@ -500,14 +530,22 @@ export class IdentityService {
       userAgent: meta?.userAgent,
     });
 
-    const device = parseDeviceInfo(meta?.userAgent);
+    const mergedMeta: AuthMeta = {
+      ...meta,
+      deviceName: input.deviceName || meta?.deviceName,
+      platform: input.platform || meta?.platform,
+      client: input.client || meta?.client,
+    };
+    const device = this.deviceFromMeta(mergedMeta);
     let trustedDeviceCreated = false;
-    if (input.trustDevice && res) {
-      await this.createTrustedDeviceRecord(challenge.userId, meta, res);
+    let trustedDeviceToken: string | undefined;
+    if (input.trustDevice) {
+      const trust = await this.createTrustedDeviceRecord(challenge.userId, mergedMeta, res);
       trustedDeviceCreated = true;
+      trustedDeviceToken = trust.trustedDeviceToken;
     }
 
-    const result = await this.issueTokens(challenge.userId, meta);
+    const result = await this.issueTokens(challenge.userId, mergedMeta);
     await this.audit.log({
       organizationId: challenge.user.organizationId,
       userId: challenge.userId,
@@ -522,10 +560,9 @@ export class IdentityService {
       ip: meta?.ip,
       userAgent: meta?.userAgent,
       deviceName: device.deviceName,
-      metadata: { via: 'otp', trustedDeviceCreated },
+      metadata: { via: 'otp', trustedDeviceCreated, client: mergedMeta.client || 'web' },
     });
 
-    // New-device notification (always after OTP path = unrecognized device)
     void this.sendNewDeviceEmail(challenge.user.email, device, new Date()).catch(() => undefined);
 
     return {
@@ -534,6 +571,7 @@ export class IdentityService {
       trustedDeviceCreated,
       trustPrompt: !trustedDeviceCreated,
       trustDurationDays: Number(process.env.TRUSTED_DEVICE_DURATION_DAYS || 30),
+      ...(trustedDeviceToken ? { trustedDeviceToken } : {}),
       ...result,
     };
   }
@@ -541,7 +579,7 @@ export class IdentityService {
   private async createTrustedDeviceRecord(userId: string, meta?: AuthMeta, res?: Response) {
     const rawToken = generateOpaqueToken(32);
     const durationMs = trustedDeviceDurationMs();
-    const device = parseDeviceInfo(meta?.userAgent);
+    const device = this.deviceFromMeta(meta);
     await this.prisma.trustedDevice.create({
       data: {
         userId,
@@ -549,6 +587,7 @@ export class IdentityService {
         deviceName: device.deviceName,
         browser: device.browser,
         operatingSystem: device.operatingSystem,
+        platform: meta?.platform || null,
         ipAddress: meta?.ip,
         userAgent: meta?.userAgent,
         expiresAt: new Date(Date.now() + durationMs),
@@ -564,11 +603,231 @@ export class IdentityService {
       userAgent: meta?.userAgent,
       deviceName: device.deviceName,
     });
-    return { success: true, expiresIn: Math.floor(durationMs / 1000) };
+    return {
+      success: true,
+      expiresIn: Math.floor(durationMs / 1000),
+      trustedDeviceToken: rawToken,
+      trustDurationDays: Number(process.env.TRUSTED_DEVICE_DURATION_DAYS || 30),
+      device: {
+        deviceName: device.deviceName,
+        operatingSystem: device.operatingSystem,
+        browser: device.browser,
+      },
+    };
   }
 
   async createTrustedDevice(userId: string, meta?: AuthMeta, res?: Response) {
     return this.createTrustedDeviceRecord(userId, meta, res);
+  }
+
+  async startPasswordlessLogin(emailRaw: string, meta?: AuthMeta) {
+    const email = emailRaw.toLowerCase().trim();
+    const lockMs = this.rateLimit.checkLoginLock(email, meta?.ip);
+    if (lockMs > 0) {
+      throw new HttpException(
+        `Too many attempts. Try again in ${Math.ceil(lockMs / 1000)} seconds.`,
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    const user = await this.prisma.user.findFirst({
+      where: { email, deletedAt: null, isActive: true },
+    });
+
+    // Same generic response whether or not the account exists (no email enumeration)
+    if (!user) {
+      return {
+        status: 'otp_required' as const,
+        requiresOtp: true,
+        challengeToken: generateOpaqueToken(24),
+        emailMasked: maskEmail(email),
+        expiresIn: Math.floor(otpTtlMs() / 1000),
+        resendAvailableIn: Math.floor(otpResendCooldownMs() / 1000),
+        message: `If an account exists for ${maskEmail(email)}, a verification code was sent.`,
+      };
+    }
+
+    return this.createOtpChallenge(user.id, meta);
+  }
+
+  async requestPasswordReset(emailRaw: string, meta?: AuthMeta) {
+    const email = emailRaw.toLowerCase().trim();
+    const user = await this.prisma.user.findFirst({
+      where: { email, deletedAt: null, isActive: true },
+    });
+
+    const generic = {
+      success: true,
+      message: `If an account exists for ${maskEmail(email)}, a reset code was sent.`,
+      emailMasked: maskEmail(email),
+      expiresIn: Math.floor(otpTtlMs() / 1000),
+      resendAvailableIn: Math.floor(otpResendCooldownMs() / 1000),
+    };
+
+    if (!user) return generic;
+
+    const rate = this.rateLimit.assertOtpSendAllowed(user.id, meta?.ip);
+    if (!rate.ok) {
+      throw new HttpException(
+        `Too many verification requests. Try again in ${rate.waitSec} seconds.`,
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    await this.prisma.passwordResetChallenge.updateMany({
+      where: { userId: user.id, consumedAt: null },
+      data: { consumedAt: new Date() },
+    });
+
+    const otp = generateOtpCode();
+    const challengeToken = generateOpaqueToken(32);
+    const expiresAt = new Date(Date.now() + otpTtlMs());
+
+    await this.prisma.passwordResetChallenge.create({
+      data: {
+        userId: user.id,
+        challengeHash: hashSecret(challengeToken),
+        otpHash: hashSecret(otp),
+        expiresAt,
+        lastSentAt: new Date(),
+        ipAddress: meta?.ip,
+        userAgent: meta?.userAgent,
+      },
+    });
+
+    const minutes = Math.max(1, Math.round(otpTtlMs() / 60000));
+    const mail = buildPasswordResetOtpEmail({ code: otp, expiresMinutes: minutes });
+    await this.notifications.sendEmail(user.email, mail.subject, mail.text, { html: mail.html });
+    await this.logAuthEvent({
+      userId: user.id,
+      eventType: 'PASSWORD_RESET_REQUESTED',
+      ip: meta?.ip,
+      userAgent: meta?.userAgent,
+    });
+
+    const expose = this.config.get<string>('AUTH_EXPOSE_OTP') === 'true';
+    return {
+      ...generic,
+      challengeToken,
+      ...(expose ? { debugOtp: otp } : {}),
+    };
+  }
+
+  async verifyPasswordResetOtp(input: { challengeToken: string; otp: string }, meta?: AuthMeta) {
+    const challenge = await this.prisma.passwordResetChallenge.findFirst({
+      where: {
+        challengeHash: hashSecret(input.challengeToken),
+        consumedAt: null,
+      },
+      include: { user: true },
+    });
+
+    if (!challenge || !challenge.user?.isActive) {
+      throw new BadRequestException('Invalid or expired reset session.');
+    }
+    if (challenge.expiresAt.getTime() < Date.now()) {
+      await this.prisma.passwordResetChallenge.update({
+        where: { id: challenge.id },
+        data: { consumedAt: new Date() },
+      });
+      throw new BadRequestException('Code expired. Request a new reset code.');
+    }
+    if (challenge.attempts >= challenge.maxAttempts) {
+      await this.prisma.passwordResetChallenge.update({
+        where: { id: challenge.id },
+        data: { consumedAt: new Date() },
+      });
+      throw new BadRequestException('Too many incorrect attempts. Request a new reset code.');
+    }
+
+    if (hashSecret(input.otp.trim()) !== challenge.otpHash) {
+      await this.prisma.passwordResetChallenge.update({
+        where: { id: challenge.id },
+        data: { attempts: { increment: 1 } },
+      });
+      throw new UnauthorizedException('Invalid code.');
+    }
+
+    const resetToken = generateOpaqueToken(32);
+    await this.prisma.passwordResetChallenge.update({
+      where: { id: challenge.id },
+      data: {
+        verifiedAt: new Date(),
+        resetTokenHash: hashSecret(resetToken),
+        expiresAt: new Date(Date.now() + otpTtlMs()),
+      },
+    });
+    await this.logAuthEvent({
+      userId: challenge.userId,
+      eventType: 'PASSWORD_RESET_OTP_VERIFIED',
+      ip: meta?.ip,
+      userAgent: meta?.userAgent,
+    });
+
+    return {
+      success: true,
+      resetToken,
+      expiresIn: Math.floor(otpTtlMs() / 1000),
+    };
+  }
+
+  async confirmPasswordReset(
+    input: { resetToken: string; newPassword: string },
+    meta?: AuthMeta,
+    res?: Response,
+  ) {
+    const challenge = await this.prisma.passwordResetChallenge.findFirst({
+      where: {
+        resetTokenHash: hashSecret(input.resetToken),
+        verifiedAt: { not: null },
+        consumedAt: null,
+      },
+      include: { user: true },
+    });
+
+    if (!challenge || !challenge.user?.isActive) {
+      throw new BadRequestException('Invalid or expired reset token.');
+    }
+    if (challenge.expiresAt.getTime() < Date.now()) {
+      await this.prisma.passwordResetChallenge.update({
+        where: { id: challenge.id },
+        data: { consumedAt: new Date() },
+      });
+      throw new BadRequestException('Reset session expired. Start again.');
+    }
+    if (input.newPassword.length < 8) {
+      throw new BadRequestException('Password must be at least 8 characters.');
+    }
+
+    const passwordHash = await bcrypt.hash(input.newPassword, 12);
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: challenge.userId },
+        data: { passwordHash, mustChangePassword: false },
+      }),
+      this.prisma.passwordResetChallenge.update({
+        where: { id: challenge.id },
+        data: { consumedAt: new Date() },
+      }),
+      this.prisma.session.updateMany({
+        where: { userId: challenge.userId, revokedAt: null },
+        data: { revokedAt: new Date() },
+      }),
+      this.prisma.trustedDevice.updateMany({
+        where: { userId: challenge.userId, isActive: true },
+        data: { revokedAt: new Date(), isActive: false },
+      }),
+    ]);
+
+    if (res) clearTrustedDeviceCookie(res);
+    await this.logAuthEvent({
+      userId: challenge.userId,
+      eventType: 'PASSWORD_RESET_COMPLETED',
+      ip: meta?.ip,
+      userAgent: meta?.userAgent,
+    });
+
+    return { success: true, message: 'Password updated. Sign in with your new password.' };
   }
 
   async listTrustedDevices(userId: string) {
@@ -580,13 +839,21 @@ export class IdentityService {
         deviceName: true,
         browser: true,
         operatingSystem: true,
+        platform: true,
         ipAddress: true,
         createdAt: true,
         lastUsedAt: true,
         expiresAt: true,
       },
     });
-    return { data: devices, trustDurationDays: Number(process.env.TRUSTED_DEVICE_DURATION_DAYS || 30) };
+    return {
+      data: devices.map((d) => ({
+        ...d,
+        status: 'Trusted' as const,
+        locationHint: d.ipAddress ? 'Detected from IP' : null,
+      })),
+      trustDurationDays: Number(process.env.TRUSTED_DEVICE_DURATION_DAYS || 30),
+    };
   }
 
   async revokeTrustedDevice(userId: string, deviceId: string, res?: Response) {
@@ -724,7 +991,7 @@ export class IdentityService {
   }
 
   async listSessions(userId: string) {
-    return this.prisma.session.findMany({
+    const sessions = await this.prisma.session.findMany({
       where: { userId, revokedAt: null, expiresAt: { gt: new Date() } },
       select: {
         id: true,
@@ -735,6 +1002,23 @@ export class IdentityService {
       },
       orderBy: { createdAt: 'desc' },
     });
+    return {
+      data: sessions.map((s) => {
+        const device = parseDeviceInfo(s.userAgent);
+        return {
+          id: s.id,
+          ipAddress: s.ipAddress,
+          userAgent: s.userAgent,
+          createdAt: s.createdAt,
+          expiresAt: s.expiresAt,
+          lastActiveAt: s.createdAt,
+          deviceName: device.deviceName,
+          operatingSystem: device.operatingSystem,
+          browser: device.browser,
+          status: 'Active' as const,
+        };
+      }),
+    };
   }
 
   async revokeSession(userId: string, sessionId: string) {

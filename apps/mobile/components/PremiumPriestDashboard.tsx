@@ -1,125 +1,123 @@
 import { Link, router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
+  Image,
   Pressable,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Screen } from './ui';
+import {
+  Bell,
+  Calendar,
+  Church,
+  Cross,
+  FileText,
+  Heart,
+  Sparkles,
+  Users,
+} from './icons';
 import { useAuthStore } from '../lib/auth-store';
 import { useParishStore } from '../lib/parish-store';
-import { api, CMS_SLUG } from '../lib/api';
+import { api, API_BASE, CMS_SLUG } from '../lib/api';
 import { cacheRemember, OfflineKeys } from '../lib/offline';
 import { useAppTheme } from '../lib/providers';
-import { brand, dioceseCards } from '../lib/theme';
+import { useDrawerStore } from '../lib/drawer-store';
+import { brand } from '../lib/theme';
 import { primaryRole, roleLabel } from '../lib/rbac';
-import {
-  colourEmoji,
-  dailyContentQueryPath,
-  type DailyContent,
-} from '../lib/daily-content';
+import { getParishAppConfig } from '../lib/parish-app-config';
+import { dailyContentQueryPath, type DailyContent } from '../lib/daily-content';
 
-const QUICK_ACTIONS = [
-  { icon: '👨', label: 'Families', href: '/(app)/families', color: brand.burgundy },
-  { icon: '🕊', label: 'Baptism', href: '/(app)/baptisms', color: brand.emerald },
-  { icon: '💍', label: 'Marriage', href: '/(app)/marriages', color: brand.purple },
-  { icon: '✝', label: 'Death', href: '/(app)/deaths', color: '#475569' },
-  { icon: '📜', label: 'Certificates', href: '/certificates', color: brand.teal },
-  { icon: '🕯', label: 'Mass', href: '/(app)/schedule', color: brand.indigo },
-  { icon: '💰', label: 'Finance', href: '/(app)/finance', color: brand.orange },
-  { icon: '📅', label: 'Calendar', href: '/(main)/calendar', color: brand.navy },
-] as const;
-
-const SCHEDULE = [
-  { time: '06:30 AM', title: 'Morning Mass' },
-  { time: '09:00 AM', title: 'Marriage' },
-  { time: '10:30 AM', title: 'Catechism' },
-  { time: '02:00 PM', title: 'Finance Meeting' },
-  { time: '06:00 PM', title: 'Rosary' },
-] as const;
-
-const EVENTS = [
-  { icon: '💍', title: 'Marriage', when: '24 July' },
-  { icon: '🕊', title: 'Baptism', when: '27 July' },
-  { icon: '🎉', title: 'Feast', when: '2 August' },
-  { icon: '📚', title: 'Catechism', when: 'Sunday 9 AM' },
-] as const;
-
-const ACTIVITY = [
-  'Marriage Registered',
-  'Baptism Certificate Printed',
-  'Donation Received',
-  'Family Updated',
-  'Death Registered',
-] as const;
-
-const COLLECTION_WEEK = [
-  { day: 'Mon', amount: 3000 },
-  { day: 'Tue', amount: 4200 },
-  { day: 'Wed', amount: 2800 },
-  { day: 'Thu', amount: 5100 },
-] as const;
-
-const PENDING = [
-  { color: '#EF4444', label: '4 Certificates' },
-  { color: '#F59E0B', label: '2 Marriage Requests' },
-  { color: '#22C55E', label: '1 Baptism Approval' },
-  { color: '#A855F7', label: 'Finance Pending' },
-  { color: '#94A3B8', label: 'Website Draft' },
-] as const;
-
-const SEARCH_HINTS = ['John', 'Mary', 'Certificate', 'Marriage', 'Donation', 'Mass'] as const;
-
-type ParishHealthMetric = {
-  key: string;
-  label: string;
-  pct: number;
-  detail?: string;
-  hint?: string;
-  href?: string;
+type MassItem = {
+  id?: string;
+  at?: string;
+  scheduledAt?: string;
+  title?: string;
+  label?: string;
+  time?: string;
+  language?: string;
+  church?: string;
+  type?: string;
 };
 
-type ParishHealth = {
-  overall: number;
+type InboxRow = {
+  id: string;
   status: string;
-  metrics: ParishHealthMetric[];
-  focus?: { label: string; hint: string; href: string; pct: number } | null;
+  readAt?: string | null;
+  notification: { title: string; body: string; sentAt?: string | null };
 };
 
-function healthColor(pct: number) {
-  if (pct >= 85) return '#059669';
-  if (pct >= 70) return brand.burgundy;
-  if (pct >= 50) return '#D97706';
-  return '#DC2626';
-}
-
-function healthStatusLabel(status?: string) {
-  if (status === 'excellent') return 'Excellent';
-  if (status === 'good') return 'Good';
-  if (status === 'needs_attention') return 'Needs attention';
-  if (status === 'critical') return 'Critical';
-  return 'Parish pulse';
-}
-
-const MOBILE_HEALTH_HREF: Record<string, string> = {
-  families: '/(app)/families',
-  sacraments: '/(app)/baptisms',
-  certificates: '/certificates',
-  website: '/(app)/cms',
+type CommRow = {
+  id: string;
+  title?: string;
+  subject?: string;
+  createdAt?: string;
+  status?: string;
+  channel?: string;
 };
+
+function greetingWord(h = new Date().getHours()) {
+  if (h < 12) return 'Morning';
+  if (h < 17) return 'Afternoon';
+  return 'Evening';
+}
+
+function fmtDateLong(d = new Date()) {
+  return d.toLocaleDateString('en-IN', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  });
+}
+
+function fmtTime(iso?: string) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+}
+
+function fmtShortDay(iso: string) {
+  return new Date(iso).toLocaleDateString('en-IN', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'short',
+  });
+}
+
+const QUICK = [
+  { label: 'Baptism', href: '/(app)/baptisms', Icon: Cross, color: brand.emerald },
+  { label: 'Marriage', href: '/(app)/marriages', Icon: Heart, color: brand.burgundy },
+  { label: 'Family', href: '/(app)/families', Icon: Users, color: brand.royal },
+  { label: 'Certificate', href: '/certificates', Icon: FileText, color: brand.teal },
+  { label: 'Calendar', href: '/(main)/calendar', Icon: Calendar, color: brand.indigo },
+  { label: 'Notify', href: '/(app)/communications', Icon: Bell, color: brand.orange },
+] as const;
+
+const REMINDERS_KEY = 'bcl.priest.pastoralReminders';
 
 export function PremiumPriestDashboard() {
   const { colors } = useAppTheme();
   const session = useAuthStore((s) => s.session);
   const parish = useParishStore((s) => s.context);
+  const openDrawer = useDrawerStore((s) => s.openDrawer);
   const roles = session?.user.roles || [];
-  const [query, setQuery] = useState('');
-  const [refreshing, setRefreshing] = useState(false);
+  const config = getParishAppConfig();
   const queryClient = useQueryClient();
+  const [refreshing, setRefreshing] = useState(false);
+  const [reminders, setReminders] = useState<string[]>([]);
+  const [draftReminder, setDraftReminder] = useState('');
+
+  const parishName = parish?.parishName || config.parishName || 'Sacred Heart Shrine Parish';
+  const firstName = session?.user.firstName || 'Father';
+  const displayName = session?.user.lastName
+    ? `Father ${session.user.firstName}`
+    : firstName.toLowerCase().startsWith('fr')
+      ? firstName
+      : `Father ${firstName}`;
 
   const dash = useQuery({
     queryKey: ['parish-home-dash'],
@@ -127,38 +125,6 @@ export function PremiumPriestDashboard() {
       cacheRemember(OfflineKeys.parishDash, () =>
         api<Record<string, unknown>>('/parishes/me/dashboard'),
       ),
-    enabled: Boolean(session?.user.parishId),
-  });
-
-  const masses = useQuery({
-    queryKey: ['priest-today-masses'],
-    queryFn: () =>
-      api<
-        Array<{
-          id: string;
-          title: string;
-          type?: string;
-          scheduledAt: string;
-          celebrant?: string;
-        }>
-      >('/masses'),
-    enabled: Boolean(session),
-  });
-
-  const transfers = useQuery({
-    queryKey: ['priest-my-transfers'],
-    queryFn: () =>
-      api<
-        Array<{
-          id: string;
-          status: string;
-          effectiveDate?: string;
-          orderNo?: string;
-          newRole?: string;
-          toParish?: { name?: string };
-          priest?: { email?: string; firstName?: string; lastName?: string };
-        }>
-      >('/priests/transfers'),
     enabled: Boolean(session),
   });
 
@@ -168,8 +134,22 @@ export function PremiumPriestDashboard() {
       ? 'sacred-heart'
       : CMS_SLUG;
 
+  const massPublic = useQuery({
+    queryKey: ['mass-schedule-public', slug],
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE}/mass-schedule/public/${slug}`);
+      if (!res.ok) throw new Error('Schedule unavailable');
+      return res.json() as Promise<{
+        parishName?: string;
+        nextMass?: MassItem | null;
+        today?: MassItem[];
+        upcoming?: MassItem[];
+      }>;
+    },
+  });
+
   const daily = useQuery({
-    queryKey: ['daily-content', 'priest', slug, parish?.parishId],
+    queryKey: ['daily-content', 'priest', slug],
     staleTime: 60 * 60 * 1000,
     queryFn: () =>
       cacheRemember(
@@ -186,963 +166,567 @@ export function PremiumPriestDashboard() {
       ),
   });
 
+  const inbox = useQuery({
+    queryKey: ['app-inbox'],
+    queryFn: () => api<InboxRow[]>('/app/inbox'),
+    enabled: Boolean(session),
+  });
+
+  const communications = useQuery({
+    queryKey: ['priest-comms'],
+    queryFn: () => api<CommRow[]>('/communications'),
+    enabled: Boolean(session),
+  });
+
+  useEffect(() => {
+    void AsyncStorage.getItem(REMINDERS_KEY).then((raw) => {
+      if (!raw) return;
+      try {
+        const parsed = JSON.parse(raw) as string[];
+        if (Array.isArray(parsed)) setReminders(parsed.slice(0, 12));
+      } catch {
+        /* ignore */
+      }
+    });
+  }, []);
+
+  const persistReminders = async (next: string[]) => {
+    setReminders(next);
+    await AsyncStorage.setItem(REMINDERS_KEY, JSON.stringify(next));
+  };
+
   const onRefresh = async () => {
     setRefreshing(true);
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ['parish-home-dash'] }),
-      queryClient.invalidateQueries({ queryKey: ['priest-today-masses'] }),
-      queryClient.invalidateQueries({ queryKey: ['priest-my-transfers'] }),
+      queryClient.invalidateQueries({ queryKey: ['mass-schedule-public'] }),
       queryClient.invalidateQueries({ queryKey: ['daily-content'] }),
+      queryClient.invalidateQueries({ queryKey: ['app-inbox'] }),
+      queryClient.invalidateQueries({ queryKey: ['priest-comms'] }),
     ]);
     setRefreshing(false);
   };
+
   const d = dash.data;
-  const families = Number(d?.families ?? 128);
-  const members = Number(d?.members ?? 1248);
-  const pending = Number(d?.pendingCertificates ?? 4);
-  const greet = greeting();
-  const dioceseName = parish?.dioceseName || 'Diocese of Tura';
-  const parishName = parish?.parishName || 'Your parish';
-  const priestName = session
-    ? `Rev. Fr. ${session.user.firstName} ${session.user.lastName}`.trim()
-    : 'Rev. Fr. John Marak';
+  const sacMonth = (d?.sacramentsThisMonth || {}) as Record<string, number>;
+  const families = Number(d?.families ?? 0);
+  const members = Number(d?.members ?? 0);
+  const baptisms = Number(sacMonth.BAPTISM ?? 0);
+  const marriages = Number(sacMonth.MARRIAGE ?? 0);
+  const confirmations = Number(sacMonth.CONFIRMATION ?? 0);
+  const communions = Number(sacMonth.HOLY_COMMUNION ?? 0);
+  const deaths = Number(sacMonth.DEATH ?? 0);
+  const pendingCerts = Number(d?.pendingCertificates ?? 0);
 
   const todayMasses = useMemo(() => {
-    const start = new Date();
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(start);
-    end.setDate(end.getDate() + 1);
-    return (masses.data || [])
-      .filter((m) => {
-        const t = new Date(m.scheduledAt).getTime();
-        return t >= start.getTime() && t < end.getTime();
-      })
-      .slice(0, 5);
-  }, [masses.data]);
-
-  const openTransfers = useMemo(() => {
-    const email = session?.user.email?.toLowerCase();
-    return (transfers.data || [])
-      .filter((t) => ['DRAFT', 'APPROVED', 'ISSUED'].includes(t.status))
-      .filter((t) =>
-        email ? t.priest?.email?.toLowerCase() === email || !t.priest?.email : true,
-      )
-      .slice(0, 3);
-  }, [transfers.data, session?.user.email]);
-
-  const scheduleItems = useMemo(() => {
-    if (todayMasses.length) {
-      return todayMasses.map((m) => ({
-        time: new Date(m.scheduledAt).toLocaleTimeString('en-IN', {
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
-        title: m.title || m.type || 'Mass',
+    const fromDash = (d?.todaysMasses as MassItem[]) || [];
+    if (fromDash.length) {
+      return fromDash.map((m) => ({
+        time: fmtTime(m.scheduledAt),
+        title: m.title || m.type || 'Holy Mass',
+        meta: [m.language, m.church || parishName].filter(Boolean).join(' · '),
       }));
     }
-    return SCHEDULE.map((s) => ({ time: s.time, title: s.title }));
-  }, [todayMasses]);
-
-  const firstMassLabel =
-    todayMasses[0]
-      ? new Date(todayMasses[0].scheduledAt).toLocaleTimeString('en-IN', {
-          hour: '2-digit',
-          minute: '2-digit',
-        })
-      : '6:30 AM';
-
-  const dc = daily.data;
-  const feastTitle = dc?.liturgy?.feastName || 'Today\'s Feast';
-  const gospelRef = dc?.gospel?.reference || '—';
-  const psalmRef = dc?.readings?.psalm?.split(/[,;]/)[0]?.trim() || '—';
-  const colourLabel = dc?.liturgy?.colour
-    ? `${colourEmoji(dc.liturgy.colour)} ${dc.liturgy.colour}`
-    : '🟢 Green';
-
-  const filteredHints = useMemo(
-    () =>
-      SEARCH_HINTS.filter((h) =>
-        !query.trim() ? true : h.toLowerCase().includes(query.trim().toLowerCase()),
-      ),
-    [query],
-  );
-
-  const maxCollect = Math.max(...COLLECTION_WEEK.map((c) => c.amount));
-
-  const parishHealth = (d?.parishHealth || null) as ParishHealth | null;
-  const healthMetrics: ParishHealthMetric[] = parishHealth?.metrics?.length
-    ? parishHealth.metrics
-    : [
+    const fromPublic = massPublic.data?.today || [];
+    if (fromPublic.length) {
+      return fromPublic.map((m) => ({
+        time: m.time || fmtTime(m.at || m.scheduledAt),
+        title: m.label || m.title || 'Holy Mass',
+        meta: [m.language, m.church || 'Shrine'].filter(Boolean).join(' · '),
+      }));
+    }
+    const next = massPublic.data?.nextMass;
+    if (next) {
+      return [
         {
-          key: 'families',
-          label: 'Families Registered',
-          pct: families > 0 ? Math.min(100, Math.round(families / 1.5)) : 0,
-          detail: `${families} families`,
-        },
-        {
-          key: 'sacraments',
-          label: 'Sacrament Records',
-          pct: Math.min(
-            100,
-            Object.values((d?.sacramentsThisMonth as Record<string, number>) || {}).reduce(
-              (s, n) => s + Number(n || 0),
-              0,
-            ) * 8,
-          ),
-          detail: 'This month',
-        },
-        {
-          key: 'certificates',
-          label: 'Certificates Issued',
-          pct: pending <= 0 ? 95 : Math.max(35, 100 - pending * 8),
-          detail: pending ? `${pending} pending` : 'Queue clear',
-        },
-        {
-          key: 'website',
-          label: 'Website Updated',
-          pct: 60,
-          detail: 'Open CMS to publish',
+          time: next.time || fmtTime(next.at || next.scheduledAt),
+          title: next.label || next.title || 'Holy Mass',
+          meta: [next.language, next.church || 'Shrine'].filter(Boolean).join(' · '),
         },
       ];
-  const healthOverall =
-    parishHealth?.overall ??
-    Math.round(healthMetrics.reduce((s, m) => s + m.pct, 0) / Math.max(healthMetrics.length, 1));
+    }
+    return [];
+  }, [d?.todaysMasses, massPublic.data, parishName]);
+
+  const unreadCount = useMemo(
+    () => (inbox.data || []).filter((r) => r.status !== 'READ' && !r.readAt).length,
+    [inbox.data],
+  );
+
+  const alerts = useMemo(() => {
+    const items: Array<{ tone: string; count: number; title: string; sub: string; href: string }> = [];
+    if (pendingCerts > 0) {
+      items.push({
+        tone: '#DC2626',
+        count: pendingCerts,
+        title: 'Sacramental Requests',
+        sub: 'Awaiting approval / certificate',
+        href: '/certificates',
+      });
+    }
+    const upcomingMarriages = ((d?.upcomingMarriages as unknown[]) || []).length;
+    if (upcomingMarriages > 0) {
+      items.push({
+        tone: '#D97706',
+        count: upcomingMarriages,
+        title: 'Upcoming Marriages',
+        sub: 'Need follow-up',
+        href: '/(app)/marriages',
+      });
+    }
+    if (unreadCount > 0) {
+      items.push({
+        tone: '#2563EB',
+        count: unreadCount,
+        title: 'New Parish Messages',
+        sub: 'From parish notifications',
+        href: '/(main)/notifications',
+      });
+    }
+    return items;
+  }, [pendingCerts, d?.upcomingMarriages, unreadCount]);
+
+  const gospelText =
+    daily.data?.gospel?.text ||
+    daily.data?.readings?.psalm ||
+    'Be still and know that I am God.';
+  const gospelRef = daily.data?.gospel?.reference || 'Psalm 46:10';
+
+  const upcoming = useMemo(() => {
+    const list: Array<{ when: string; title: string; time: string }> = [];
+    for (const m of (d?.upcomingMarriages as Array<{ celebratedAt?: string; bridegroomName?: string; brideName?: string }>) || []) {
+      if (!m.celebratedAt) continue;
+      list.push({
+        when: fmtShortDay(m.celebratedAt),
+        title: `Marriage · ${[m.bridegroomName, m.brideName].filter(Boolean).join(' & ') || 'Couple'}`,
+        time: fmtTime(m.celebratedAt),
+      });
+    }
+    for (const b of (d?.upcomingBaptisms as Array<{ celebratedAt?: string; childName?: string }>) || []) {
+      if (!b.celebratedAt) continue;
+      list.push({
+        when: fmtShortDay(b.celebratedAt),
+        title: `Baptism · ${b.childName || 'Child'}`,
+        time: fmtTime(b.celebratedAt),
+      });
+    }
+    return list.slice(0, 4);
+  }, [d?.upcomingBaptisms, d?.upcomingMarriages]);
+
+  const latestComms = (communications.data || []).slice(0, 3);
 
   return (
     <Screen scroll padded onRefresh={() => void onRefresh()} refreshing={refreshing}>
-      {/* Header */}
-      <View style={styles.headerRow}>
-        <View style={{ flex: 1, minWidth: 0, paddingRight: 8 }}>
-          <Text style={styles.greetLine}>
-            {greet.emoji} Good {greet.word}, Father
-          </Text>
-          <Text style={[styles.priestName, { color: colors.text }]} numberOfLines={1}>
-            {priestName}
-          </Text>
-          <Text style={[styles.parishLine, { color: colors.muted }]} numberOfLines={2}>
-            {parishName} • {dioceseName}
-          </Text>
-          <Text style={[styles.roleChip, { color: brand.burgundy }]}>
-            {roleLabel(primaryRole(roles))}
-          </Text>
-        </View>
-        <View style={styles.headerActions}>
-          <HeaderChip icon="🔍" onPress={() => router.push('/(app)/search' as never)} />
-          <HeaderChip icon="🔔" onPress={() => router.push('/(main)/notifications' as never)} />
-          <HeaderChip icon="🌤" label="26°C" />
-          <HeaderChip icon="👤" onPress={() => router.push('/(main)/profile' as never)} />
-        </View>
-      </View>
-
-      {/* Liturgical strip */}
-      <LinearGradient
-        colors={['#1E3A5F', '#5A1520']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.liturgyCard}
-      >
-        <View style={styles.liturgyTop}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.liturgyEyebrow}>Today&apos;s Feast</Text>
-            <Text style={styles.liturgyTitle}>{feastTitle}</Text>
+      <LinearGradient colors={['#0B2A66', '#123B82', '#6B1522']} style={styles.hero}>
+        <View style={styles.heroTop}>
+          <Image source={config.logo} style={styles.logo} resizeMode="contain" />
+          <View style={{ flex: 1, paddingHorizontal: 10 }}>
+            <Text style={styles.eyebrow}>{parishName.toUpperCase()}</Text>
+            <Text style={styles.greet}>Good {greetingWord()}, {displayName}</Text>
+            <View style={styles.rolePill}>
+              <Text style={styles.rolePillText}>{roleLabel(primaryRole(roles)) || 'Parish Priest'}</Text>
+            </View>
           </View>
-          <View style={styles.weatherBadge}>
-            <Text style={styles.weatherTemp}>26°C</Text>
-            <Text style={styles.weatherHum}>Humidity 78%</Text>
-          </View>
-        </View>
-        <View style={styles.liturgyGrid}>
-          <LiturgyCell label="Daily Gospel" value={gospelRef} />
-          <LiturgyCell label="Today's Mass" value={firstMassLabel} />
-          <LiturgyCell label="Liturgical Color" value={colourLabel} />
-          <LiturgyCell label="Psalm" value={psalmRef} />
+          <Pressable
+            onPress={() => router.push('/(main)/notifications' as never)}
+            style={styles.iconBtn}
+          >
+            <Bell size={18} color="#fff" />
+            {unreadCount > 0 ? (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
+              </View>
+            ) : null}
+          </Pressable>
+          <Pressable onPress={openDrawer} style={styles.iconBtn}>
+            <Text style={{ color: '#fff', fontWeight: '800', fontSize: 16 }}>☰</Text>
+          </Pressable>
         </View>
       </LinearGradient>
 
-      {/* Universal search */}
-      <View
-        style={[
-          styles.searchWrap,
-          { backgroundColor: colors.card, borderColor: colors.border },
-        ]}
-      >
-        <Text style={styles.searchIcon}>🔍</Text>
-        <TextInput
-          value={query}
-          onChangeText={setQuery}
-          placeholder="Search Family, Certificate, Mass..."
-          placeholderTextColor={colors.muted}
-          style={[styles.searchInput, { color: colors.text }]}
-          returnKeyType="search"
-          onSubmitEditing={() => router.push('/(app)/search' as never)}
-        />
-      </View>
-      <View style={styles.hintRow}>
-        {filteredHints.map((h) => (
-          <Pressable
-            key={h}
-            onPress={() => {
-              setQuery(h);
-              router.push('/(app)/search' as never);
-            }}
-            style={[styles.hintChip, { backgroundColor: colors.surface2 }]}
-          >
-            <Text style={{ color: colors.muted, fontSize: 12, fontWeight: '600' }}>{h}</Text>
-          </Pressable>
-        ))}
-      </View>
-
-      {/* Stats 2x2 */}
-      <Text style={[styles.sectionTitle, { color: colors.text }]}>Parish Overview</Text>
-      <View style={styles.statGrid}>
-        <StatCard
-          icon="👨"
-          label="Families"
-          value={String(families)}
-          trend="+5 this month"
-          palette={dioceseCards.families}
-        />
-        <StatCard
-          icon="👥"
-          label="Members"
-          value={members.toLocaleString('en-IN')}
-          trend="Catholics"
-          palette={dioceseCards.members}
-        />
-        <StatCard
-          icon="💒"
-          label="Marriage"
-          value="15"
-          trend="This Year"
-          palette={dioceseCards.marriage}
-        />
-        <StatCard
-          icon="🕊"
-          label="Baptism"
-          value="28"
-          trend="This Year"
-          palette={dioceseCards.baptism}
-        />
-        <StatCard
-          icon="📜"
-          label="Pending"
-          value={String(pending)}
-          trend="Certificates"
-          palette={dioceseCards.certificates}
-        />
-        <StatCard
-          icon="₹"
-          label="Collection"
-          value="₹12,400"
-          trend="Today"
-          palette={dioceseCards.collection}
-        />
-      </View>
-
-      {/* Today's Schedule */}
-      <SectionHeader
-        title="Today's Schedule"
-        action="Calendar"
-        onAction={() => router.push('/(main)/calendar' as never)}
-        color={colors.text}
-      />
-      <View style={[styles.panel, { backgroundColor: colors.card, borderColor: colors.border }]}>
-        {scheduleItems.map((item, i) => (
-          <Pressable
-            key={`${item.time}-${item.title}`}
-            onPress={() => router.push('/(main)/calendar' as never)}
-            style={[
-              styles.scheduleRow,
-              i < scheduleItems.length - 1 && {
-                borderBottomWidth: 1,
-                borderBottomColor: colors.border,
-              },
-            ]}
-          >
-            <View style={[styles.timePill, { backgroundColor: dioceseCards.calendar.soft }]}>
-              <Text style={{ color: brand.indigo, fontWeight: '800', fontSize: 12 }}>{item.time}</Text>
+      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <Text style={[styles.sectionEyebrow, { color: brand.gold }]}>
+          TODAY · {fmtDateLong().toUpperCase()}
+        </Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Today&apos;s Ministry</Text>
+        <View style={styles.rule} />
+        {todayMasses.length ? (
+          todayMasses.map((m, i) => (
+            <View key={`${m.time}-${i}`} style={styles.massRow}>
+              <Text style={[styles.massTime, { color: brand.burgundy }]}>{m.time || '—'}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.massTitle, { color: colors.text }]}>{m.title}</Text>
+                {m.meta ? <Text style={{ color: colors.muted, fontSize: 12 }}>{m.meta}</Text> : null}
+              </View>
             </View>
-            <Text style={{ color: colors.text, fontWeight: '600', fontSize: 15, flex: 1 }}>
-              {item.title}
-            </Text>
-            <Text style={{ color: colors.muted }}>›</Text>
-          </Pressable>
-        ))}
+          ))
+        ) : (
+          <Text style={{ color: colors.muted, fontSize: 13 }}>No Mass listed for today yet.</Text>
+        )}
+        <Pressable onPress={() => router.push('/(app)/schedule' as never)} style={styles.linkRow}>
+          <Text style={styles.linkText}>View Today&apos;s Schedule →</Text>
+        </Pressable>
       </View>
 
-      {openTransfers.length > 0 ? (
-        <>
-          <SectionHeader
-            title="Transfer orders"
-            action="Clergy"
-            onAction={() => router.push('/(app)/priests' as never)}
-            color={colors.text}
-          />
-          <View
-            style={[styles.panel, { backgroundColor: colors.card, borderColor: colors.border }]}
-          >
-            {openTransfers.map((t, i) => (
+      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <Text style={[styles.sectionEyebrow, { color: brand.burgundy }]}>NEEDS YOUR ATTENTION</Text>
+        {alerts.length ? (
+          <>
+            {alerts.map((a) => (
               <Pressable
-                key={t.id}
-                onPress={() => router.push('/(app)/priests' as never)}
-                style={[
-                  styles.scheduleRow,
-                  i < openTransfers.length - 1 && {
-                    borderBottomWidth: 1,
-                    borderBottomColor: colors.border,
-                  },
-                ]}
+                key={a.title}
+                onPress={() => router.push(a.href as never)}
+                style={styles.alertRow}
               >
-                <View style={[styles.timePill, { backgroundColor: `${brand.burgundy}18` }]}>
-                  <Text style={{ color: brand.burgundy, fontWeight: '800', fontSize: 11 }}>
-                    {t.status}
-                  </Text>
-                </View>
+                <View style={[styles.alertDot, { backgroundColor: a.tone }]} />
+                <Text style={[styles.alertCount, { color: a.tone }]}>{a.count}</Text>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ color: colors.text, fontWeight: '700', fontSize: 14 }}>
-                    {t.orderNo || 'Transfer'} → {t.toParish?.name || t.newRole || 'New post'}
-                  </Text>
-                  <Text style={{ color: colors.muted, fontSize: 12, marginTop: 2 }}>
-                    {t.effectiveDate
-                      ? new Date(t.effectiveDate).toLocaleDateString('en-IN')
-                      : 'Pending effective date'}
-                  </Text>
+                  <Text style={[styles.alertTitle, { color: colors.text }]}>{a.title}</Text>
+                  <Text style={{ color: colors.muted, fontSize: 12 }}>{a.sub}</Text>
                 </View>
-                <Text style={{ color: colors.muted }}>›</Text>
               </Pressable>
             ))}
-          </View>
-        </>
-      ) : null}
-
-      {/* Quick Actions */}
-      <Text style={[styles.sectionTitle, { color: colors.text }]}>Quick Actions</Text>
-      <View style={styles.quickGrid}>
-        {[
-          ...QUICK_ACTIONS,
-          { icon: '✝', label: 'Clergy', href: '/(app)/priests', color: brand.burgundy },
-        ].map((a) => (
-          <Link key={a.label} href={a.href as never} asChild>
-            <Pressable style={styles.quickBtn}>
-              <View style={[styles.quickIcon, { backgroundColor: `${a.color}18` }]}>
-                <Text style={{ fontSize: 22 }}>{a.icon}</Text>
-              </View>
-              <Text style={[styles.quickLabel, { color: colors.text }]} numberOfLines={1}>
-                {a.label}
-              </Text>
+            <Pressable onPress={() => router.push('/(main)/notifications' as never)} style={styles.linkRow}>
+              <Text style={styles.linkText}>View All →</Text>
             </Pressable>
-          </Link>
-        ))}
+          </>
+        ) : (
+          <Text style={{ color: brand.emerald, fontWeight: '700', marginTop: 6 }}>
+            ✓ You&apos;re all caught up today.
+          </Text>
+        )}
       </View>
 
-      {/* AI Assistant */}
-      <LinearGradient
-        colors={['#4F46E5', '#7A1F2A']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.aiCard}
-      >
-        <Text style={styles.aiEyebrow}>✨ AI Parish Assistant</Text>
-        <Text style={styles.aiHello}>Good {greet.word} Father.</Text>
-        <Text style={styles.aiPriorities}>Today&apos;s priorities</Text>
+      <Text style={[styles.blockTitle, { color: colors.text }]}>Parish at a glance</Text>
+      <View style={styles.kpiGrid}>
         {[
-          '2 Certificates pending',
-          '1 Marriage today',
-          'Collection not entered',
-          'Feast Day today',
-        ].map((p) => (
-          <Text key={p} style={styles.aiBullet}>
-            • {p}
-          </Text>
-        ))}
-        <Link href={'/(app)/ai' as never} asChild>
-          <Pressable style={styles.aiCta}>
-            <Text style={styles.aiCtaText}>Open AI Assistant</Text>
-          </Pressable>
-        </Link>
-      </LinearGradient>
-
-      {/* Upcoming */}
-      <Text style={[styles.sectionTitle, { color: colors.text }]}>Upcoming</Text>
-      <View style={styles.eventsRow}>
-        {EVENTS.map((e) => (
-          <View
-            key={e.title + e.when}
-            style={[styles.eventCard, { backgroundColor: colors.card, borderColor: colors.border }]}
-          >
-            <Text style={{ fontSize: 22 }}>{e.icon}</Text>
-            <Text style={{ color: colors.text, fontWeight: '700', marginTop: 6 }}>{e.title}</Text>
-            <Text style={{ color: colors.muted, fontSize: 12, marginTop: 2 }}>{e.when}</Text>
-          </View>
-        ))}
-      </View>
-
-      {/* Recent Activity */}
-      <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Activity</Text>
-      <View style={[styles.panel, { backgroundColor: colors.card, borderColor: colors.border }]}>
-        {ACTIVITY.map((a, i) => (
-          <View
-            key={a}
-            style={[
-              styles.activityRow,
-              i < ACTIVITY.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border },
-            ]}
-          >
-            <Text style={{ color: brand.emerald, fontWeight: '800', marginRight: 10 }}>✔</Text>
-            <Text style={{ color: colors.text, fontWeight: '600', flex: 1 }}>{a}</Text>
-          </View>
-        ))}
-      </View>
-
-      {/* Collection chart */}
-      <Text style={[styles.sectionTitle, { color: colors.text }]}>This Week · Collection</Text>
-      <View style={[styles.panel, { backgroundColor: colors.card, borderColor: colors.border }]}>
-        <View style={styles.chartRow}>
-          {COLLECTION_WEEK.map((c) => {
-            const barH = Math.max(12, Math.round((c.amount / maxCollect) * 88));
-            return (
-              <View key={c.day} style={styles.chartCol}>
-                <View style={styles.barTrack}>
-                  <View style={[styles.barFill, { height: barH, backgroundColor: brand.gold }]} />
-                </View>
-                <Text style={{ color: colors.muted, fontSize: 11, fontWeight: '700', marginTop: 6 }}>
-                  {c.day}
-                </Text>
-                <Text style={{ color: colors.text, fontSize: 10, fontWeight: '600' }}>
-                  ₹{(c.amount / 1000).toFixed(1)}k
-                </Text>
-              </View>
-            );
-          })}
-        </View>
-      </View>
-
-      {/* Pending */}
-      <Text style={[styles.sectionTitle, { color: colors.text }]}>Pending Tasks</Text>
-      <View style={[styles.panel, { backgroundColor: colors.card, borderColor: colors.border, gap: 10 }]}>
-        {PENDING.map((p) => (
-          <View key={p.label} style={styles.pendingRow}>
-            <View style={[styles.pendingDot, { backgroundColor: p.color }]} />
-            <Text style={{ color: colors.text, fontWeight: '600', flex: 1 }}>{p.label}</Text>
-          </View>
-        ))}
-      </View>
-
-      {/* Parish Health */}
-      <View style={styles.healthHeaderRow}>
-        <Text style={[styles.sectionTitle, { color: colors.text, marginBottom: 0 }]}>
-          Parish Health
-        </Text>
-        <View
-          style={[
-            styles.healthScorePill,
-            { backgroundColor: `${healthColor(healthOverall)}18`, borderColor: healthColor(healthOverall) },
-          ]}
-        >
-          <Text style={[styles.healthScoreValue, { color: healthColor(healthOverall) }]}>
-            {healthOverall}%
-          </Text>
-          <Text style={[styles.healthScoreLabel, { color: healthColor(healthOverall) }]}>
-            {healthStatusLabel(parishHealth?.status)}
-          </Text>
-        </View>
-      </View>
-      <View style={[styles.panel, { backgroundColor: colors.card, borderColor: colors.border, gap: 14 }]}>
-        {healthMetrics.map((h) => {
-          const color = healthColor(h.pct);
-          const href = MOBILE_HEALTH_HREF[h.key] || h.href;
+          { label: 'Families', value: families, color: brand.burgundy, Icon: Users },
+          { label: 'Members', value: members, color: brand.royal, Icon: Users },
+          { label: 'Baptisms', value: baptisms, color: brand.emerald, Icon: Sparkles },
+          { label: 'Marriages', value: marriages, color: brand.gold, Icon: Heart },
+        ].map((k) => {
+          const Icon = k.Icon;
           return (
-            <Pressable
-              key={h.key || h.label}
-              onPress={() => href && router.push(href as never)}
-              style={{ gap: 6 }}
+            <View
+              key={k.label}
+              style={[styles.kpi, { backgroundColor: colors.card, borderColor: colors.border }]}
             >
-              <View style={styles.healthLabelRow}>
-                <View style={{ flex: 1, paddingRight: 10 }}>
-                  <Text style={{ color: colors.text, fontWeight: '700', fontSize: 13 }}>
-                    {h.label}
-                  </Text>
-                  {h.detail ? (
-                    <Text style={{ color: colors.muted, fontSize: 11, marginTop: 2 }} numberOfLines={1}>
-                      {h.detail}
-                    </Text>
-                  ) : null}
-                </View>
-                <Text style={{ color, fontWeight: '800', fontSize: 13 }}>{h.pct}%</Text>
-              </View>
-              <View style={[styles.healthTrack, { backgroundColor: colors.surface2 }]}>
-                <View
-                  style={[
-                    styles.healthFill,
-                    { width: `${Math.max(4, h.pct)}%`, backgroundColor: color },
-                  ]}
-                />
-              </View>
-            </Pressable>
+              <Icon size={16} color={k.color} />
+              <Text style={[styles.kpiValue, { color: k.color }]}>
+                {dash.isLoading ? '…' : k.value.toLocaleString('en-IN')}
+              </Text>
+              <Text style={{ color: colors.muted, fontSize: 11, fontWeight: '700' }}>{k.label}</Text>
+            </View>
           );
         })}
-        {parishHealth?.focus ? (
+      </View>
+      <Text style={{ color: colors.muted, fontSize: 12, marginTop: -4 }}>
+        This month · Confirmations {confirmations} · Communion {communions} · Deaths {deaths}
+      </Text>
+      <Pressable onPress={() => router.push('/(app)/reports' as never)} style={styles.linkRow}>
+        <Text style={styles.linkText}>View Parish Statistics →</Text>
+      </Pressable>
+
+      <Text style={[styles.blockTitle, { color: colors.text }]}>Quick actions</Text>
+      <View style={styles.quickGrid}>
+        {QUICK.map((q) => {
+          const Icon = q.Icon;
+          return (
+            <Link key={q.label} href={q.href as never} asChild>
+              <Pressable
+                style={[styles.quickItem, { backgroundColor: colors.card, borderColor: colors.border }]}
+              >
+                <View style={[styles.quickIcon, { backgroundColor: `${q.color}14` }]}>
+                  <Icon size={18} color={q.color} />
+                </View>
+                <Text style={[styles.quickLabel, { color: colors.text }]}>{q.label}</Text>
+              </Pressable>
+            </Link>
+          );
+        })}
+      </View>
+
+      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <Text style={[styles.sectionEyebrow, { color: brand.gold }]}>TODAY&apos;S GOSPEL</Text>
+        <Text style={[styles.gospel, { color: colors.text }]}>“{gospelText.slice(0, 180)}{gospelText.length > 180 ? '…' : ''}”</Text>
+        <Text style={{ color: colors.muted, marginTop: 6, fontWeight: '700' }}>{gospelRef}</Text>
+        <Pressable onPress={() => router.push('/(public)/gospel' as never)} style={styles.linkRow}>
+          <Text style={styles.linkText}>Read Today&apos;s Gospel →</Text>
+        </Pressable>
+      </View>
+
+      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <Text style={[styles.sectionEyebrow, { color: brand.navy }]}>UPCOMING</Text>
+        {upcoming.length ? (
+          upcoming.map((u, i) => (
+            <View key={`${u.title}-${i}`} style={styles.upRow}>
+              <Text style={{ color: brand.burgundy, fontWeight: '800', fontSize: 12 }}>{u.when}</Text>
+              <Text style={{ color: colors.text, fontWeight: '700', marginTop: 2 }}>{u.title}</Text>
+              {u.time ? <Text style={{ color: colors.muted, fontSize: 12 }}>{u.time}</Text> : null}
+            </View>
+          ))
+        ) : (
+          <Text style={{ color: colors.muted, fontSize: 13 }}>No upcoming sacraments in the next 30 days.</Text>
+        )}
+        <Pressable onPress={() => router.push('/(main)/calendar' as never)} style={styles.linkRow}>
+          <Text style={styles.linkText}>View Calendar →</Text>
+        </Pressable>
+      </View>
+
+      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <Text style={[styles.sectionEyebrow, { color: brand.burgundy }]}>PARISH COMMUNICATION</Text>
+        <Pressable
+          onPress={() => router.push('/(app)/communications' as never)}
+          style={[styles.primaryBtn, { backgroundColor: brand.burgundy }]}
+        >
+          <Text style={{ color: '#fff', fontWeight: '800' }}>+ New Announcement</Text>
+        </Pressable>
+        <Text style={[styles.miniLabel, { color: colors.muted }]}>Latest</Text>
+        {latestComms.length ? (
+          latestComms.map((c) => (
+            <View key={c.id} style={styles.commRow}>
+              <Bell size={14} color={brand.burgundy} />
+              <View style={{ flex: 1 }}>
+                <Text style={{ color: colors.text, fontWeight: '700' }}>
+                  {c.title || c.subject || 'Parish notice'}
+                </Text>
+                <Text style={{ color: colors.muted, fontSize: 11 }}>
+                  {c.createdAt ? new Date(c.createdAt).toLocaleString() : 'Recently'}
+                  {c.status ? ` · ${c.status}` : ''}
+                </Text>
+              </View>
+            </View>
+          ))
+        ) : (
+          <Text style={{ color: colors.muted, fontSize: 13 }}>No recent announcements.</Text>
+        )}
+        <Pressable onPress={() => router.push('/(app)/communications' as never)} style={styles.linkRow}>
+          <Text style={styles.linkText}>View Communications →</Text>
+        </Pressable>
+      </View>
+
+      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <Text style={[styles.sectionEyebrow, { color: brand.royal }]}>SACRAMENTAL REQUESTS</Text>
+        {[
+          { label: 'Baptism', count: baptisms > 0 && pendingCerts ? Math.min(pendingCerts, baptisms) : pendingCerts ? 1 : 0, href: '/(app)/baptisms' },
+          { label: 'Marriage', count: ((d?.upcomingMarriages as unknown[]) || []).length, href: '/(app)/marriages' },
+          { label: 'Confirmation', count: confirmations ? 0 : 0, href: '/(app)/confirmations' },
+          { label: 'Holy Communion', count: communions ? 0 : 0, href: '/(app)/communions' },
+          { label: 'Death Register', count: deaths ? 0 : 0, href: '/(app)/deaths' },
+        ].map((row) => (
           <Pressable
-            onPress={() =>
-              router.push(
-                (MOBILE_HEALTH_HREF[
-                  healthMetrics.find((m) => m.label === parishHealth.focus?.label)?.key || ''
-                ] ||
-                  parishHealth.focus.href ||
-                  '/(app)/families') as never,
-              )
-            }
-            style={[styles.healthFocus, { backgroundColor: `${healthColor(parishHealth.focus.pct)}12` }]}
+            key={row.label}
+            onPress={() => router.push(row.href as never)}
+            style={styles.reqRow}
           >
-            <Text style={{ color: healthColor(parishHealth.focus.pct), fontWeight: '800', fontSize: 11 }}>
-              FOCUS · {parishHealth.focus.label}
-            </Text>
-            <Text style={{ color: colors.text, marginTop: 4, fontSize: 13, lineHeight: 18 }}>
-              {parishHealth.focus.hint}
+            <Text style={{ color: colors.text, fontWeight: '700' }}>{row.label}</Text>
+            <Text style={{ color: row.count ? brand.burgundy : colors.muted, fontWeight: '800' }}>
+              {row.count} pending
             </Text>
           </Pressable>
-        ) : null}
+        ))}
+        <Pressable onPress={() => router.push('/certificates' as never)} style={styles.linkRow}>
+          <Text style={styles.linkText}>View all requests →</Text>
+        </Pressable>
       </View>
 
-      {/* Birthdays & Anniversaries */}
-      <Text style={[styles.sectionTitle, { color: colors.text }]}>🎂 Birthdays Today</Text>
-      <View style={[styles.panel, { backgroundColor: colors.card, borderColor: colors.border }]}>
-        {['John Marak', 'Mary Sangma'].map((n, i) => (
-          <Text
-            key={n}
-            style={[
-              styles.personRow,
-              { color: colors.text },
-              i === 0 && { borderBottomWidth: 1, borderBottomColor: colors.border },
-            ]}
+      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <Text style={[styles.sectionEyebrow, { color: brand.gold }]}>PASTORAL FOLLOW-UP</Text>
+        <Text style={[styles.miniLabel, { color: colors.muted }]}>Today</Text>
+        {reminders.length ? (
+          reminders.map((r, i) => (
+            <Pressable
+              key={`${r}-${i}`}
+              onLongPress={() => void persistReminders(reminders.filter((_, idx) => idx !== i))}
+              style={styles.reminderRow}
+            >
+              <Text style={{ color: colors.text }}>• {r}</Text>
+            </Pressable>
+          ))
+        ) : (
+          <>
+            <Text style={styles.reminderRow}>• Visit families needing pastoral care</Text>
+            <Text style={styles.reminderRow}>• Review baptism / marriage applications</Text>
+            <Text style={styles.reminderRow}>• Follow up with catechism coordinator</Text>
+          </>
+        )}
+        <View style={styles.addReminder}>
+          <TextInput
+            value={draftReminder}
+            onChangeText={setDraftReminder}
+            placeholder="Add pastoral reminder"
+            placeholderTextColor={colors.muted}
+            style={[styles.reminderInput, { color: colors.text, borderColor: colors.border }]}
+          />
+          <Pressable
+            onPress={() => {
+              const t = draftReminder.trim();
+              if (!t) return;
+              void persistReminders([t, ...reminders].slice(0, 12));
+              setDraftReminder('');
+            }}
+            style={[styles.addBtn, { backgroundColor: brand.navy }]}
           >
-            {n}
-          </Text>
+            <Text style={{ color: '#fff', fontWeight: '800' }}>+</Text>
+          </Pressable>
+        </View>
+      </View>
+
+      <View style={[styles.profileCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <Church size={22} color={brand.burgundy} />
+        <View style={{ flex: 1 }}>
+          <Text style={{ color: colors.text, fontWeight: '800', fontSize: 16 }}>{displayName}</Text>
+          <Text style={{ color: colors.muted, fontSize: 12 }}>{roleLabel(primaryRole(roles))}</Text>
+          <Text style={{ color: colors.muted, fontSize: 12 }}>{parishName}</Text>
+        </View>
+      </View>
+      <View style={styles.profileLinks}>
+        {[
+          { label: 'Profile', href: '/(main)/profile' },
+          { label: 'My Schedule', href: '/(app)/schedule' },
+          { label: 'My Notifications', href: '/(main)/notifications' },
+          { label: 'Security', href: '/(app)/security' },
+        ].map((l) => (
+          <Pressable key={l.label} onPress={() => router.push(l.href as never)} style={styles.profileLink}>
+            <Text style={{ color: brand.burgundy, fontWeight: '700' }}>{l.label}</Text>
+          </Pressable>
         ))}
       </View>
-
-      <Text style={[styles.sectionTitle, { color: colors.text }]}>💍 Wedding Anniversaries</Text>
-      <View style={[styles.panel, { backgroundColor: colors.card, borderColor: colors.border }]}>
-        <Text style={[styles.personRow, { color: colors.text, borderBottomWidth: 0 }]}>
-          Joseph & Anita
-        </Text>
-      </View>
-
-      <View style={{ height: 72 }} />
     </Screen>
   );
 }
 
-function HeaderChip({
-  icon,
-  label,
-  onPress,
-}: {
-  icon: string;
-  label?: string;
-  onPress?: () => void;
-}) {
-  return (
-    <Pressable onPress={onPress} style={styles.headerChip} disabled={!onPress && !label}>
-      <Text style={{ fontSize: 14 }}>{icon}</Text>
-      {label ? <Text style={styles.headerChipLabel}>{label}</Text> : null}
-    </Pressable>
-  );
-}
-
-function LiturgyCell({ label, value }: { label: string; value: string }) {
-  return (
-    <View style={styles.liturgyCell}>
-      <Text style={styles.liturgyCellLabel}>{label}</Text>
-      <Text style={styles.liturgyCellValue}>{value}</Text>
-    </View>
-  );
-}
-
-function SectionHeader({
-  title,
-  action,
-  onAction,
-  color,
-}: {
-  title: string;
-  action?: string;
-  onAction?: () => void;
-  color: string;
-}) {
-  return (
-    <View style={styles.sectionHeader}>
-      <Text style={[styles.sectionTitle, { color, marginTop: 0, marginBottom: 0 }]}>{title}</Text>
-      {action && onAction ? (
-        <Pressable onPress={onAction}>
-          <Text style={{ color: brand.burgundy, fontWeight: '700', fontSize: 13 }}>{action}</Text>
-        </Pressable>
-      ) : null}
-    </View>
-  );
-}
-
-function StatCard({
-  icon,
-  label,
-  value,
-  trend,
-  palette,
-}: {
-  icon: string;
-  label: string;
-  value: string;
-  trend: string;
-  palette: { color: string; soft: string; gradient: readonly [string, string] };
-}) {
-  return (
-    <LinearGradient colors={[...palette.gradient]} style={styles.statCard}>
-      <View style={styles.statTop}>
-        <View style={[styles.statIconWrap, { backgroundColor: palette.soft }]}>
-          <Text style={{ fontSize: 16 }}>{icon}</Text>
-        </View>
-        <Text style={[styles.statLabel, { color: palette.color }]}>{label}</Text>
-      </View>
-      <Text style={[styles.statValue, { color: brand.burgundyDeep }]}>{value}</Text>
-      <Text style={styles.statTrend}>{trend}</Text>
-    </LinearGradient>
-  );
-}
-
-function greeting() {
-  const h = new Date().getHours();
-  if (h < 12) return { word: 'Morning', emoji: '☀️' };
-  if (h < 17) return { word: 'Afternoon', emoji: '🌤' };
-  return { word: 'Evening', emoji: '🌙' };
-}
-
 const styles = StyleSheet.create({
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 4,
-  },
-  greetLine: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: brand.gold,
-    letterSpacing: 0.2,
-  },
-  priestName: {
-    fontSize: 24,
-    fontWeight: '800',
-    letterSpacing: -0.4,
-    marginTop: 2,
-  },
-  parishLine: {
-    fontSize: 13,
-    lineHeight: 18,
-    marginTop: 4,
-  },
-  roleChip: {
-    marginTop: 6,
-    fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 0.4,
-    textTransform: 'uppercase',
-  },
-  headerActions: {
-    flexDirection: 'row',
-    gap: 6,
-    alignItems: 'center',
-  },
-  headerChip: {
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-    alignItems: 'center',
-    minWidth: 40,
-    borderWidth: 1,
-    borderColor: 'rgba(122,31,42,0.08)',
-    shadowColor: '#1c1416',
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 2,
-  },
-  headerChipLabel: {
-    fontSize: 9,
-    fontWeight: '800',
-    color: brand.navy,
-    marginTop: 2,
-  },
-  liturgyCard: {
-    borderRadius: 22,
-    padding: 16,
-    gap: 14,
-  },
-  liturgyTop: {
-    flexDirection: 'row',
-    gap: 12,
-    alignItems: 'flex-start',
-  },
-  liturgyEyebrow: {
-    color: brand.goldSoft,
-    fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-  },
-  liturgyTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '800',
-    marginTop: 4,
-    lineHeight: 24,
-  },
-  weatherBadge: {
-    backgroundColor: 'rgba(255,255,255,0.14)',
-    borderRadius: 14,
+  hero: { borderRadius: 24, padding: 16, overflow: 'hidden' },
+  heroTop: { flexDirection: 'row', alignItems: 'flex-start', gap: 6 },
+  logo: { width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.12)' },
+  eyebrow: { color: 'rgba(255,236,200,0.92)', fontWeight: '800', fontSize: 10, letterSpacing: 0.9 },
+  greet: { color: '#fff', fontSize: 20, fontWeight: '800', marginTop: 4, lineHeight: 26 },
+  rolePill: {
+    alignSelf: 'flex-start',
+    marginTop: 8,
     paddingHorizontal: 10,
-    paddingVertical: 8,
-    alignItems: 'center',
-  },
-  weatherTemp: { color: '#fff', fontWeight: '800', fontSize: 16 },
-  weatherHum: { color: 'rgba(255,255,255,0.7)', fontSize: 10, marginTop: 2 },
-  liturgyGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  liturgyCell: {
-    width: '48%',
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 14,
-    padding: 10,
-  },
-  liturgyCellLabel: {
-    color: 'rgba(255,255,255,0.65)',
-    fontSize: 10,
-    fontWeight: '700',
-  },
-  liturgyCellValue: {
-    color: '#fff',
-    fontSize: 13,
-    fontWeight: '700',
-    marginTop: 4,
-  },
-  searchWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 18,
-    borderWidth: 1,
-    paddingHorizontal: 12,
-    height: 48,
-    gap: 8,
-  },
-  searchIcon: { fontSize: 16 },
-  searchInput: { flex: 1, fontSize: 15, paddingVertical: 0 },
-  hintRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  hintChip: {
+    paddingVertical: 4,
     borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    backgroundColor: 'rgba(255,255,255,0.14)',
   },
-  sectionTitle: {
-    fontSize: 17,
-    fontWeight: '800',
-    letterSpacing: -0.2,
-    marginTop: 8,
-    marginBottom: 2,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 8,
-  },
-  statGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-  },
-  statCard: {
-    width: '48%',
-    flexGrow: 1,
-    minWidth: '46%',
-    borderRadius: 22,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.7)',
-    shadowColor: '#1c1416',
-    shadowOpacity: 0.07,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 2,
-  },
-  statTop: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  statIconWrap: {
-    width: 32,
-    height: 32,
-    borderRadius: 12,
+  rolePillText: { color: '#fff', fontSize: 11, fontWeight: '700' },
+  iconBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.14)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  statLabel: { fontSize: 12, fontWeight: '800' },
-  statValue: { fontSize: 26, fontWeight: '800', marginTop: 8, letterSpacing: -0.5 },
-  statTrend: { fontSize: 11, color: '#64748B', fontWeight: '600', marginTop: 2 },
-  panel: {
-    borderRadius: 22,
-    borderWidth: 1,
-    overflow: 'hidden',
-    shadowColor: '#1c1416',
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 1,
-  },
-  scheduleRow: {
-    flexDirection: 'row',
+  badge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: brand.gold,
     alignItems: 'center',
-    gap: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    justifyContent: 'center',
+    paddingHorizontal: 3,
   },
-  timePill: {
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+  badgeText: { color: '#1a1020', fontSize: 9, fontWeight: '900' },
+  card: {
+    borderRadius: 20,
+    borderWidth: 1,
+    padding: 14,
+    gap: 4,
   },
-  quickGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-  },
-  quickBtn: {
-    width: '22%',
+  sectionEyebrow: { fontSize: 10, fontWeight: '800', letterSpacing: 0.9 },
+  sectionTitle: { fontSize: 17, fontWeight: '800', marginTop: 2 },
+  blockTitle: { fontSize: 17, fontWeight: '800', marginTop: 2 },
+  rule: { height: StyleSheet.hairlineWidth, backgroundColor: 'rgba(122,23,37,0.25)', marginVertical: 8 },
+  massRow: { flexDirection: 'row', gap: 12, paddingVertical: 6, alignItems: 'flex-start' },
+  massTime: { width: 72, fontWeight: '800', fontSize: 13 },
+  massTitle: { fontWeight: '700', fontSize: 14 },
+  linkRow: { marginTop: 8, alignSelf: 'flex-end' },
+  linkText: { color: brand.burgundy, fontWeight: '800', fontSize: 13 },
+  alertRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8 },
+  alertDot: { width: 8, height: 8, borderRadius: 4 },
+  alertCount: { fontSize: 18, fontWeight: '800', width: 28 },
+  alertTitle: { fontWeight: '800', fontSize: 14 },
+  kpiGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  kpi: {
+    width: '47%',
     flexGrow: 1,
-    minWidth: '21%',
+    minWidth: '45%',
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 12,
+    gap: 4,
+  },
+  kpiValue: { fontSize: 22, fontWeight: '800', marginTop: 4 },
+  quickGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  quickItem: {
+    width: '30%',
+    flexGrow: 1,
+    minWidth: '28%',
+    borderRadius: 16,
+    borderWidth: 1,
+    paddingVertical: 12,
     alignItems: 'center',
     gap: 6,
   },
   quickIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 18,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
   quickLabel: { fontSize: 11, fontWeight: '700', textAlign: 'center' },
-  aiCard: {
-    borderRadius: 22,
-    padding: 18,
-    gap: 4,
-  },
-  aiEyebrow: {
-    color: brand.goldSoft,
-    fontWeight: '800',
-    fontSize: 13,
-    marginBottom: 4,
-  },
-  aiHello: { color: '#fff', fontSize: 20, fontWeight: '800' },
-  aiPriorities: {
-    color: 'rgba(255,255,255,0.75)',
-    fontWeight: '700',
-    marginTop: 10,
-    marginBottom: 4,
-  },
-  aiBullet: { color: 'rgba(255,255,255,0.92)', fontSize: 14, lineHeight: 22 },
-  aiCta: {
-    marginTop: 14,
-    backgroundColor: 'rgba(255,255,255,0.95)',
+  gospel: { fontSize: 16, fontStyle: 'italic', lineHeight: 24, marginTop: 6 },
+  upRow: { paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(0,0,0,0.06)' },
+  primaryBtn: {
+    marginTop: 8,
     borderRadius: 14,
     paddingVertical: 12,
     alignItems: 'center',
   },
-  aiCtaText: { color: brand.burgundy, fontWeight: '800', fontSize: 14 },
-  eventsRow: {
+  miniLabel: { fontSize: 11, fontWeight: '800', marginTop: 10, letterSpacing: 0.4 },
+  commRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start', paddingVertical: 8 },
+  reqRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: 'rgba(0,0,0,0.06)',
   },
-  eventCard: {
-    width: '47%',
-    flexGrow: 1,
+  reminderRow: { paddingVertical: 5, color: '#1f2937' },
+  addReminder: { flexDirection: 'row', gap: 8, marginTop: 10 },
+  reminderInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+  },
+  addBtn: {
+    width: 44,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileCard: {
     borderRadius: 18,
     borderWidth: 1,
     padding: 14,
-  },
-  activityRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-  },
-  chartRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 16,
-    gap: 8,
-    minHeight: 140,
-  },
-  chartCol: { flex: 1, alignItems: 'center' },
-  barTrack: {
-    height: 88,
-    width: '70%',
-    backgroundColor: 'rgba(200,163,77,0.15)',
-    borderRadius: 10,
-    justifyContent: 'flex-end',
-    overflow: 'hidden',
-  },
-  barFill: {
-    width: '100%',
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-  },
-  pendingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 4,
-  },
-  pendingDot: { width: 10, height: 10, borderRadius: 5 },
-  healthLabelRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    gap: 12,
     alignItems: 'center',
   },
-  healthHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-    marginTop: 6,
-    gap: 10,
-  },
-  healthScorePill: {
-    borderRadius: 14,
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    alignItems: 'flex-end',
-  },
-  healthScoreValue: { fontSize: 16, fontWeight: '800', lineHeight: 18 },
-  healthScoreLabel: { fontSize: 10, fontWeight: '700', marginTop: 1, textTransform: 'uppercase' },
-  healthFocus: {
-    marginTop: 2,
-    borderRadius: 14,
-    padding: 12,
-  },
-  healthTrack: {
-    height: 10,
+  profileLinks: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  profileLink: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     borderRadius: 999,
-    overflow: 'hidden',
-  },
-  healthFill: {
-    height: '100%',
-    borderRadius: 999,
-  },
-  personRow: {
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontWeight: '600',
-    fontSize: 14,
+    backgroundColor: brand.burgundySoft,
   },
 });

@@ -1630,21 +1630,21 @@ async function main() {
     data: { scopeId: shpScope.id },
   });
 
-  const shpPriestEmail = 'priest@sacredheart-tura.org';
-  const shpPriestPassword = 'Priest@12345';
+  const shpPriestEmail = 'lyngdoh@sacredheartshrinetura.in';
+  const shpPriestPassword = 'PPShcTura@26';
   const shpPriestUser = await prisma.user.upsert({
     where: { email: shpPriestEmail },
     create: {
       email: shpPriestEmail,
       passwordHash: await bcrypt.hash(shpPriestPassword, 10),
-      firstName: 'Fr. John',
-      lastName: 'Marak',
+      firstName: 'Fr. Lyngdoh',
+      lastName: '',
       organizationId: org.id,
     },
     update: {
       organizationId: org.id,
-      firstName: 'Fr. John',
-      lastName: 'Marak',
+      firstName: 'Fr. Lyngdoh',
+      lastName: '',
       passwordHash: await bcrypt.hash(shpPriestPassword, 10),
     },
   });
@@ -1673,8 +1673,8 @@ async function main() {
       organizationId: org.id,
       code: 'PR-SHP-001',
       title: 'Rev. Fr.',
-      firstName: 'John',
-      lastName: 'Marak',
+      firstName: 'Lyngdoh',
+      lastName: '',
       phone: '+91 98630 12345',
       email: shpPriestEmail,
       status: 'ACTIVE',
@@ -1682,8 +1682,8 @@ async function main() {
     },
     update: {
       email: shpPriestEmail,
-      firstName: 'John',
-      lastName: 'Marak',
+      firstName: 'Lyngdoh',
+      lastName: '',
       status: 'ACTIVE',
       userId: shpPriestUser.id,
     },

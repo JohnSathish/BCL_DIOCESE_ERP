@@ -73,10 +73,10 @@ export function personaFromRoles(roles: string[] = [], authenticated: boolean): 
 export function tabsForPersona(persona: NavPersona): NavTabDef[] {
   if (persona === 'priest') {
     return [
-      { slot: 'index', title: 'Dashboard', Icon: LayoutDashboard, headerShown: false },
-      { slot: 'directory', title: 'Records', Icon: BookOpen },
+      { slot: 'index', title: 'Home', Icon: Home, headerShown: false },
       { slot: 'calendar', title: 'Calendar', Icon: Calendar },
-      { slot: 'notifications', title: 'Reports', Icon: BarChart3, href: '/(app)/reports' },
+      { slot: 'directory', title: 'Pastoral', Icon: Cross, href: '/(app)/pastoral' },
+      { slot: 'notifications', title: 'Alerts', Icon: Bell, badge: true },
       { slot: 'profile', title: 'More', Icon: User, href: '/(main)/more' },
     ];
   }

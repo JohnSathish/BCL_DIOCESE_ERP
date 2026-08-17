@@ -29,6 +29,7 @@ export default function AppLayout() {
       }}
     >
       <Stack.Screen name="dashboard" options={{ title: 'Dashboard', headerShown: false }} />
+      <Stack.Screen name="pastoral" options={{ title: 'Pastoral' }} />
       <Stack.Screen name="schedule" options={{ title: "Today's Schedule" }} />
       <Stack.Screen name="families" options={{ title: 'Families' }} />
       <Stack.Screen name="members" options={{ title: 'Members' }} />
@@ -49,6 +50,7 @@ export default function AppLayout() {
       <Stack.Screen name="priests" options={{ title: 'Priests' }} />
       <Stack.Screen name="licenses" options={{ title: 'Licenses' }} />
       <Stack.Screen name="settings" options={{ title: 'Settings' }} />
+      <Stack.Screen name="security" options={{ title: 'Security & Devices' }} />
       <Stack.Screen name="catechism" options={{ title: 'Catechism' }} />
       <Stack.Screen name="search" options={{ title: 'Search' }} />
     </Stack>
