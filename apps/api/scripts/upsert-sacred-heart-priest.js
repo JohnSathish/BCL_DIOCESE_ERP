@@ -3,6 +3,11 @@ const bcrypt = require('bcrypt');
 
 const EMAIL = 'lyngdoh@sacredheartshrinetura.in';
 const PASSWORD = 'PPShcTura@26';
+const TITLE = 'Rev. Fr.';
+const FIRST = 'Lyngdoh T';
+const LAST = 'Sangma';
+const DISPLAY = 'Rev. Fr. Lyngdoh T Sangma';
+const ROLE = 'Parish Priest';
 
 async function main() {
   const prisma = new PrismaClient();
@@ -17,7 +22,7 @@ async function main() {
       },
     });
     if (!parish) throw new Error('Sacred Heart parish not found');
-    if (!parish.scopeId) throw new Error('Parish has no scopeId — run seed/provision first');
+    if (!parish.scopeId) throw new Error('Parish has no scopeId');
 
     const role = await prisma.role.findUnique({ where: { code: 'PARISH_PRIEST' } });
     if (!role) throw new Error('PARISH_PRIEST role missing');
@@ -28,16 +33,16 @@ async function main() {
       create: {
         email: EMAIL,
         passwordHash,
-        firstName: 'Fr. Lyngdoh',
-        lastName: '',
+        firstName: FIRST,
+        lastName: LAST,
         organizationId: parish.organizationId,
         isActive: true,
         mustChangePassword: false,
       },
       update: {
         passwordHash,
-        firstName: 'Fr. Lyngdoh',
-        lastName: '',
+        firstName: FIRST,
+        lastName: LAST,
         organizationId: parish.organizationId,
         isActive: true,
         mustChangePassword: false,
@@ -46,23 +51,14 @@ async function main() {
     });
 
     const existingRole = await prisma.userRole.findFirst({
-      where: {
-        userId: user.id,
-        roleId: role.id,
-        scopeId: parish.scopeId,
-      },
+      where: { userId: user.id, roleId: role.id, scopeId: parish.scopeId },
     });
     if (!existingRole) {
       await prisma.userRole.create({
-        data: {
-          userId: user.id,
-          roleId: role.id,
-          scopeId: parish.scopeId,
-        },
+        data: { userId: user.id, roleId: role.id, scopeId: parish.scopeId },
       });
     }
 
-    // Keep demo priest record linked if present; otherwise upsert Lyngdoh priest card
     let priest = await prisma.priest.findFirst({
       where: {
         organizationId: parish.organizationId,
@@ -76,9 +72,9 @@ async function main() {
         where: { id: priest.id },
         data: {
           email: EMAIL,
-          firstName: 'Lyngdoh',
-          lastName: '',
-          title: 'Rev. Fr.',
+          title: TITLE,
+          firstName: FIRST,
+          lastName: LAST,
           status: 'ACTIVE',
           userId: user.id,
         },
@@ -87,16 +83,26 @@ async function main() {
       priest = await prisma.priest.create({
         data: {
           organizationId: parish.organizationId,
-          code: 'PR-SHP-LYNGDOH',
-          title: 'Rev. Fr.',
-          firstName: 'Lyngdoh',
-          lastName: '',
+          code: 'PR-SHP-001',
+          title: TITLE,
+          firstName: FIRST,
+          lastName: LAST,
           email: EMAIL,
           status: 'ACTIVE',
           userId: user.id,
         },
       });
     }
+
+    // Demote any other current Sacred Heart parish-priest assignments
+    await prisma.priestAssignment.updateMany({
+      where: {
+        parishId: parish.id,
+        isCurrent: true,
+        NOT: { priestId: priest.id },
+      },
+      data: { isCurrent: false, isPrimary: false },
+    });
 
     const assignment = await prisma.priestAssignment.findFirst({
       where: { priestId: priest.id, parishId: parish.id, isCurrent: true },
@@ -106,8 +112,19 @@ async function main() {
         data: {
           priestId: priest.id,
           parishId: parish.id,
-          role: 'Parish Priest',
-          designation: 'Parish Priest',
+          role: ROLE,
+          designation: ROLE,
+          isCurrent: true,
+          isPrimary: true,
+          status: 'ACTIVE',
+        },
+      });
+    } else {
+      await prisma.priestAssignment.update({
+        where: { id: assignment.id },
+        data: {
+          role: ROLE,
+          designation: ROLE,
           isCurrent: true,
           isPrimary: true,
           status: 'ACTIVE',
@@ -115,22 +132,35 @@ async function main() {
       });
     }
 
-    // Soft-disable old demo login collision for mobile testing clarity (optional keep active)
-    const demo = await prisma.user.findUnique({ where: { email: 'priest@sacredheart-tura.org' } });
-    if (demo && demo.id !== user.id) {
-      // leave demo account; just report it
-      console.log('Note: demo priest@sacredheart-tura.org still exists');
-    }
+    const priestsJson = {
+      ...(typeof parish.priestsJson === 'object' && parish.priestsJson && !Array.isArray(parish.priestsJson)
+        ? parish.priestsJson
+        : {}),
+      parishPriest: DISPLAY,
+      parishPriestPhoto: '/sacred-heart/parish-priest-lyngdoh.png',
+      assistants: [],
+    };
+
+    await prisma.parish.update({
+      where: { id: parish.id },
+      data: { priestsJson },
+    });
+
+    await prisma.accommodationOccupant.updateMany({
+      where: { priestId: priest.id },
+      data: { name: DISPLAY, designation: ROLE, contactEmail: EMAIL },
+    });
 
     console.log(
       JSON.stringify(
         {
           ok: true,
+          displayName: DISPLAY,
+          role: ROLE,
           email: EMAIL,
           userId: user.id,
-          parish: { id: parish.id, name: parish.name, code: parish.code },
-          role: 'PARISH_PRIEST',
           priestId: priest.id,
+          parish: { id: parish.id, name: parish.name, code: parish.code },
         },
         null,
         2,

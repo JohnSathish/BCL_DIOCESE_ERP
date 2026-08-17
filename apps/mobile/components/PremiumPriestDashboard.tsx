@@ -113,11 +113,13 @@ export function PremiumPriestDashboard() {
 
   const parishName = parish?.parishName || config.parishName || 'Sacred Heart Shrine Parish';
   const firstName = session?.user.firstName || 'Father';
-  const displayName = session?.user.lastName
-    ? `Father ${session.user.firstName}`
-    : firstName.toLowerCase().startsWith('fr')
-      ? firstName
-      : `Father ${firstName}`;
+  const lastName = session?.user.lastName || '';
+  const displayName = (() => {
+    const full = `${firstName} ${lastName}`.trim();
+    if (!full || full.toLowerCase() === 'father') return 'Father Lyngdoh T Sangma';
+    if (/^fr\.?\s/i.test(full) || /^rev\.?\s/i.test(full)) return full;
+    return `Father ${full}`;
+  })();
 
   const dash = useQuery({
     queryKey: ['parish-home-dash'],

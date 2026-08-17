@@ -38,6 +38,7 @@ import {
 import { readingExcerpt } from '../lib/reading-format';
 import { registerForPushNotifications } from '../lib/notifications';
 import { setMassReminder } from '../lib/mass-reminder';
+import { getParishAppConfig } from '../lib/parish-app-config';
 
 const QUICK = [
   { icon: Church, label: 'Mass Times', href: '/(public)/mass-timings', color: '#0F3D91' },
@@ -87,6 +88,9 @@ const GALLERY = [
 
 export function PremiumParishionerHome() {
   const { colors } = useAppTheme();
+  const parishConfig = getParishAppConfig();
+  const parishPriestName = parishConfig.priest?.name || 'Rev. Fr. Lyngdoh T Sangma';
+  const parishPriestTitle = parishConfig.priest?.title || 'Parish Priest';
   const parish = useParishStore((s) => s.context);
   const session = useAuthStore((s) => s.session);
   const firstName = session?.user.firstName || '';
@@ -632,7 +636,9 @@ export function PremiumParishionerHome() {
           </LinearGradient>
           <View style={{ flex: 1 }}>
             <Text style={[styles.cardTitle, { color: colors.text }]}>Message from Father</Text>
-            <Text style={{ color: colors.muted, fontSize: 12 }}>Rev. Fr. John Marak</Text>
+            <Text style={{ color: colors.muted, fontSize: 12 }}>
+              {parishPriestName} · {parishPriestTitle}
+            </Text>
           </View>
         </View>
         <Text style={{ color: colors.muted, marginTop: 10, lineHeight: 21 }}>

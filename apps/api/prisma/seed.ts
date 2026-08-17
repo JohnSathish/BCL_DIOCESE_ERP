@@ -1637,14 +1637,14 @@ async function main() {
     create: {
       email: shpPriestEmail,
       passwordHash: await bcrypt.hash(shpPriestPassword, 10),
-      firstName: 'Fr. Lyngdoh',
-      lastName: '',
+      firstName: 'Lyngdoh T',
+      lastName: 'Sangma',
       organizationId: org.id,
     },
     update: {
       organizationId: org.id,
-      firstName: 'Fr. Lyngdoh',
-      lastName: '',
+      firstName: 'Lyngdoh T',
+      lastName: 'Sangma',
       passwordHash: await bcrypt.hash(shpPriestPassword, 10),
     },
   });
@@ -1673,8 +1673,8 @@ async function main() {
       organizationId: org.id,
       code: 'PR-SHP-001',
       title: 'Rev. Fr.',
-      firstName: 'Lyngdoh',
-      lastName: '',
+      firstName: 'Lyngdoh T',
+      lastName: 'Sangma',
       phone: '+91 98630 12345',
       email: shpPriestEmail,
       status: 'ACTIVE',
@@ -1682,11 +1682,21 @@ async function main() {
     },
     update: {
       email: shpPriestEmail,
-      firstName: 'Lyngdoh',
-      lastName: '',
+      title: 'Rev. Fr.',
+      firstName: 'Lyngdoh T',
+      lastName: 'Sangma',
       status: 'ACTIVE',
       userId: shpPriestUser.id,
     },
+  });
+  // Ensure he is the sole current Parish Priest at Sacred Heart
+  await prisma.priestAssignment.updateMany({
+    where: {
+      parishId: sacredHeart.id,
+      isCurrent: true,
+      NOT: { priestId: shpPriestRecord.id },
+    },
+    data: { isCurrent: false, isPrimary: false },
   });
   const shpAssignment = await prisma.priestAssignment.findFirst({
     where: { priestId: shpPriestRecord.id, parishId: sacredHeart.id, isCurrent: true },
@@ -1697,7 +1707,21 @@ async function main() {
         priestId: shpPriestRecord.id,
         parishId: sacredHeart.id,
         role: 'Parish Priest',
+        designation: 'Parish Priest',
         isCurrent: true,
+        isPrimary: true,
+        status: 'ACTIVE',
+      },
+    });
+  } else {
+    await prisma.priestAssignment.update({
+      where: { id: shpAssignment.id },
+      data: {
+        role: 'Parish Priest',
+        designation: 'Parish Priest',
+        isCurrent: true,
+        isPrimary: true,
+        status: 'ACTIVE',
       },
     });
   }
@@ -1910,7 +1934,7 @@ async function main() {
         organizationId: org.id,
         userId: shpPriestUser.id,
         kind: OccupantKind.PRIEST,
-        name: 'Fr. John Marak',
+        name: 'Rev. Fr. Lyngdoh T Sangma',
         priestId: shpPriestRecord.id,
         designation: 'Parish Priest',
         contactPhone: '+91 98630 12345',
