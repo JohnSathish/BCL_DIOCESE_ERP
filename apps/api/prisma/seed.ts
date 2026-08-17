@@ -1354,7 +1354,7 @@ async function main() {
       feastDay: 'Friday after Corpus Christi',
       address: 'Lower Chandmari, Tura, West Garo Hills, Meghalaya, India',
       village: 'Lower Chandmari',
-      email: 'sacredheartparishtura@gmail.com',
+      email: 'ppshctura@sacredheartshrinetura.in',
       phone: '+91 98630 12345',
       history:
         'Sacred Heart Shrine Parish, Tura serves the faithful of the Roman Catholic Diocese of Tura with the Eucharist at the centre of parish life.',
@@ -1372,7 +1372,7 @@ async function main() {
     update: {
       name: 'Sacred Heart Shrine Parish',
       village: 'Lower Chandmari',
-      email: 'sacredheartparishtura@gmail.com',
+      email: 'ppshctura@sacredheartshrinetura.in',
       phone: '+91 98630 12345',
       patronSaint: 'Sacred Heart of Jesus',
       address: 'Lower Chandmari, Tura, West Garo Hills, Meghalaya, India',
@@ -1789,7 +1789,7 @@ async function main() {
       },
       contactsJson: {
         phone: '+91 98630 12345',
-        email: 'sacredheartparishtura@gmail.com',
+        email: 'ppshctura@sacredheartshrinetura.in',
         address: 'Lower Chandmari, Tura, West Garo Hills, Meghalaya, India',
         mapsQuery: 'Sacred Heart Shrine Parish Lower Chandmari Tura',
       },
@@ -1816,7 +1816,7 @@ async function main() {
       },
       contactsJson: {
         phone: '+91 98630 12345',
-        email: 'sacredheartparishtura@gmail.com',
+        email: 'ppshctura@sacredheartshrinetura.in',
         address: 'Lower Chandmari, Tura, West Garo Hills, Meghalaya, India',
         mapsQuery: 'Sacred Heart Shrine Parish Lower Chandmari Tura',
       },

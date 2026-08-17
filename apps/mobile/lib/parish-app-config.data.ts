@@ -63,7 +63,7 @@ export const PARISH_APP_REGISTRY: Record<string, ParishAppConfigData> = {
     },
     contact: {
       phone: '+91 98630 12345',
-      email: 'office@sacredheartshrinetura.in',
+      email: 'ppshctura@sacredheartshrinetura.in',
       address: 'Sacred Heart Church Road, Tura, West Garo Hills, Meghalaya 794001',
       whatsapp: '+919863012345',
     },

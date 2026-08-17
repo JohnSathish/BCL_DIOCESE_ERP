@@ -98,7 +98,7 @@ export const SHP = {
   name: 'Sacred Heart Shrine Parish',
   place: 'Tura, Meghalaya',
   diocese: 'Roman Catholic Diocese of Tura',
-  email: 'office@sacredheartshrinetura.in',
+  email: 'ppshctura@sacredheartshrinetura.in',
   phone: '+91 98630 12345',
   address: 'Sacred Heart Church Road, Tura, West Garo Hills, Meghalaya 794001',
   whatsapp: '+919863012345',

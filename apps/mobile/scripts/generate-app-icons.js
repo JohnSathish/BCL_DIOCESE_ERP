@@ -1,6 +1,9 @@
 /**
  * Generate Android launcher mipmaps + Expo adaptive icon sources
- * from assets/parishes/sacred-heart/logo.png
+ * from assets/parishes/sacred-heart/app-icon-source.png
+ *
+ * Strategy: trim near-black letterbox, then fill a square canvas (cover)
+ * so the emblem fully occupies the launcher tile without empty bars.
  */
 const path = require('path');
 const fs = require('fs');
@@ -10,6 +13,7 @@ const root = path.join(__dirname, '..');
 const srcOriginal = path.join(root, 'assets', 'parishes', 'sacred-heart', 'app-icon-source.png');
 const src = path.join(root, 'assets', 'parishes', 'sacred-heart', 'logo.png');
 const res = path.join(root, 'android', 'app', 'src', 'main', 'res');
+const BG = { r: 10, g: 18, b: 40, alpha: 1 }; // deep navy behind emblem
 
 const LAUNCHER = {
   'mipmap-mdpi': 48,
@@ -44,29 +48,46 @@ async function writePng(file, buf) {
   console.log('wrote', path.relative(root, file));
 }
 
+/** Build a full-bleed square icon from source artwork. */
+async function buildMaster(inputPath) {
+  // Trim dark letterboxing / black margins, then fill 1024 square.
+  let pipeline = sharp(inputPath).rotate();
+  try {
+    pipeline = pipeline.trim({
+      background: '#000000',
+      threshold: 18,
+    });
+  } catch {
+    /* trim optional */
+  }
+
+  const trimmed = await pipeline.png().toBuffer();
+  // Cover the square so the emblem fills the launcher (no empty bars).
+  return sharp(trimmed)
+    .resize(1024, 1024, { fit: 'cover', position: 'centre' })
+    .png()
+    .toBuffer();
+}
+
 async function main() {
   const input = fs.existsSync(srcOriginal) ? srcOriginal : src;
   if (!fs.existsSync(input)) throw new Error(`Missing source icon: ${input}`);
 
-  // Master square 1024 for Expo / stores
-  const master1024 = await sharp(input)
-    .resize(1024, 1024, { fit: 'cover', position: 'centre' })
-    .png()
-    .toBuffer();
+  const master1024 = await buildMaster(input);
   const logoTmp = `${src}.tmp.png`;
   await sharp(master1024).toFile(logoTmp);
   fs.renameSync(logoTmp, src);
   console.log('wrote', path.relative(root, src));
 
-  // Adaptive foreground: pad ~18% so text/border survive Android crop
-  const fgPad = Math.round(1024 * 0.18);
+  // Adaptive foreground: light padding so Android mask keeps key art
+  const fgPad = Math.round(1024 * 0.08);
   const fgCanvas = 1024 + fgPad * 2;
   const foregroundMaster = await sharp({
     create: {
       width: fgCanvas,
       height: fgCanvas,
       channels: 4,
-      background: { r: 122, g: 23, b: 37, alpha: 1 }, // burgundy
+      background: BG,
     },
   })
     .composite([{ input: master1024, left: fgPad, top: fgPad }])
