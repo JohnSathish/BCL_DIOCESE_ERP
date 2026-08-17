@@ -22,6 +22,11 @@ import {
   OtpVerifyDto,
   OtpSendDto,
   ChangePasswordDto,
+  PasswordlessStartDto,
+  PasswordResetRequestDto,
+  PasswordResetVerifyDto,
+  PasswordResetConfirmDto,
+  CreateTrustedDeviceDto,
 } from './dto/login.dto';
 import { Public } from '../../common/guards';
 import { JwtAuthGuard } from '../../common/guards';
@@ -37,11 +42,25 @@ import {
 export class IdentityController {
   constructor(private readonly identity: IdentityService) {}
 
-  private meta(req: Request) {
+  private meta(
+    req: Request,
+    extras?: {
+      trustedDeviceToken?: string;
+      deviceName?: string;
+      platform?: string;
+      client?: 'mobile' | 'web';
+    },
+  ) {
+    const headerToken = req.headers['x-trusted-device'];
+    const fromHeader = Array.isArray(headerToken) ? headerToken[0] : headerToken;
     return {
       ip: clientIp(req),
       userAgent: req.headers['user-agent'],
-      trustedDeviceToken: readCookie(req, TRUSTED_DEVICE_COOKIE),
+      trustedDeviceToken:
+        extras?.trustedDeviceToken || fromHeader || readCookie(req, TRUSTED_DEVICE_COOKIE),
+      deviceName: extras?.deviceName,
+      platform: extras?.platform,
+      client: extras?.client,
     };
   }
 
@@ -52,7 +71,16 @@ export class IdentityController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    return this.identity.login(dto, this.meta(req), res);
+    return this.identity.login(
+      dto,
+      this.meta(req, {
+        trustedDeviceToken: dto.trustedDeviceToken,
+        deviceName: dto.deviceName,
+        platform: dto.platform,
+        client: dto.client,
+      }),
+      res,
+    );
   }
 
   @Public()
@@ -68,7 +96,50 @@ export class IdentityController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    return this.identity.verifyOtp(dto, this.meta(req), res);
+    return this.identity.verifyOtp(
+      dto,
+      this.meta(req, {
+        deviceName: dto.deviceName,
+        platform: dto.platform,
+        client: dto.client,
+      }),
+      res,
+    );
+  }
+
+  @Public()
+  @Post('otp-login/start')
+  startPasswordless(@Body() dto: PasswordlessStartDto, @Req() req: Request) {
+    return this.identity.startPasswordlessLogin(
+      dto.email,
+      this.meta(req, {
+        deviceName: dto.deviceName,
+        platform: dto.platform,
+        client: dto.client,
+      }),
+    );
+  }
+
+  @Public()
+  @Post('password-reset/request')
+  requestPasswordReset(@Body() dto: PasswordResetRequestDto, @Req() req: Request) {
+    return this.identity.requestPasswordReset(dto.email, this.meta(req));
+  }
+
+  @Public()
+  @Post('password-reset/verify')
+  verifyPasswordReset(@Body() dto: PasswordResetVerifyDto, @Req() req: Request) {
+    return this.identity.verifyPasswordResetOtp(dto, this.meta(req));
+  }
+
+  @Public()
+  @Post('password-reset/confirm')
+  confirmPasswordReset(
+    @Body() dto: PasswordResetConfirmDto,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.identity.confirmPasswordReset(dto, this.meta(req), res);
   }
 
   @ApiBearerAuth()
@@ -76,10 +147,19 @@ export class IdentityController {
   @Post('trusted-device/create')
   createTrustedDevice(
     @CurrentUser() user: AuthPayload,
+    @Body() dto: CreateTrustedDeviceDto = {},
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    return this.identity.createTrustedDevice(user.id, this.meta(req), res);
+    return this.identity.createTrustedDevice(
+      user.id,
+      this.meta(req, {
+        deviceName: dto.deviceName,
+        platform: dto.platform,
+        client: dto.client,
+      }),
+      res,
+    );
   }
 
   @ApiBearerAuth()

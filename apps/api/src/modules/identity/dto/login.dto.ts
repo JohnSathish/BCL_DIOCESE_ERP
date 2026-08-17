@@ -1,4 +1,13 @@
-import { IsBoolean, IsEmail, IsObject, IsOptional, IsString, Length, MinLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsIn,
+  IsObject,
+  IsOptional,
+  IsString,
+  Length,
+  MinLength,
+} from 'class-validator';
 
 export class LoginDto {
   @IsEmail()
@@ -12,6 +21,23 @@ export class LoginDto {
   @IsOptional()
   @IsString()
   totpCode?: string;
+
+  /** Mobile / native clients: trusted-device secret (cookie is web-only) */
+  @IsOptional()
+  @IsString()
+  trustedDeviceToken?: string;
+
+  @IsOptional()
+  @IsString()
+  deviceName?: string;
+
+  @IsOptional()
+  @IsString()
+  platform?: string;
+
+  @IsOptional()
+  @IsIn(['mobile', 'web'])
+  client?: 'mobile' | 'web';
 }
 
 export class RefreshDto {
@@ -45,11 +71,63 @@ export class OtpVerifyDto {
   @IsOptional()
   @IsBoolean()
   trustDevice?: boolean;
+
+  @IsOptional()
+  @IsString()
+  deviceName?: string;
+
+  @IsOptional()
+  @IsString()
+  platform?: string;
+
+  @IsOptional()
+  @IsIn(['mobile', 'web'])
+  client?: 'mobile' | 'web';
 }
 
 export class OtpSendDto {
   @IsString()
   challengeToken!: string;
+}
+
+export class PasswordlessStartDto {
+  @IsEmail()
+  email!: string;
+
+  @IsOptional()
+  @IsString()
+  deviceName?: string;
+
+  @IsOptional()
+  @IsString()
+  platform?: string;
+
+  @IsOptional()
+  @IsIn(['mobile', 'web'])
+  client?: 'mobile' | 'web';
+}
+
+export class PasswordResetRequestDto {
+  @IsEmail()
+  email!: string;
+}
+
+export class PasswordResetVerifyDto {
+  @IsString()
+  challengeToken!: string;
+
+  @IsString()
+  @Length(6, 6)
+  otp!: string;
+}
+
+export class PasswordResetConfirmDto {
+  @IsString()
+  resetToken!: string;
+
+  @IsString()
+  @MinLength(8)
+  newPassword!: string;
 }
 
 export class ChangePasswordDto {
@@ -60,4 +138,18 @@ export class ChangePasswordDto {
   @IsString()
   @MinLength(8)
   newPassword!: string;
+}
+
+export class CreateTrustedDeviceDto {
+  @IsOptional()
+  @IsString()
+  deviceName?: string;
+
+  @IsOptional()
+  @IsString()
+  platform?: string;
+
+  @IsOptional()
+  @IsIn(['mobile', 'web'])
+  client?: 'mobile' | 'web';
 }

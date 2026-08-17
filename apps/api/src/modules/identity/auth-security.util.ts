@@ -54,27 +54,38 @@ export function otpResendCooldownMs(): number {
   return safe * 1000;
 }
 
-export function parseDeviceInfo(userAgent?: string | null): DeviceInfo {
+export function parseDeviceInfo(
+  userAgent?: string | null,
+  overrides?: { deviceName?: string; platform?: string },
+): DeviceInfo {
   const ua = userAgent || '';
   let browser = 'Browser';
   if (/Edg\//i.test(ua)) browser = 'Edge';
   else if (/OPR\//i.test(ua) || /Opera/i.test(ua)) browser = 'Opera';
+  else if (/Expo|okhttp|CFNetwork|ReactNative/i.test(ua)) browser = 'Mobile App';
   else if (/Chrome\//i.test(ua) && !/Edg\//i.test(ua)) browser = 'Chrome';
   else if (/Safari\//i.test(ua) && !/Chrome\//i.test(ua)) browser = 'Safari';
   else if (/Firefox\//i.test(ua)) browser = 'Firefox';
   else if (/SamsungBrowser/i.test(ua)) browser = 'Samsung Internet';
 
   let operatingSystem = 'Unknown';
-  if (/Windows NT/i.test(ua)) operatingSystem = 'Windows';
+  const platform = (overrides?.platform || '').toLowerCase();
+  if (platform === 'android') operatingSystem = 'Android';
+  else if (platform === 'ios') operatingSystem = 'iOS';
+  else if (/Windows NT/i.test(ua)) operatingSystem = 'Windows';
   else if (/Mac OS X|Macintosh/i.test(ua)) operatingSystem = 'macOS';
   else if (/Android/i.test(ua)) operatingSystem = 'Android';
   else if (/iPhone|iPad|iPod/i.test(ua)) operatingSystem = 'iOS';
   else if (/Linux/i.test(ua)) operatingSystem = 'Linux';
 
+  const deviceName =
+    overrides?.deviceName?.trim() ||
+    `${operatingSystem} · ${browser === 'Mobile App' ? 'Parish App' : browser}`;
+
   return {
-    browser,
+    browser: browser === 'Mobile App' ? 'Parish App' : browser,
     operatingSystem,
-    deviceName: `${operatingSystem} · ${browser}`,
+    deviceName,
   };
 }
 

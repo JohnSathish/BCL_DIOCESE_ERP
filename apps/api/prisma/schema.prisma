@@ -205,9 +205,10 @@ model User {
   accommodationOccupants AccommodationOccupant[]
   uiTranslationNamespaces UiTranslationNamespace[]
   translationJobsReviewed TranslationJob[] @relation("TranslationJobReviewer")
-  loginOtpChallenges LoginOtpChallenge[]
-  trustedDevices     TrustedDevice[]
-  authEvents         AuthEvent[]
+  loginOtpChallenges     LoginOtpChallenge[]
+  passwordResetChallenges PasswordResetChallenge[]
+  trustedDevices         TrustedDevice[]
+  authEvents             AuthEvent[]
 }
 
 model LoginOtpChallenge {
@@ -231,6 +232,28 @@ model LoginOtpChallenge {
   @@index([expiresAt])
 }
 
+model PasswordResetChallenge {
+  id            String    @id @default(cuid())
+  userId        String
+  challengeHash String    @unique
+  otpHash       String
+  resetTokenHash String?
+  attempts      Int       @default(0)
+  maxAttempts   Int       @default(5)
+  expiresAt     DateTime
+  verifiedAt    DateTime?
+  consumedAt    DateTime?
+  lastSentAt    DateTime  @default(now())
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([expiresAt])
+}
+
 model TrustedDevice {
   id              String    @id @default(cuid())
   userId          String
@@ -238,6 +261,7 @@ model TrustedDevice {
   deviceName      String?
   browser         String?
   operatingSystem String?
+  platform        String?
   ipAddress       String?
   userAgent       String?
   createdAt       DateTime  @default(now())

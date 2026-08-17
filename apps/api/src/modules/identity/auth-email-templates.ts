@@ -276,3 +276,38 @@ export function buildNewDeviceLoginEmail(input: {
 
   return { subject, text, html };
 }
+
+export function buildPasswordResetOtpEmail(input: {
+  code: string;
+  expiresMinutes: number;
+}): { subject: string; text: string; html: string } {
+  const code = input.code.replace(/\D/g, '').slice(0, 6);
+  const minutes = input.expiresMinutes || 5;
+  const subject = 'Reset your BCL Diocese ERP password';
+  const text = [
+    'Password reset verification',
+    '',
+    `Code: ${code}`,
+    `This code will expire in ${minutes} minutes.`,
+    '',
+    'If you did not request a password reset, ignore this email.',
+  ].join('\n');
+
+  const html = wrapEmail(`
+  <tr>
+    <td style="padding:36px 32px 28px;background:#ffffff;font-family:Arial,Helvetica,sans-serif;">
+      <h1 style="margin:0 0 12px;text-align:center;font-size:24px;color:${TEXT};">Password reset</h1>
+      <p style="margin:0 0 20px;text-align:center;font-size:14px;line-height:1.55;color:${MUTED};">
+        Use this code to reset your password. It expires in <strong>${minutes} minutes</strong>.
+      </p>
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="background:${GREEN_BG};border-radius:14px;padding:18px 20px;">
+        <tr>${otpDigitCells(code)}</tr>
+      </table>
+      <p style="margin:20px 0 0;text-align:center;font-size:13px;color:${MUTED};">
+        If you did not request this, you can safely ignore this email.
+      </p>
+    </td>
+  </tr>`);
+
+  return { subject, text, html };
+}
